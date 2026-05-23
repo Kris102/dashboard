@@ -963,7 +963,14 @@
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const ANTHROPIC_API_KEY = '';
+const ANTHROPIC_API_KEY = (() => {
+  let k = localStorage.getItem('_apik');
+  if (!k) {
+    k = prompt('Enter Anthropic API key:');
+    if (k) localStorage.setItem('_apik', k);
+  }
+  return k || '';
+})();
 const WAKE_HOUR  = 8;
 const SLEEP_HOUR = 24;
 
