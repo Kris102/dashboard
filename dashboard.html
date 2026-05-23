@@ -966,28 +966,52 @@
 // ═══════════════════════════════════════════
 //  FIREBASE INIT
 // ═══════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyBPClA-Tgi2O-Uj7NEIa6uRXm8KZ8-rEFY",
-  authDomain: "dashboard-54ef1.firebaseapp.com",
-  databaseURL: "https://dashboard-54ef1-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dashboard-54ef1",
-  storageBucket: "dashboard-54ef1.firebasestorage.app",
-  messagingSenderId: "476684291130",
-  appId: "1:476684291130:web:c58902ef77358c11197903",
-  measurementId: "G-QNKYEJXQ5R"
-};
-
 let db = null;
 let firebaseReady = false;
+let firebaseReadyPromise = new Promise(resolve => {
+  window.initFirebase = () => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyBPClA-Tgi2O-Uj7NEIa6uRXm8KZ8-rEFY",
+      authDomain: "dashboard-54ef1.firebaseapp.com",
+      databaseURL: "https://dashboard-54ef1-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "dashboard-54ef1",
+      storageBucket: "dashboard-54ef1.firebasestorage.app",
+      messagingSenderId: "476684291130",
+      appId: "1:476684291130:web:c58902ef77358c11197903",
+      measurementId: "G-QNKYEJXQ5R"
+    };
+    
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      db = firebase.database();
+      firebaseReady = true;
+      console.log('✓ Firebase initialized successfully');
+    } catch(e) {
+      console.log('Firebase setup skipped:', e.message);
+      firebaseReady = false;
+    }
+    resolve();
+  };
+  
+  // Wait for Firebase SDK to load
+  const maxWait = 50;
+  let waited = 0;
+  const waitForFirebase = () => {
+    if (typeof firebase !== 'undefined') {
+      window.initFirebase();
+    } else if (waited < maxWait) {
+      waited++;
+      setTimeout(waitForFirebase, 100);
+    } else {
+      console.log('Firebase SDK failed to load');
+      resolve();
+    }
+  };
+  waitForFirebase();
+});
 
-try {
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.database();
-  firebaseReady = true;
-} catch(e) {
-  console.log('Firebase setup skipped - will use local storage only');
-  firebaseReady = false;
-}
 
 // ═══════════════════════════════════════════
 //  CONFIG
@@ -1040,23 +1064,26 @@ function storeListKeys(prefix) {
 }
 
 // Set up real-time listeners for cloud sync from Firebase to localStorage
-if (firebaseReady && db) {
-  db.ref('/').on('value', snapshot => {
-    if (!snapshot.exists()) return;
-    const data = snapshot.val();
-    Object.entries(data).forEach(([key, value]) => {
-      if (key.startsWith('goals:')) {
-        const stored = localStorage.getItem(key);
-        const storedVal = stored ? JSON.parse(stored) : null;
-        // Only update if different to avoid unnecessary re-renders
-        if (JSON.stringify(storedVal) !== JSON.stringify(value)) {
-          localStorage.setItem(key, JSON.stringify(value));
-          window.dispatchEvent(new CustomEvent('goals-synced', { detail: { key, value } }));
+firebaseReadyPromise.then(() => {
+  if (firebaseReady && db) {
+    db.ref('/').on('value', snapshot => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.val();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key.startsWith('goals:')) {
+          const stored = localStorage.getItem(key);
+          const storedVal = stored ? JSON.parse(stored) : null;
+          // Only update if different to avoid unnecessary re-renders
+          if (JSON.stringify(storedVal) !== JSON.stringify(value)) {
+            localStorage.setItem(key, JSON.stringify(value));
+            window.dispatchEvent(new CustomEvent('goals-synced', { detail: { key, value } }));
+          }
         }
-      }
-    });
-  }, e => console.log('Firebase listener error:', e));
-}
+      });
+    }, e => console.log('Firebase listener error:', e));
+    console.log('✓ Real-time sync listener activated');
+  }
+});
 
 // ═══════════════════════════════════════════
 //  DATE HELPERS
