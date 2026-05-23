@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Dashboard</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -961,6 +964,32 @@
 
 <script>
 // ═══════════════════════════════════════════
+//  FIREBASE INIT
+// ═══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyBPClA-Tgi2O-Uj7NEIa6uRXm8KZ8-rEFY",
+  authDomain: "dashboard-54ef1.firebaseapp.com",
+  databaseURL: "https://dashboard-54ef1-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dashboard-54ef1",
+  storageBucket: "dashboard-54ef1.firebasestorage.app",
+  messagingSenderId: "476684291130",
+  appId: "1:476684291130:web:c58902ef77358c11197903",
+  measurementId: "G-QNKYEJXQ5R"
+};
+
+let db = null;
+let firebaseReady = false;
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  firebaseReady = true;
+} catch(e) {
+  console.log('Firebase setup skipped - will use local storage only');
+  firebaseReady = false;
+}
+
+// ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
 const ANTHROPIC_API_KEY = (() => {
@@ -975,18 +1004,32 @@ const WAKE_HOUR  = 8;
 const SLEEP_HOUR = 24;
 
 // ═══════════════════════════════════════════
-//  STORAGE HELPERS
+//  STORAGE HELPERS (with Firebase sync)
 // ═══════════════════════════════════════════
 function storeGet(key) {
   try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
 }
+
 function storeSet(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+  
+  // Async Firebase write (fire and forget)
+  if (firebaseReady && db) {
+    db.ref(key).set(value).catch(e => console.log('Firebase write failed:', e));
+  }
+  
   if (key.startsWith('goals:')) {
     window.dispatchEvent(new CustomEvent('goals-changed'));
   }
 }
-function storeDelete(key) { localStorage.removeItem(key); }
+
+function storeDelete(key) { 
+  localStorage.removeItem(key);
+  if (firebaseReady && db) {
+    db.ref(key).remove().catch(e => console.log('Firebase delete failed:', e));
+  }
+}
+
 function storeListKeys(prefix) {
   const keys = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -994,6 +1037,25 @@ function storeListKeys(prefix) {
     if (k && k.startsWith(prefix)) keys.push(k);
   }
   return keys;
+}
+
+// Set up real-time listeners for cloud sync from Firebase to localStorage
+if (firebaseReady && db) {
+  db.ref('/').on('value', snapshot => {
+    if (!snapshot.exists()) return;
+    const data = snapshot.val();
+    Object.entries(data).forEach(([key, value]) => {
+      if (key.startsWith('goals:')) {
+        const stored = localStorage.getItem(key);
+        const storedVal = stored ? JSON.parse(stored) : null;
+        // Only update if different to avoid unnecessary re-renders
+        if (JSON.stringify(storedVal) !== JSON.stringify(value)) {
+          localStorage.setItem(key, JSON.stringify(value));
+          window.dispatchEvent(new CustomEvent('goals-synced', { detail: { key, value } }));
+        }
+      }
+    });
+  }, e => console.log('Firebase listener error:', e));
 }
 
 // ═══════════════════════════════════════════
@@ -1507,6 +1569,16 @@ function startTicker() {
 
 window.addEventListener('goals-changed', () => {
   tick(true);
+});
+
+// Refresh UI when data syncs from Firebase
+window.addEventListener('goals-synced', (e) => {
+  const { key } = e.detail;
+  if (key === 'goals:' + getActiveDateString()) {
+    loadToday();
+  } else if (key === 'goals:' + getTomorrowDateString()) {
+    loadTomorrow();
+  }
 });
 
 // ═══════════════════════════════════════════
