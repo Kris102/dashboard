@@ -966,8 +966,8 @@
 // ═══════════════════════════════════════════
 //  FIREBASE INIT
 // ═══════════════════════════════════════════
-let db = null;
-let firebaseReady = false;
+window.db = null;
+window.firebaseReady = false;
 let firebaseReadyPromise = new Promise(resolve => {
   window.initFirebase = () => {
     const firebaseConfig = {
@@ -985,12 +985,12 @@ let firebaseReadyPromise = new Promise(resolve => {
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
       }
-      db = firebase.database();
-      firebaseReady = true;
+      window.db = firebase.database();
+      window.firebaseReady = true;
       console.log('✓ Firebase initialized successfully');
     } catch(e) {
       console.log('Firebase setup skipped:', e.message);
-      firebaseReady = false;
+      window.firebaseReady = false;
     }
     resolve();
   };
@@ -1038,8 +1038,8 @@ function storeSet(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
   
   // Async Firebase write (fire and forget)
-  if (firebaseReady && db) {
-    db.ref(key).set(value).catch(e => console.log('Firebase write failed:', e));
+  if (window.firebaseReady && window.db) {
+    window.db.ref(key).set(value).catch(e => console.log('Firebase write failed:', e));
   }
   
   if (key.startsWith('goals:')) {
@@ -1049,8 +1049,8 @@ function storeSet(key, value) {
 
 function storeDelete(key) { 
   localStorage.removeItem(key);
-  if (firebaseReady && db) {
-    db.ref(key).remove().catch(e => console.log('Firebase delete failed:', e));
+  if (window.firebaseReady && window.db) {
+    window.db.ref(key).remove().catch(e => console.log('Firebase delete failed:', e));
   }
 }
 
@@ -1065,8 +1065,8 @@ function storeListKeys(prefix) {
 
 // Set up real-time listeners for cloud sync from Firebase to localStorage
 firebaseReadyPromise.then(() => {
-  if (firebaseReady && db) {
-    db.ref('/').on('value', snapshot => {
+  if (window.firebaseReady && window.db) {
+    window.db.ref('/').on('value', snapshot => {
       if (!snapshot.exists()) return;
       const data = snapshot.val();
       Object.entries(data).forEach(([key, value]) => {
