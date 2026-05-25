@@ -859,7 +859,20 @@ async function generateBriefing(force=false) {
   document.getElementById('cmdCached').textContent='';
   
   try {
-    const text=await ai(`${buildCtx()}\n\nGenerate a daily brief. Give:\n1. Top 3 priority tasks for today (specific, no vague stuff)\n2. One honest flag if anything looks off or is being neglected\n3. One reminder tied to a document I've uploaded (if any)\n\nBe direct. Use simple formatting with numbers. Keep it under 150 words total.`, '', 'haiku');
+    const habitsNow = getHabits().filter(h=>h.active).map(h=>{ const l=getHLog(activeDate()); return h.name+': '+(l[h.id]||'not done'); }).join(', ');
+    const goalsNow = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'done':'pending')+': '+g.text).join(', ')||'none set';
+    const focusNow = sg('focus:'+activeDate())||{totalMins:0};
+    const docs = getDocs(); const docLine = docs.length ? docs.map(d=>d.name+': '+d.summary).join(' | ') : 'none';
+    const briefPrompt = `You are Kris's personal assistant giving him his morning brief. Respond in plain conversational text — no bullet points, no headers, no numbered lists, no markdown. Just speak to him directly like a PA would.
+
+His data:
+Habits today: ${habitsNow}
+Goals today: ${goalsNow}
+Focus logged: ${focusNow.totalMins} minutes
+Uploaded plans: ${docLine}
+
+In 4-5 sentences: tell him the 3 most important things he needs to do today based on his actual goals and what's pending, call out anything being neglected, and reference his uploaded plans if relevant. Be specific — name actual tasks, not categories. No fluff.`;
+    const text=await ai(briefPrompt, KRIS, 'haiku');
     if(text) {
       out.className='cmd-output'; out.textContent=text;
       ss(cacheKey,{text,ts:Date.now()});
@@ -889,7 +902,19 @@ async function generateCoaching(manual=false) {
     const learningLog=sg('_learningLog')||[];
     const patternContext=learningLog.slice(-4).map(e=>`Week of ${e.weekStart}: ${e.patterns}`).join('\n');
     
-    const text=await ai(`${buildCtx()}\n\nPATTERN HISTORY:\n${patternContext||'First assessment'}\n\nYou are Kris's harsh personal coach. Assess his day honestly:\n- What did he actually do vs what he should have done?\n- What pattern are you seeing (avoidance, slipping on specific domains)?\n- What needs to happen in the next 24 hours specifically?\n- If he's been killing it, say so without fluff — but don't lie.\n\nMax 120 words. Direct. No softening. Call out avoidance by name if you see it.`, '', 'sonnet');
+    const habitsToday = getHabits().filter(h=>h.active).map(h=>{ const l=getHLog(activeDate()); return h.name+': '+(l[h.id]||'NOT DONE'); }).join(', ');
+    const goalsToday = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'DONE':'PENDING')+': '+g.text).join(', ')||'none set';
+    const focusToday = sg('focus:'+activeDate())||{totalMins:0};
+    const coachPrompt = `You are a brutally honest personal coach for Kris. Respond in plain text only — no bullet points, no headers, no lists, no formatting. Just 3-4 direct sentences spoken like a real person.
+
+Here is his data today:
+Habits: ${habitsToday}
+Goals: ${goalsToday}
+Focus time logged: ${focusToday.totalMins} minutes
+Patterns this week: ${patternContext||'no data yet'}
+
+Call out exactly what he did or did not do. Name the specific habit or goal he avoided. Tell him one specific thing to do right now. Be harsh if he slacked. Be brief — 4 sentences max. Do not repeat instructions back. Do not ask questions. Do not make a numbered list. Just talk to him directly.`;
+    const text=await ai(coachPrompt, '', 'sonnet');
     if(text) {
       out.className='coach-output'; out.textContent=text;
       copyBtn.classList.remove('hidden');
@@ -941,21 +966,17 @@ async function generateWeeklyReview() {
     const learningLog=sg('_learningLog')||[];
     const prevPatterns=learningLog.slice(-3).map(e=>e.patterns).join(' / ')||'No prior data';
     
-    const prompt=`${KRIS}
+    const prompt=`You are writing Kris's weekly review. Plain text only — no bullet points, no headers, no numbered lists. Write like a real person talking to him directly.
 
-WEEK DATA:\n${weekData}
+His week:
+${weekData}
 
-UPLOADED DOCUMENTS: ${docContext}
-PREVIOUS PATTERNS: ${prevPatterns}
+Uploaded plans: ${docContext}
+Previous patterns: ${prevPatterns}
 
-Write a weekly review:
-1. Honest 2-sentence assessment of the week
-2. Which domain was most neglected and why it matters
-3. Which habit/goal is showing a good pattern — be specific
-4. What the main pivot or adjustment should be next week
-5. One specific action for Monday morning
+${KRIS}
 
-Keep under 200 words. No fluff. Harsh where needed. Reference the documents if relevant.`;
+In 5-6 sentences: give an honest verdict on the week, name the specific domain he neglected most and why that actually matters for his goals, call out any avoidance pattern by name if you see it repeating, say what the one adjustment should be next week, and give him one concrete thing to do Monday morning. Reference his uploaded documents if relevant. No fluff, no lists, no headers — just talk to him.`;
     
     const text=await ai(prompt,'','sonnet');
     if(text) {
