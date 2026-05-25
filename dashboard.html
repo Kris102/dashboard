@@ -777,14 +777,20 @@ function saveDocs(d) { ss('_docs',d); }
 async function extractText(file) {
   return new Promise((res,rej)=>{
     const r=new FileReader();
-    r.onload=e=>res(e.target.result);
+    r.onload=e=>{
+      let text = e.target.result;
+      // Strip binary garbage — keep only printable ASCII + common unicode
+      text = text.replace(/[^ -~
+	 -￿]/g,' ');
+      // Collapse runs of whitespace/garbage
+      text = text.replace(/\s{3,}/g,' ').trim();
+      // If result is mostly garbage (very low readable ratio), flag it
+      const readable = (text.match(/[a-zA-Z]{2,}/g)||[]).length;
+      if(readable < 20) text = '(Could not extract readable text from this file — try saving as .txt or .md instead)';
+      res(text);
+    };
     r.onerror=()=>rej(new Error('Read failed'));
-    if(file.type==='application/pdf') {
-      // Basic PDF text extraction — gets raw text from PDF
-      r.readAsText(file);
-    } else {
-      r.readAsText(file);
-    }
+    r.readAsText(file);
   });
 }
 
@@ -863,15 +869,15 @@ async function generateBriefing(force=false) {
     const goalsNow = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'done':'pending')+': '+g.text).join(', ')||'none set';
     const focusNow = sg('focus:'+activeDate())||{totalMins:0};
     const docs = getDocs(); const docLine = docs.length ? docs.map(d=>d.name+': '+d.summary).join(' | ') : 'none';
-    const briefPrompt = `You are Kris's personal assistant giving him his morning brief. Respond in plain conversational text — no bullet points, no headers, no numbered lists, no markdown. Just speak to him directly like a PA would.
+    const briefPrompt = `IMPORTANT: Write a short paragraph spoken directly TO Kris. You are delivering information to him, not asking him questions. Do not ask anything. Do not say "let's get started". Do not reference yourself as a coach. Just deliver the brief.
 
-His data:
-Habits today: ${habitsNow}
-Goals today: ${goalsNow}
-Focus logged: ${focusNow.totalMins} minutes
-Uploaded plans: ${docLine}
+His actual data right now:
+- Habits completed today: ${habitsNow}
+- Goals set today: ${goalsNow}  
+- Focus time logged: ${focusNow.totalMins} minutes
+- His uploaded documents: ${docLine}
 
-In 4-5 sentences: tell him the 3 most important things he needs to do today based on his actual goals and what's pending, call out anything being neglected, and reference his uploaded plans if relevant. Be specific — name actual tasks, not categories. No fluff.`;
+Write 3-4 sentences maximum. Tell him specifically what to prioritize today based on his real pending goals and habits. If nothing is done yet, tell him what to start with and why. Name actual tasks. End the paragraph. Do not ask questions. Do not wait for a reply.`;
     const text=await ai(briefPrompt, KRIS, 'haiku');
     if(text) {
       out.className='cmd-output'; out.textContent=text;
@@ -913,7 +919,7 @@ Goals: ${goalsToday}
 Focus time logged: ${focusToday.totalMins} minutes
 Patterns this week: ${patternContext||'no data yet'}
 
-Call out exactly what he did or did not do. Name the specific habit or goal he avoided. Tell him one specific thing to do right now. Be harsh if he slacked. Be brief — 4 sentences max. Do not repeat instructions back. Do not ask questions. Do not make a numbered list. Just talk to him directly.`;
+Call out exactly what he did or did not do. Name the specific habit or goal he avoided. Tell him one specific thing to do right now. Be harsh if he slacked. Be brief — 4 sentences max. Do not ask him any questions. Do not wait for a reply. Do not say you are his coach. Just deliver your assessment and tell him what to do next. Stop after 4 sentences.`;
     const text=await ai(coachPrompt, '', 'sonnet');
     if(text) {
       out.className='coach-output'; out.textContent=text;
