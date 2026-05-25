@@ -922,7 +922,7 @@ Goals: ${goalsToday}
 Focus time logged: ${focusToday.totalMins} minutes
 Patterns this week: ${patternContext||'no data yet'}
 
-Call out exactly what he did or did not do. Name the specific habit or goal he avoided. Tell him one specific thing to do right now. Be harsh if he slacked. Be brief — 4 sentences max. Do not ask him any questions. Do not wait for a reply. Do not say you are his coach. Just deliver your assessment and tell him what to do next. Stop after 4 sentences.`;
+Start your response with "Kris," and go straight into the assessment. Do not repeat any instructions. Do not echo back the prompt. Do not label your response. Just write the paragraph directly — 4 sentences maximum, starting with "Kris,".`;
     const text=await ai(coachPrompt, '', 'sonnet');
     if(text) {
       out.className='coach-output'; out.textContent=text;
