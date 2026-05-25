@@ -458,22 +458,7 @@ body>*{position:relative;z-index:1;}
 // ═══════════════════════════════════════════
 // KRIS PERMANENT CONTEXT
 // ═══════════════════════════════════════════
-const KRIS = `You are coaching Kris (artist: Toshin), 20, male, Haldwani India. BPT physiotherapy student year 2, expected 2029. Goal: Australia to practice physio + potentially TCM in China. Never a conventional job.
-
-ACTIVE GOALS (priority order):
-1. CILPA / Offline Venture — language & performing arts institute from family commercial space in Haldwani. Needs students, brand consistency, content marketing. Near-term revenue.
-2. Physique — 5-day PPL/UL split, shoulder priority 20+ sets/week. Morning stack: sunlight, Wim Hof, yoga, ginger-turmeric. Creatine consideration. Hip/sciatica/plantar fasciitis modifications.
-3. Toshin Music — YouTube beats, royalty-free + custom. US/UK/Canada market. Ableton. 10+ years piano (jazz, neo-soul, gospel, East Asian pop). Wise/PayPal payments.
-4. Japanese — JLPT N3 December 2026. Anki (Kaishi 1.5k → Tango N4 → N3 + NihongoKyoshi). Pomodoro study. Currently ~N5 level.
-5. Chinese — long term, tied to China TCM plan.
-6. Content / personal brand — "weird ambitious Indian guy building a different life." Nathaniel Drew energy. 18-28 audience, South Asian diaspora.
-7. BPT — pass it, infrastructure not identity.
-
-HEALTH: Ankylosing Spondylitis (HLA-B27). Anti-inflammatory diet crucial. Movement important but modify intensity. Whole foods, mild lactose sensitivity.
-
-PSYCHOLOGY: Ideation > execution is his #1 obstacle. Abandons when bored. Call this out directly when you see it. No sugarcoating. He wants harsh honest feedback.
-
-COMMUNICATION: Direct. No filler. No motivational fluff. Short when short. Call out avoidance. He's building an unconventional international life — support that, don't question it.`;
+const KRIS = "You are coaching Kris (artist: Toshin), 20, male, Haldwani India. BPT physiotherapy student year 2, expected 2029. Goal: Australia to practice physio + potentially TCM in China. Never a conventional job.\n\nACTIVE GOALS (priority order):\n1. CILPA / Offline Venture — language & performing arts institute from family commercial space in Haldwani. Needs students, brand consistency, content marketing. Near-term revenue.\n2. Physique — 5-day PPL/UL split, shoulder priority 20+ sets/week. Morning stack: sunlight, Wim Hof, yoga, ginger-turmeric. Creatine consideration. Hip/sciatica/plantar fasciitis modifications.\n3. Toshin Music — YouTube beats, royalty-free + custom. US/UK/Canada market. Ableton. 10+ years piano (jazz, neo-soul, gospel, East Asian pop). Wise/PayPal payments.\n4. Japanese — JLPT N3 December 2026. Anki (Kaishi 1.5k → Tango N4 → N3 + NihongoKyoshi). Pomodoro study. Currently ~N5 level.\n5. Chinese — long term, tied to China TCM plan.\n6. Content / personal brand — \"weird ambitious Indian guy building a different life.\" Nathaniel Drew energy. 18-28 audience, South Asian diaspora.\n7. BPT — pass it, infrastructure not identity.\n\nHEALTH: Ankylosing Spondylitis (HLA-B27). Anti-inflammatory diet crucial. Movement important but modify intensity. Whole foods, mild lactose sensitivity.\n\nPSYCHOLOGY: Ideation > execution is his #1 obstacle. Abandons when bored. Call this out directly when you see it. No sugarcoating. He wants harsh honest feedback.\n\nCOMMUNICATION: Direct. No filler. No motivational fluff. Short when short. Call out avoidance. He's building an unconventional international life — support that, don't question it.";
 
 // ═══════════════════════════════════════════
 // CONFIG
@@ -524,12 +509,16 @@ document.getElementById('apikeyBtn').onclick = () => showKeyModal(true);
 // ═══════════════════════════════════════════
 async function ai(prompt, sysprompt='', model='haiku') {
   if (!API_KEY) { showKeyModal(); return null; }
-  const fullPrompt = sysprompt ? sysprompt + '\n\n' + prompt : prompt;
+  // Merge everything into one user message — Llama works better this way
+  const fullPrompt = (sysprompt ? sysprompt + '\n\n' : '') + prompt;
   const body = {
     model: 'llama-3.3-70b-versatile',
-    messages: [{ role: 'user', content: fullPrompt }],
-    max_tokens: 800,
-    temperature: 0.7
+    messages: [
+      { role: 'system', content: 'You are a direct personal assistant. Write only the final output — no meta-commentary, no roleplay setup, no "let's begin", no questions back to the user, no dialogue framing. Just write the paragraph or schedule requested. Output only.' },
+      { role: 'user', content: fullPrompt }
+    ],
+    max_tokens: 500,
+    temperature: 0.5
   };
   const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -878,15 +867,15 @@ async function generateBriefing(force=false) {
     const dayPhase = hour < 9 ? 'early morning' : hour < 12 ? 'morning' : hour < 14 ? 'midday' : hour < 17 ? 'afternoon' : hour < 20 ? 'evening' : 'night';
     const hoursLeft = Math.max(0, 23 - hour);
 
-    const briefPrompt = `The current time is ${timeStr}. It is ${dayPhase}. There are roughly ${hoursLeft} hours left in the day.
+    const briefPrompt = `Background: ${KRIS}
 
-Kris's data right now:
-- Habits completed: ${habitsNow}
-- Goals: ${goalsNow}
-- Focus time logged: ${focusNow.totalMins} minutes
-- Uploaded plans: ${docLine}
+His data right now (${timeStr}, ${dayPhase}):
+Habits done: ${habitsNow}
+Goals: ${goalsNow}
+Focus logged: ${focusNow.totalMins} minutes
+Uploaded docs: ${docLine}
 
-Write a practical time-aware daily schedule for Kris spoken directly to him. Start with "Kris," then given it is ${dayPhase} right now, lay out a realistic hour-by-hour plan for the rest of today that fits his pending habits and goals into the actual time available. Be specific — name the task, suggest a duration, and order them sensibly. Do not judge whether the day has been productive or not. Do not ask questions. Do not add motivational filler. Just give him a clear, actionable schedule he can follow right now. Start your response with "Kris," and write in plain sentences — no bullet points, no numbered lists, no headers.`;
+Write exactly 4 sentences starting with "Kris,". Give him a time-specific schedule for what to do in what order for the rest of today. Name actual tasks and durations. Do not ask questions. Do not add commentary. Output only the 4 sentences.`;
     const text=await ai(briefPrompt, KRIS, 'haiku');
     if(text) {
       out.className='cmd-output'; out.textContent=text;
@@ -924,15 +913,15 @@ async function generateCoaching(manual=false) {
     const coachTime = coachNow.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
     const coachHour = coachNow.getHours();
     const timeContext = coachHour < 10 ? 'It is early morning — only judge what is reasonable to have done this early.' : coachHour < 13 ? 'It is mid-morning. Some habits should be done by now.' : coachHour < 17 ? 'It is afternoon. Most habits should be done by now.' : coachHour < 20 ? 'It is evening. The bulk of the day is over — assess fully.' : 'It is night. The day is done — be completely honest about what happened.';
-    const coachPrompt = `Current time: ${coachTime}. ${timeContext}
+    const coachPrompt = `Background: ${KRIS}
 
-Kris's data today:
+Current time: ${coachTime}. ${timeContext}
 Habits: ${habitsToday}
 Goals: ${goalsToday}
-Focus logged: ${focusToday.totalMins} minutes
+Focus: ${focusToday.totalMins} minutes
 Patterns: ${patternContext||'no prior data'}
 
-Write 3-4 sentences of plain text starting with "Kris,". No lists, no headers, no questions. Judge his day relative to the current time — do not call it unproductive if it is still early. Name the specific habit or goal that needs attention right now. Tell him one concrete next action. Be harsh only if the time of day warrants it.`;
+Write exactly 3 sentences starting with "Kris,". Assess what he has or hasn't done relative to the time of day. Name one specific thing he must do right now. Be blunt. Output only the 3 sentences — nothing else.`;
     const text=await ai(coachPrompt, '', 'sonnet');
     if(text) {
       out.className='coach-output'; out.textContent=text;
