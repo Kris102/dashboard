@@ -778,22 +778,25 @@ async function extractText(file) {
   return new Promise((res,rej)=>{
     const r=new FileReader();
     r.onload=e=>{
-      let text = e.target.result;
-      // Strip binary garbage — keep only printable ASCII + common unicode
-      text = text.replace(/[^ -~
-	 -￿]/g,' ');
-      // Collapse runs of whitespace/garbage
-      text = text.replace(/\s{3,}/g,' ').trim();
-      // If result is mostly garbage (very low readable ratio), flag it
-      const readable = (text.match(/[a-zA-Z]{2,}/g)||[]).length;
-      if(readable < 20) text = '(Could not extract readable text from this file — try saving as .txt or .md instead)';
-      res(text);
+      let text = e.target.result || '';
+      // Remove non-printable chars safely
+      let clean = '';
+      for(let i=0;i<text.length;i++){
+        const code=text.charCodeAt(i);
+        if(code===10||code===13||code===9||(code>=32&&code<=126)) clean+=text[i];
+        else clean+=' ';
+      }
+      // Collapse long whitespace runs
+      clean = clean.replace(/ {4,}/g,' ').trim();
+      // Check if readable
+      const words = (clean.match(/[a-zA-Z]{3,}/g)||[]).length;
+      if(words < 15) clean = '(Binary file — could not extract text. Save your document as a .txt file and re-upload.)';
+      res(clean);
     };
     r.onerror=()=>rej(new Error('Read failed'));
     r.readAsText(file);
   });
 }
-
 async function processDoc(file) {
   const docDrop=document.getElementById('docDrop');
   docDrop.querySelector('p').textContent='Processing '+file.name+'…';
