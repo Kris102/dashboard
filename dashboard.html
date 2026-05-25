@@ -509,20 +509,25 @@ document.getElementById('apikeyBtn').onclick = () => showKeyModal(true);
 // ═══════════════════════════════════════════
 async function ai(prompt, sysprompt='', model='haiku') {
   if (!API_KEY) { showKeyModal(); return null; }
-  // Merge everything into one user message — Llama works better this way
-  const fullPrompt = (sysprompt ? sysprompt + '\n\n' : '') + prompt;
+  // Use google/gemini-flash via OpenRouter — follows instructions reliably
+  const mdl = 'google/gemini-2.0-flash-001';
+  const messages = [];
+  if (sysprompt) messages.push({ role: 'system', content: sysprompt });
+  messages.push({ role: 'user', content: prompt });
   const body = {
-    model: 'llama-3.3-70b-versatile',
-    messages: [
-      { role: 'system', content: 'You are a direct personal assistant. Write only the final output — no meta-commentary, no roleplay setup, no "let's begin", no questions back to the user, no dialogue framing. Just write the paragraph or schedule requested. Output only.' },
-      { role: 'user', content: fullPrompt }
-    ],
+    model: mdl,
+    messages,
     max_tokens: 500,
-    temperature: 0.5
+    temperature: 0.4
   };
-  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + API_KEY,
+      'HTTP-Referer': 'https://dashboard-tau-six-31.vercel.app',
+      'X-Title': 'Kris OS'
+    },
     body: JSON.stringify(body)
   });
   const d = await r.json();
