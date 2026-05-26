@@ -211,6 +211,10 @@ body>*{position:relative;z-index:1;}
 .ft-btn-s:hover{background:rgba(255,255,255,.1);}
 .ft-btn:disabled{opacity:.3;cursor:not-allowed;transform:none !important;}
 .ft-total{text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:var(--text-tertiary);font-family:ui-monospace,monospace;}
+.ft-sessions{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+.ft-session-item{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:rgba(107,227,164,.06);border-radius:7px;border:1px solid rgba(107,227,164,.1);}
+.ft-session-label{font-size:11px;color:var(--text-secondary);}
+.ft-session-time{font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);}
 .ft-total strong{color:var(--text-secondary);}
 
 /* TICKER */
@@ -220,8 +224,8 @@ body>*{position:relative;z-index:1;}
 .t-dot{width:6px;height:6px;border-radius:50%;background:#6BE3A4;box-shadow:0 0 7px rgba(107,227,164,.65);animation:lp 1.6s ease-in-out infinite;flex-shrink:0;}
 @keyframes lp{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
 .t-lbl{font-family:ui-monospace,monospace;font-size:9px;font-weight:800;letter-spacing:.16em;color:var(--text-tertiary);flex-shrink:0;text-transform:uppercase;}
-.t-stage{flex:1;height:20px;position:relative;overflow:hidden;}
-.t-row{display:flex;align-items:center;height:20px;gap:7px;font-family:ui-monospace,monospace;font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;position:absolute;width:100%;top:0;left:0;}
+.t-stage{flex:1;height:20px;position:relative;overflow:hidden;min-width:0;}
+.t-row{display:flex;align-items:center;height:20px;gap:7px;font-family:ui-monospace,monospace;font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;position:absolute;width:100%;top:0;left:0;overflow:hidden;}
 .t-row.leaving{animation:tleave .4s cubic-bezier(.55,0,.55,1) forwards;}
 .t-row.entering{animation:tenter .4s cubic-bezier(.22,1,.36,1) forwards;}
 @keyframes tleave{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(-100%);}}
@@ -265,8 +269,8 @@ body>*{position:relative;z-index:1;}
 <!-- HEADER -->
 <div class="os-header">
   <div class="os-header-left">
-    <h1>KRIS / TOSHIN</h1>
-    <div class="os-sub" id="osSubline">BPT Y2 · Haldwani → Australia · JLPT N3 Dec 2026</div>
+    <h1>TOSHIN</h1>
+    <div class="os-sub" id="osSubline" title="Click to edit your vision" style="cursor:pointer;" onclick="editSubline()">BPT Y2 · Haldwani → Australia · JLPT N3 Dec 2026</div>
   </div>
   <div class="os-header-right">
     <div class="os-date" id="osDate">—</div>
@@ -451,6 +455,7 @@ body>*{position:relative;z-index:1;}
       <button class="ft-btn ft-btn-s" id="ftReset" disabled>Reset</button>
     </div>
     <div class="ft-total" id="ftTotal">Today: <strong>0 min</strong> focused</div>
+    <div class="ft-sessions" id="ftSessions"></div>
   </div>
 </div>
 
@@ -553,6 +558,7 @@ function buildCtx() {
   const lastLearning = learningLog.slice(-3).map(e=>`Week of ${e.weekStart}: ${e.patterns}`).join('\n');
   const goalsSummary = goals.filter(g=>!g._rolledOver).map(g=>`${g.done?'[x]':'[ ]'} ${g.text}`).join('\n');
   
+  const weekPriority = sg('_weekPriority');
   return `${KRIS}
 
 TODAY (${fmtDate(today)}):
@@ -815,11 +821,7 @@ async function processDoc(file) {
   // Conflict check
   try {
     const allSummaries=docs.map(d=>d.summary).join('\n');
-    const conflict=await ai(`Given Kris's active goals and these uploaded documents:\n${allSummaries}\n\nIs there any obvious conflict, overload, or unrealistic combination? If yes, say what in 2 sentences max. If no conflict, just say "No conflicts detected."`, KRIS, 'haiku');
-    const conflictEl=document.getElementById('docConflict');
-    if(conflict&&!conflict.includes('No conflicts')) {
-      conflictEl.innerHTML=`<div class="doc-conflict">⚠️ ${conflict}</div>`;
-    } else { conflictEl.innerHTML=''; }
+    await checkDocConflict(docs);
   } catch {}
   
   docDrop.querySelector('p').textContent='Drop plans, curricula, notes, goals here';
@@ -1154,6 +1156,99 @@ function updateHeader(){
 }
 
 // ═══════════════════════════════════════════
+// SUBLINE — editable vision statement
+// ═══════════════════════════════════════════
+const DEFAULT_SUBLINE = 'BPT Y2 · Haldwani → Australia · JLPT N3 Dec 2026';
+function renderSubline() {
+  const el = document.getElementById('osSubline');
+  el.textContent = sg('_subline') || DEFAULT_SUBLINE;
+}
+function editSubline() {
+  const current = sg('_subline') || DEFAULT_SUBLINE;
+  const bg = document.createElement('div'); bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal">
+    <h2>Your Vision</h2>
+    <p>Write who you're becoming. This lives at the top of your OS every day.</p>
+    <textarea id="sublineInp" rows="3" style="width:100%;" placeholder="e.g. Greatest pianist, producer, physio — building an international life on my terms.">${current}</textarea>
+    <div class="modal-actions">
+      <button class="btn-primary" id="sublineSave">Save</button>
+      <button class="btn-secondary" id="sublineCancel">Cancel</button>
+    </div>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.querySelector('#sublineCancel').onclick = () => bg.remove();
+  bg.querySelector('#sublineSave').onclick = () => {
+    const v = bg.querySelector('#sublineInp').value.trim();
+    if (v) { ss('_subline', v); renderSubline(); }
+    bg.remove();
+  };
+}
+
+// ═══════════════════════════════════════════
+// FOCUS SESSION LOG
+// ═══════════════════════════════════════════
+function renderFtSessions() {
+  const el = document.getElementById('ftSessions');
+  if (!el) return;
+  const day = sg('focus:' + activeDate()) || { sessions: [] };
+  if (!day.sessions.length) { el.innerHTML = ''; return; }
+  el.innerHTML = day.sessions.slice(-5).reverse().map(s => {
+    const t = new Date(s.ts);
+    const timeStr = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return `<div class="ft-session-item">
+      <span class="ft-session-label">✓ ${s.label || 'Focus'} — ${s.mins} min</span>
+      <span class="ft-session-time">${timeStr}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// DOCUMENT CONFLICT — ask what to prioritize instead of blocking
+// ═══════════════════════════════════════════
+async function checkDocConflict(docs) {
+  if (docs.length < 2) { document.getElementById('docConflict').innerHTML = ''; return; }
+  try {
+    const summaries = docs.map(d => d.name + ': ' + d.summary).join('
+');
+    const resp = await ai(
+      'These are documents Kris has uploaded:
+' + summaries +
+      '
+
+Are there any conflicts or overload risks between these plans and his goals? If yes, in one sentence say what conflicts. Then say: "Which should take priority this week?" — list the conflicting areas as options he can choose from. Keep it under 60 words total.',
+      KRIS, 'haiku'
+    );
+    const el = document.getElementById('docConflict');
+    if (resp && !resp.toLowerCase().includes('no conflict')) {
+      el.innerHTML = `<div class="doc-conflict" style="cursor:pointer;" onclick="showPriorityPicker()">⚠️ ${resp} <span style="color:rgba(255,255,255,.4);font-size:10px;">tap to set priority</span></div>`;
+    } else {
+      el.innerHTML = '';
+    }
+  } catch(e) { console.log('Conflict check failed:', e); }
+}
+
+function showPriorityPicker() {
+  const docs = getDocs();
+  const bg = document.createElement('div'); bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal">
+    <h2>Set This Week's Priority</h2>
+    <p>Your plans have conflicts. Pick what matters most this week — the AI will weight its advice accordingly.</p>
+    <textarea id="priorityInp" rows="2" style="width:100%;" placeholder="e.g. CILPA revenue first, then JLPT. Piano on weekends only.">${sg('_weekPriority') || ''}</textarea>
+    <div class="modal-actions">
+      <button class="btn-primary" id="prioritySave">Save Priority</button>
+      <button class="btn-secondary" id="priorityCancel">Cancel</button>
+    </div>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.querySelector('#priorityCancel').onclick = () => bg.remove();
+  bg.querySelector('#prioritySave').onclick = () => {
+    const v = bg.querySelector('#priorityInp').value.trim();
+    if (v) ss('_weekPriority', v);
+    bg.remove();
+  };
+}
+
+// ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
 doRollover();
@@ -1168,6 +1263,8 @@ ftReset(); renderFtTotal();
 renderRadar();
 updateStreak();
 checkAutoCoach();
+renderSubline();
+renderFtSessions();
 </script>
 </body>
 </html>
