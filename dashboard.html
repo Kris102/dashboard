@@ -570,7 +570,7 @@ UPLOADED DOCUMENTS:
 ${docSummaries||'none uploaded'}
 
 PATTERN HISTORY (recent weeks):
-${lastLearning||'none yet — first week'}`;
+${lastLearning||'none yet'}\nWEEK PRIORITY: ${weekPriority||'not set'}`;
 }
 
 // ═══════════════════════════════════════════
@@ -1208,22 +1208,13 @@ function renderFtSessions() {
 async function checkDocConflict(docs) {
   if (docs.length < 2) { document.getElementById('docConflict').innerHTML = ''; return; }
   try {
-    const summaries = docs.map(d => d.name + ': ' + d.summary).join('
-');
-    const resp = await ai(
-      'These are documents Kris has uploaded:
-' + summaries +
-      '
-
-Are there any conflicts or overload risks between these plans and his goals? If yes, in one sentence say what conflicts. Then say: "Which should take priority this week?" — list the conflicting areas as options he can choose from. Keep it under 60 words total.',
-      KRIS, 'haiku'
-    );
+    const summaries = docs.map(d => d.name + ': ' + d.summary).join('. ');
+    const conflictQ = 'Documents: ' + summaries + '. Any conflicts or overload risks with his goals? One sentence if yes. Then list priority options. Under 60 words.';
+    const resp = await ai(conflictQ, KRIS, 'haiku');
     const el = document.getElementById('docConflict');
     if (resp && !resp.toLowerCase().includes('no conflict')) {
-      el.innerHTML = `<div class="doc-conflict" style="cursor:pointer;" onclick="showPriorityPicker()">⚠️ ${resp} <span style="color:rgba(255,255,255,.4);font-size:10px;">tap to set priority</span></div>`;
-    } else {
-      el.innerHTML = '';
-    }
+      el.innerHTML = '<div class="doc-conflict" style="cursor:pointer;" onclick="showPriorityPicker()">⚠️ ' + resp + ' <span style="color:rgba(255,255,255,.4);font-size:10px;">tap to set priority</span></div>';
+    } else { el.innerHTML = ''; }
   } catch(e) { console.log('Conflict check failed:', e); }
 }
 
