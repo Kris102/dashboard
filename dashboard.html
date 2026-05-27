@@ -262,6 +262,23 @@ body>*{position:relative;z-index:1;}
   .os-header-left h1{font-size:18px;}
   .cmd-actions{flex-wrap:wrap;}
 }
+
+.os-sync{margin-top:5px;font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);cursor:pointer;text-align:right;transition:color .2s;}
+.os-sync:hover{color:var(--text-secondary);}
+.os-sync.ok{color:rgba(107,227,164,.65);}
+.os-sync.err{color:rgba(255,107,107,.7);}
+
+/* MILESTONES */
+.milestone-row{display:flex;gap:10px;flex-wrap:wrap;}
+.milestone-pill{flex:1;min-width:130px;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid rgba(255,255,255,.06);}
+.milestone-emoji-label{font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-bottom:5px;}
+.milestone-days{font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--text-primary);}
+.milestone-sub{font-size:10px;color:var(--text-tertiary);margin-top:2px;font-family:ui-monospace,monospace;}
+.milestone-bar{height:2px;border-radius:2px;background:rgba(255,255,255,.07);margin-top:10px;overflow:hidden;}
+.milestone-fill{height:100%;border-radius:2px;}
+
+/* SUBLINE FADE */
+#osSubline{transition:opacity .3s;}
 </style>
 </head>
 <body>
@@ -275,6 +292,7 @@ body>*{position:relative;z-index:1;}
   <div class="os-header-right">
     <div class="os-date" id="osDate">—</div>
     <div class="os-streak" id="osStreak">⚡ 0 streak</div>
+    <div class="os-sync" id="syncStatus" onclick="showSyncModal()" title="Cross-device sync">☁ sync</div>
   </div>
 </div>
 
@@ -346,6 +364,14 @@ body>*{position:relative;z-index:1;}
   </div>
 </div>
 
+<!-- MILESTONES -->
+<div class="section">
+  <div class="section-label">Milestones</div>
+  <div class="card" style="padding:14px 18px;">
+    <div class="milestone-row" id="milestonesRow"></div>
+  </div>
+</div>
+
 <!-- DOCUMENT VAULT -->
 <div class="section">
   <div class="section-label">Document Vault</div>
@@ -353,7 +379,7 @@ body>*{position:relative;z-index:1;}
     <div class="doc-drop" id="docDrop">
       <div class="doc-drop-icon">📂</div>
       <p>Drop plans, curricula, notes, goals here</p>
-      <small>PDF · TXT · MD — AI reads them and adjusts your plan</small>
+      <small>TXT · MD — AI reads them and adjusts your plan</small>
     </div>
     <input type="file" id="fileInput" accept=".pdf,.txt,.md,.text" style="display:none" multiple>
     <div class="doc-list" id="docList"></div>
@@ -477,7 +503,7 @@ let API_KEY = localStorage.getItem('_apik') || '';
 // STORAGE
 // ═══════════════════════════════════════════
 const sg = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
-const ss = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const ss = (k, v) => { localStorage.setItem(k, JSON.stringify(v)); window.dispatchEvent(new Event('kris-data-changed')); };
 const sd = k => localStorage.removeItem(k);
 const skeys = pre => { const a=[]; for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(pre))a.push(k);} return a; };
 
@@ -958,6 +984,20 @@ function checkAutoCoach() {
 // ═══════════════════════════════════════════
 // WEEKLY REVIEW + LEARNING LOG
 // ═══════════════════════════════════════════
+function getWeekFocusBreakdown(days) {
+  const topicMins = {};
+  days.forEach(d => {
+    const focus = sg('focus:' + d) || { sessions: [] };
+    (focus.sessions || []).forEach(s => {
+      const label = (s.label || 'Other').trim() || 'Other';
+      topicMins[label] = (topicMins[label] || 0) + (s.mins || 0);
+    });
+  });
+  const entries = Object.entries(topicMins).sort((a, b) => b[1] - a[1]);
+  if (!entries.length) return 'no sessions logged';
+  return entries.map(([l, m]) => `${l}: ${fmtMins(m)}`).join(', ');
+}
+
 async function generateWeeklyReview() {
   const btn=document.getElementById('weeklyBtn'); btn.disabled=true; btn.textContent='Analysing…';
   const out=document.getElementById('weeklyOutput'); out.className='review-output visible loading'; out.textContent='Running deep analysis…';
@@ -981,17 +1021,21 @@ async function generateWeeklyReview() {
     const learningLog=sg('_learningLog')||[];
     const prevPatterns=learningLog.slice(-3).map(e=>e.patterns).join(' / ')||'No prior data';
     
+    const focusBreakdown = getWeekFocusBreakdown(days);
+    
     const prompt=`You are writing Kris's weekly review. Plain text only — no bullet points, no headers, no numbered lists. Write like a real person talking to him directly.
 
 His week:
 ${weekData}
+
+Focus time by topic this week: ${focusBreakdown}
 
 Uploaded plans: ${docContext}
 Previous patterns: ${prevPatterns}
 
 ${KRIS}
 
-In 5-6 sentences: give an honest verdict on the week, name the specific domain he neglected most and why that actually matters for his goals, call out any avoidance pattern by name if you see it repeating, say what the one adjustment should be next week, and give him one concrete thing to do Monday morning. Reference his uploaded documents if relevant. No fluff, no lists, no headers — just talk to him.`;
+In 5-6 sentences: give an honest verdict on the week, name the specific domain he neglected most and why that actually matters for his goals, call out any avoidance pattern by name if you see it repeating, say what the one adjustment should be next week, and give him one concrete thing to do Monday morning. Reference his focus breakdown by topic and uploaded documents if relevant. No fluff, no lists, no headers — just talk to him.`;
     
     const text=await ai(prompt,'','sonnet');
     if(text) {
@@ -1113,9 +1157,56 @@ const ftFmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padSt
 function ftDots(){const c=ftC(),el=document.getElementById('ftDots');el.innerHTML='';for(let i=0;i<c.sessions;i++){const d=document.createElement('div');d.className='ft-dot'+(i<ft.done?' done':(ft.mode==='work'&&i===ft.done?' active':''));el.appendChild(d);}}
 function ftDisp(){const t=document.getElementById('ftTime'),b=document.getElementById('ftBadge'),l=document.getElementById('ftLbl');t.textContent=ftFmt(ft.secs);t.className='ft-time'+(ft.running?' running':'');if(ft.mode==='idle'){b.textContent='READY';b.className='ft-badge';l.textContent='';}else if(ft.mode==='work'){b.textContent='WORK · '+( ft.done+1);b.className='ft-badge work';l.textContent=ft.label;}else if(ft.mode==='short'){b.textContent='SHORT BREAK';b.className='ft-badge short';l.textContent='Breathe';}else{b.textContent='LONG BREAK';b.className='ft-badge long';l.textContent='Rest up';}ftDots();}
 function ftCtrl(r){const s=document.getElementById('ftStart'),sk=document.getElementById('ftSkip'),rs=document.getElementById('ftReset');s.textContent=r?'Pause':(ft.mode==='idle'?'Start':'Resume');sk.disabled=ft.mode==='idle';rs.disabled=ft.mode==='idle'&&!ft.running;document.getElementById('ftLabel').disabled=ft.mode!=='idle';['ftWork','ftShort','ftLong','ftSessions'].forEach(id=>{document.getElementById(id).disabled=ft.mode!=='idle';});}
-function ftLogSession(label,mins){const ds=activeDate(),day=sg('focus:'+ds)||{totalMins:0,sessions:[]};day.totalMins+=mins;day.sessions.push({label:label||'Focus',mins,ts:Date.now()});ss('focus:'+ds,day);renderFtTotal();renderRadar();}
+function ftLogSession(label,mins){const ds=activeDate(),day=sg('focus:'+ds)||{totalMins:0,sessions:[]};day.totalMins+=mins;day.sessions.push({label:label||'Focus',mins,ts:Date.now()});ss('focus:'+ds,day);renderFtTotal();renderRadar();renderFtSessions();}
 function renderFtTotal(){const d=sg('focus:'+activeDate())||{totalMins:0};document.getElementById('ftTotal').innerHTML=`Today: <strong>${d.totalMins>0?fmtMins(d.totalMins):'0 min'}</strong> focused`;}
-function ftEnd(){clearInterval(ft.interval);ft.interval=null;ft.running=false;const c=ftC();if(ft.mode==='work'){ftLogSession(ft.label,c.work);ft.done++;if(ft.done>=c.sessions){ftReset();return;}ft.mode=(ft.done%c.sessions===0)?'long':'short';ft.secs=(ft.mode==='long'?c.long:c.short)*60;ftDisp();ft.running=true;ft.interval=setInterval(ftTick,1000);ftCtrl(true);}else{ft.mode='work';ft.secs=c.work*60;ftDisp();ftCtrl(false);}}
+function showSessionLabelPrompt(defaultLabel, onConfirm) {
+  const bg = document.createElement('div'); bg.className = 'modal-bg';
+  let secs = 5;
+  bg.innerHTML = `<div class="modal">
+    <h2>Session done ✓</h2>
+    <p id="spCountdown">What did you work on? Auto-logs in ${secs}s.</p>
+    <input id="spLabelInp" value="${defaultLabel}" placeholder="e.g. JLPT, piano, CILPA" autocomplete="off">
+    <div class="modal-actions">
+      <button class="btn-primary" id="spConfirm">Log it (${secs}s)</button>
+      <button class="btn-secondary" id="spSkip">Skip</button>
+    </div>
+  </div>`;
+  document.body.appendChild(bg);
+  const inp = bg.querySelector('#spLabelInp');
+  const btn = bg.querySelector('#spConfirm');
+  const cdp = bg.querySelector('#spCountdown');
+  inp.focus(); inp.select();
+  const t = setInterval(() => {
+    secs--;
+    if (secs <= 0) { clearInterval(t); done(false); }
+    else { btn.textContent = `Log it (${secs}s)`; cdp.textContent = `What did you work on? Auto-logs in ${secs}s.`; }
+  }, 1000);
+  function done(skip) {
+    clearInterval(t);
+    const label = skip ? (defaultLabel || 'Focus') : (inp.value.trim() || defaultLabel || 'Focus');
+    bg.remove();
+    onConfirm(label);
+  }
+  btn.onclick = () => done(false);
+  bg.querySelector('#spSkip').onclick = () => done(true);
+  inp.onkeydown = e => { if (e.key === 'Enter') done(false); };
+}
+
+function ftEnd(){
+  clearInterval(ft.interval); ft.interval=null; ft.running=false;
+  const c=ftC();
+  if(ft.mode==='work'){
+    const capturedLabel=ft.label, capturedWork=c.work, capturedSessions=c.sessions, capturedLong=c.long, capturedShort=c.short, capturedDone=ft.done;
+    showSessionLabelPrompt(capturedLabel||'Focus', finalLabel => {
+      ftLogSession(finalLabel, capturedWork);
+      ft.done = capturedDone + 1;
+      if(ft.done >= capturedSessions){ ftReset(); return; }
+      ft.mode = (ft.done % capturedSessions === 0) ? 'long' : 'short';
+      ft.secs = (ft.mode==='long' ? capturedLong : capturedShort)*60;
+      ftDisp(); ft.running=true; ft.interval=setInterval(ftTick,1000); ftCtrl(true);
+    });
+  } else { ft.mode='work'; ft.secs=c.work*60; ftDisp(); ftCtrl(false); }
+}
 function ftTick(){if(ft.secs<=0){ftEnd();return;}ft.secs--;document.getElementById('ftTime').textContent=ftFmt(ft.secs);}
 function ftReset(){clearInterval(ft.interval);ft={mode:'idle',running:false,secs:0,interval:null,done:0,label:''};const c=ftC();document.getElementById('ftTime').textContent=ftFmt(c.work*60);document.getElementById('ftBadge').textContent='READY';document.getElementById('ftBadge').className='ft-badge';document.getElementById('ftLbl').textContent='';document.getElementById('ftLabel').disabled=false;['ftWork','ftShort','ftLong','ftSessions'].forEach(id=>{document.getElementById(id).disabled=false;});ftDots();ftCtrl(false);}
 document.getElementById('ftStart').onclick=()=>{const c=ftC();if(ft.mode==='idle'){ft.mode='work';ft.secs=c.work*60;ft.done=0;ft.label=document.getElementById('ftLabel').value.trim();}if(ft.running){clearInterval(ft.interval);ft.interval=null;ft.running=false;ftCtrl(false);ftDisp();return;}ft.running=true;ft.interval=setInterval(ftTick,1000);ftDisp();ftCtrl(true);};
@@ -1156,30 +1247,73 @@ function updateHeader(){
 }
 
 // ═══════════════════════════════════════════
-// SUBLINE — editable vision statement
+// SUBLINE — dynamic rotating identity
 // ═══════════════════════════════════════════
-const DEFAULT_SUBLINE = 'BPT Y2 · Haldwani → Australia · JLPT N3 Dec 2026';
-function renderSubline() {
-  const el = document.getElementById('osSubline');
-  el.textContent = sg('_subline') || DEFAULT_SUBLINE;
+let _sublineInterval = null, _sublineIdx = 0;
+
+function getSublineLines() {
+  const now = new Date();
+  const jlptDate = new Date('2026-12-06');
+  const jlptDays = Math.max(0, Math.ceil((jlptDate - now) / 86400000));
+  return [
+    `${jlptDays}d to JLPT N3 · stay locked in`,
+    'Producer. Pianist. Physio. Toshin.',
+    'BPT Y2 · Haldwani → Australia · 2029',
+    'Greatest musician in every room.',
+    'Singer. Model. Physio. All of it.',
+    'Building an unconventional international life.',
+    'CILPA. Toshin Music. Beats. Kanji. Reps.',
+  ];
 }
+
+function startSublineRotation() {
+  const custom = sg('_subline');
+  const el = document.getElementById('osSubline');
+  if (custom) { el.textContent = custom; return; }
+  const lines = getSublineLines();
+  el.textContent = lines[_sublineIdx % lines.length];
+  if (_sublineInterval) clearInterval(_sublineInterval);
+  _sublineInterval = setInterval(() => {
+    _sublineIdx = (_sublineIdx + 1) % lines.length;
+    const el2 = document.getElementById('osSubline');
+    el2.style.opacity = '0';
+    setTimeout(() => {
+      el2.textContent = getSublineLines()[_sublineIdx];
+      el2.style.opacity = '1';
+    }, 300);
+  }, 6000);
+}
+
 function editSubline() {
-  const current = sg('_subline') || DEFAULT_SUBLINE;
+  const custom = sg('_subline') || '';
   const bg = document.createElement('div'); bg.className = 'modal-bg';
   bg.innerHTML = `<div class="modal">
     <h2>Your Vision</h2>
-    <p>Write who you're becoming. This lives at the top of your OS every day.</p>
-    <textarea id="sublineInp" rows="3" style="width:100%;" placeholder="e.g. Greatest pianist, producer, physio — building an international life on my terms.">${current}</textarea>
+    <p>Set a custom tagline, or clear it to let it rotate through your identity automatically.</p>
+    <textarea id="sublineInp" rows="3" style="width:100%;" placeholder="e.g. Greatest pianist, producer, physio — building an international life on my terms.">${custom}</textarea>
     <div class="modal-actions">
       <button class="btn-primary" id="sublineSave">Save</button>
+      <button class="btn-secondary" id="sublineReset">↺ Rotate</button>
       <button class="btn-secondary" id="sublineCancel">Cancel</button>
     </div>
   </div>`;
   document.body.appendChild(bg);
   bg.querySelector('#sublineCancel').onclick = () => bg.remove();
+  bg.querySelector('#sublineReset').onclick = () => {
+    sd('_subline');
+    _sublineIdx = 0;
+    if (_sublineInterval) clearInterval(_sublineInterval);
+    _sublineInterval = null;
+    startSublineRotation();
+    bg.remove();
+  };
   bg.querySelector('#sublineSave').onclick = () => {
     const v = bg.querySelector('#sublineInp').value.trim();
-    if (v) { ss('_subline', v); renderSubline(); }
+    if (v) {
+      ss('_subline', v);
+      if (_sublineInterval) { clearInterval(_sublineInterval); _sublineInterval = null; }
+      document.getElementById('osSubline').textContent = v;
+    }
     bg.remove();
   };
 }
@@ -1240,6 +1374,181 @@ function showPriorityPicker() {
 }
 
 // ═══════════════════════════════════════════
+// MILESTONES — JLPT + Australia countdown
+// ═══════════════════════════════════════════
+function renderMilestones() {
+  const el = document.getElementById('milestonesRow');
+  if (!el) return;
+  const now = new Date();
+  const jlpt = new Date('2026-12-06');
+  const aus = new Date('2029-07-01');
+  const jlptDays = Math.max(0, Math.ceil((jlpt - now) / 86400000));
+  const ausDays  = Math.max(0, Math.ceil((aus  - now) / 86400000));
+  const jlptStart = new Date('2025-01-01');
+  const ausStart  = new Date('2023-07-01');
+  const jlptProg = Math.min(100, Math.max(0, Math.round((now - jlptStart) / (jlpt - jlptStart) * 100)));
+  const ausProg  = Math.min(100, Math.max(0, Math.round((now - ausStart)  / (aus  - ausStart)  * 100)));
+  el.innerHTML = `
+    <div class="milestone-pill">
+      <div class="milestone-emoji-label">🇯🇵 JLPT N3</div>
+      <div class="milestone-days">${jlptDays}</div>
+      <div class="milestone-sub">days · Dec 6, 2026</div>
+      <div class="milestone-bar"><div class="milestone-fill" style="width:${jlptProg}%;background:#6BB2E3;"></div></div>
+    </div>
+    <div class="milestone-pill">
+      <div class="milestone-emoji-label">🌏 Australia</div>
+      <div class="milestone-days">${ausDays}</div>
+      <div class="milestone-sub">days · est. mid-2029</div>
+      <div class="milestone-bar"><div class="milestone-fill" style="width:${ausProg}%;background:#6BE3A4;"></div></div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════
+// CROSS-DEVICE SYNC — JSONBin.io (free)
+// ═══════════════════════════════════════════
+let SYNC_KEY = localStorage.getItem('_syncKey') || '';
+let SYNC_BIN = localStorage.getItem('_syncBin') || '';
+let _syncTimer = null;
+const SYNC_SKIP = new Set(['_syncKey','_syncBin','_apik','_syncTs','_syncLast']);
+
+function setSyncStatus(state, label) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  el.className = 'os-sync' + (state ? ' ' + state : '');
+  el.textContent = label;
+}
+
+async function syncPush(showStatus=false) {
+  if (!SYNC_KEY || !SYNC_BIN) return;
+  if (showStatus) setSyncStatus('', '☁ syncing…');
+  const data = { _syncTs: Date.now() };
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && !SYNC_SKIP.has(k)) data[k] = localStorage.getItem(k);
+  }
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${SYNC_BIN}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': SYNC_KEY },
+      body: JSON.stringify(data)
+    });
+    if (!r.ok) throw new Error('status ' + r.status);
+    localStorage.setItem('_syncLast', Date.now().toString());
+    setSyncStatus('ok', '☁ synced');
+    setTimeout(() => setSyncStatus('ok', '☁ sync'), 3000);
+  } catch(e) {
+    console.warn('Sync push failed:', e);
+    setSyncStatus('err', '☁ error');
+  }
+}
+
+async function syncPull() {
+  if (!SYNC_KEY || !SYNC_BIN) return false;
+  setSyncStatus('', '☁ pulling…');
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${SYNC_BIN}/latest`, {
+      headers: { 'X-Master-Key': SYNC_KEY }
+    });
+    if (!r.ok) throw new Error('status ' + r.status);
+    const d = await r.json();
+    const data = d.record;
+    if (!data) return false;
+    const localTs = parseInt(localStorage.getItem('_syncTs') || '0');
+    const remoteTs = parseInt(data._syncTs || '0');
+    if (remoteTs > localTs) {
+      Object.entries(data).forEach(([k, v]) => {
+        if (!SYNC_SKIP.has(k)) localStorage.setItem(k, v);
+      });
+      localStorage.setItem('_syncTs', String(remoteTs));
+      setSyncStatus('ok', '☁ pulled ✓');
+      return true;
+    }
+    setSyncStatus('ok', '☁ sync');
+    return false;
+  } catch(e) {
+    console.warn('Sync pull failed:', e);
+    setSyncStatus('err', '☁ error');
+    return false;
+  }
+}
+
+function scheduleSyncPush() {
+  if (!SYNC_KEY || !SYNC_BIN) return;
+  if (_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(() => syncPush(true), 3000);
+}
+
+async function createBinAndSave(apiKey) {
+  const r = await fetch('https://api.jsonbin.io/v3/b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': apiKey, 'X-Bin-Name': 'KrisOS', 'X-Bin-Private': 'true' },
+    body: JSON.stringify({ _syncTs: 0 })
+  });
+  if (!r.ok) throw new Error('Could not create bin. Check your API key.');
+  const d = await r.json();
+  return d.metadata?.id || null;
+}
+
+function showSyncModal() {
+  const lastSync = localStorage.getItem('_syncLast');
+  const lastStr = lastSync ? new Date(parseInt(lastSync)).toLocaleTimeString() : 'never';
+  const bg = document.createElement('div'); bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal">
+    <h2>☁ Cross-Device Sync</h2>
+    <p>Free private sync via <a href="https://jsonbin.io" target="_blank" style="color:var(--text-secondary);">JSONBin.io</a>. Get a free API key at jsonbin.io → API Keys. Your data is stored in your own private bin.</p>
+    <input id="syncKeyInp" type="password" placeholder="Master Key ($2b$…)" value="${SYNC_KEY}" autocomplete="off">
+    <input id="syncBinInp" placeholder="Bin ID (auto-created if empty)" value="${SYNC_BIN}" autocomplete="off" style="margin-top:6px;">
+    <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:10px;font-family:ui-monospace,monospace;">Last synced: ${lastStr}</div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="syncSave">Connect &amp; Push</button>
+      <button class="btn-secondary" id="syncPullBtn">Pull from cloud</button>
+      <button class="btn-secondary" id="syncCancel">Cancel</button>
+    </div>
+    <div class="status-line" id="syncModalStatus"></div>
+  </div>`;
+  document.body.appendChild(bg);
+  const st = bg.querySelector('#syncModalStatus');
+  bg.querySelector('#syncCancel').onclick = () => bg.remove();
+  bg.querySelector('#syncPullBtn').onclick = async () => {
+    st.textContent = 'Pulling from cloud…';
+    const pulled = await syncPull();
+    if (pulled) { st.textContent = '✓ Pulled! Reloading in 1s…'; setTimeout(() => location.reload(), 1200); }
+    else st.textContent = 'Already up to date.';
+  };
+  bg.querySelector('#syncSave').onclick = async () => {
+    const key = bg.querySelector('#syncKeyInp').value.trim();
+    let binId = bg.querySelector('#syncBinInp').value.trim();
+    st.classList.remove('err');
+    if (!key) { st.textContent = 'Enter your JSONBin Master Key.'; st.classList.add('err'); return; }
+    st.textContent = binId ? 'Connecting…' : 'Creating new bin…';
+    try {
+      if (!binId) binId = await createBinAndSave(key);
+      if (!binId) throw new Error('Empty bin ID returned');
+      SYNC_KEY = key; SYNC_BIN = binId;
+      localStorage.setItem('_syncKey', key);
+      localStorage.setItem('_syncBin', binId);
+      bg.querySelector('#syncBinInp').value = binId;
+      st.textContent = 'Connected! Pushing your data…';
+      await syncPush(false);
+      st.textContent = `✓ Done. Bin ID: ${binId} — paste this on other devices.`;
+      setSyncStatus('ok', '☁ sync');
+    } catch(e) { st.classList.add('err'); st.textContent = 'Error: ' + e.message; }
+  };
+}
+
+window.addEventListener('kris-data-changed', scheduleSyncPush);
+
+// Auto-pull on load if sync is configured
+(async () => {
+  if (SYNC_KEY && SYNC_BIN) {
+    const pulled = await syncPull();
+    if (pulled) { setTimeout(() => location.reload(), 400); }
+  } else {
+    setSyncStatus('', '☁ sync');
+  }
+})();
+
+// ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
 doRollover();
@@ -1254,8 +1563,9 @@ ftReset(); renderFtTotal();
 renderRadar();
 updateStreak();
 checkAutoCoach();
-renderSubline();
+startSublineRotation();
 renderFtSessions();
+renderMilestones();
 </script>
 </body>
 </html>
