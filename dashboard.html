@@ -216,6 +216,18 @@ body>*{position:relative;z-index:1;}
 .ft-session-label{font-size:11px;color:var(--text-secondary);}
 .ft-session-time{font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);}
 .ft-total strong{color:var(--text-secondary);}
+/* SESSION SUMMARY */
+.ft-summary{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);}
+.ft-summary-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.ft-summary-title{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;}
+.ft-summary-toggle{font-size:10px;color:var(--text-tertiary);cursor:pointer;font-family:ui-monospace,monospace;background:none;border:none;padding:0;}
+.ft-summary-toggle:hover{color:var(--text-secondary);}
+.ft-summary-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.ft-summary-lbl{font-size:11px;color:var(--text-secondary);width:72px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ft-summary-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.ft-summary-bar{height:100%;background:linear-gradient(90deg,#6BE3A4,#6BB2E3);border-radius:2px;transition:width .5s cubic-bezier(.22,1,.36,1);}
+.ft-summary-time{font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);width:42px;text-align:right;flex-shrink:0;}
+.ft-log-items{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
 
 /* TICKER */
 .ticker{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;background-image:linear-gradient(180deg,rgba(0,0,0,.4) 0%,rgba(0,0,0,.28) 100%),repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0,rgba(255,255,255,.022) 1px,transparent 1px,transparent 3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);position:relative;overflow:hidden;margin-bottom:16px;}
@@ -224,12 +236,9 @@ body>*{position:relative;z-index:1;}
 .t-dot{width:6px;height:6px;border-radius:50%;background:#6BE3A4;box-shadow:0 0 7px rgba(107,227,164,.65);animation:lp 1.6s ease-in-out infinite;flex-shrink:0;}
 @keyframes lp{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
 .t-lbl{font-family:ui-monospace,monospace;font-size:9px;font-weight:800;letter-spacing:.16em;color:var(--text-tertiary);flex-shrink:0;text-transform:uppercase;}
-.t-stage{flex:1;height:20px;position:relative;overflow:hidden;min-width:0;}
-.t-row{display:flex;align-items:center;height:20px;gap:7px;font-family:ui-monospace,monospace;font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;position:absolute;width:100%;top:0;left:0;overflow:hidden;}
-.t-row.leaving{animation:tleave .4s cubic-bezier(.55,0,.55,1) forwards;}
-.t-row.entering{animation:tenter .4s cubic-bezier(.22,1,.36,1) forwards;}
-@keyframes tleave{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(-100%);}}
-@keyframes tenter{from{opacity:0;transform:translateY(100%);}to{opacity:1;transform:translateY(0);}}
+.t-stage{flex:1;height:20px;overflow:hidden;min-width:0;transition:opacity .18s ease;}
+.t-row{display:flex;align-items:center;height:20px;gap:7px;font-family:ui-monospace,monospace;font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;}
+.t-row.leaving{display:none;}
 .t-status[data-s="done"]{color:#6BE3A4;}
 .t-status[data-s="empty"]{color:var(--text-tertiary);}
 .t-meta{font-family:ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--text-secondary);padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.04);flex-shrink:0;}
@@ -481,6 +490,7 @@ body>*{position:relative;z-index:1;}
       <button class="ft-btn ft-btn-s" id="ftReset" disabled>Reset</button>
     </div>
     <div class="ft-total" id="ftTotal">Today: <strong>0 min</strong> focused</div>
+    <div id="ftDaySummary"></div>
     <div class="ft-sessions" id="ftSessions"></div>
   </div>
 </div>
@@ -1234,7 +1244,7 @@ function updateRing(){
 // ═══════════════════════════════════════════
 let tkInterval=null,tkIdx=0;
 function tkItems(){const goals=sg('goals:'+activeDate())||[];const done=goals.filter(g=>g.done).length,total=goals.length;let items;if(!total)items=[{s:'empty',t:'No goals — add one.'}];else if(done===total)items=[{s:'done',t:'✓ All done — solid.'}];else items=goals.filter(g=>!g.done).map(g=>({s:'pending',t:g.text}));return{items,done,total};}
-function tkTick(reset){const stage=document.getElementById('tStage'),meta=document.getElementById('tMeta');const{items,done,total}=tkItems();if(reset)tkIdx=0;if(tkIdx>=items.length)tkIdx=0;const item=items[tkIdx];tkIdx=(tkIdx+1)%items.length;meta.textContent=`${done}/${total}`;const nr=document.createElement('div');nr.className='t-row';const ss_=document.createElement('span');ss_.className='t-status';ss_.dataset.s=item.s;ss_.textContent=item.s==='done'?'✓':'○';const ts=document.createElement('span');ts.textContent=item.t;nr.appendChild(ss_);nr.appendChild(ts);const old=stage.querySelector('.t-row');if(old){old.classList.add('leaving');setTimeout(()=>old.remove(),400);nr.classList.add('entering');}stage.appendChild(nr);}
+function tkTick(reset){const stage=document.getElementById('tStage'),meta=document.getElementById('tMeta');const{items,done,total}=tkItems();if(reset)tkIdx=0;if(tkIdx>=items.length)tkIdx=0;const item=items[tkIdx];tkIdx=(tkIdx+1)%items.length;meta.textContent=`${done}/${total}`;stage.style.opacity='0';setTimeout(()=>{stage.innerHTML='';const nr=document.createElement('div');nr.className='t-row';const ss_=document.createElement('span');ss_.className='t-status';ss_.dataset.s=item.s;ss_.textContent=item.s==='done'?'✓':'○';const ts=document.createElement('span');ts.textContent=item.t;nr.appendChild(ss_);nr.appendChild(ts);stage.appendChild(nr);stage.style.opacity='1';},180);}
 function startTicker(){tkTick(true);if(tkInterval)clearInterval(tkInterval);tkInterval=setInterval(()=>tkTick(false),5000);}
 window.addEventListener('data-changed',()=>tkTick(true));
 
@@ -1318,23 +1328,53 @@ function editSubline() {
   };
 }
 
-// ═══════════════════════════════════════════
-// FOCUS SESSION LOG
-// ═══════════════════════════════════════════
+let _ftLogExpanded = false;
 function renderFtSessions() {
-  const el = document.getElementById('ftSessions');
-  if (!el) return;
+  const logEl  = document.getElementById('ftSessions');
+  const sumEl  = document.getElementById('ftDaySummary');
+  if (!logEl || !sumEl) return;
   const day = sg('focus:' + activeDate()) || { sessions: [] };
-  if (!day.sessions.length) { el.innerHTML = ''; return; }
-  el.innerHTML = day.sessions.slice(-5).reverse().map(s => {
-    const t = new Date(s.ts);
-    const timeStr = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    return `<div class="ft-session-item">
-      <span class="ft-session-label">✓ ${s.label || 'Focus'} — ${s.mins} min</span>
-      <span class="ft-session-time">${timeStr}</span>
-    </div>`;
-  }).join('');
+
+  if (!day.sessions.length) { logEl.innerHTML = ''; sumEl.innerHTML = ''; return; }
+
+  // ── Topic breakdown ──────────────────────────────────
+  const topicMins = {};
+  day.sessions.forEach(s => {
+    const lbl = (s.label || 'Focus').trim() || 'Focus';
+    topicMins[lbl] = (topicMins[lbl] || 0) + (s.mins || 0);
+  });
+  const maxMins = Math.max(...Object.values(topicMins));
+  const entries = Object.entries(topicMins).sort((a, b) => b[1] - a[1]);
+
+  sumEl.innerHTML = `<div class="ft-summary">
+    <div class="ft-summary-head">
+      <div class="ft-summary-title">Today's breakdown</div>
+      <button class="ft-summary-toggle" onclick="toggleFtLog()">${_ftLogExpanded ? 'hide log ↑' : 'show log ↓'}</button>
+    </div>
+    ${entries.map(([lbl, mins]) => `
+      <div class="ft-summary-row">
+        <span class="ft-summary-lbl">${lbl}</span>
+        <div class="ft-summary-bar-wrap"><div class="ft-summary-bar" style="width:${Math.round(mins / maxMins * 100)}%"></div></div>
+        <span class="ft-summary-time">${fmtMins(mins)}</span>
+      </div>`).join('')}
+  </div>`;
+
+  // ── Individual session log (toggle) ──────────────────
+  if (_ftLogExpanded) {
+    logEl.innerHTML = `<div class="ft-log-items">` +
+      day.sessions.slice().reverse().map(s => {
+        const t = new Date(s.ts);
+        const timeStr = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        return `<div class="ft-session-item">
+          <span class="ft-session-label">✓ ${s.label || 'Focus'} — ${s.mins} min</span>
+          <span class="ft-session-time">${timeStr}</span>
+        </div>`;
+      }).join('') + `</div>`;
+  } else {
+    logEl.innerHTML = '';
+  }
 }
+function toggleFtLog() { _ftLogExpanded = !_ftLogExpanded; renderFtSessions(); }
 
 // ═══════════════════════════════════════════
 // DOCUMENT CONFLICT — ask what to prioritize instead of blocking
