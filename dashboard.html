@@ -178,56 +178,12 @@ body>*{position:relative;z-index:1;}
 .push-btn.hidden{display:none;}
 .tomorrow-sub{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
 
-/* FOCUS TIMER */
-.ft-card{background:var(--card-bg);border-radius:var(--card-radius);padding:20px;backdrop-filter:blur(24px);box-shadow:var(--card-shadow);margin-bottom:12px;}
-.ft-label-inp{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:9px 12px;font-size:13px;color:var(--text-primary);font-family:inherit;outline:none;margin-bottom:14px;transition:border-color .2s;}
-.ft-label-inp::placeholder{color:var(--text-tertiary);}
-.ft-label-inp:focus{border-color:rgba(255,255,255,.2);}
-.ft-label-inp:disabled{opacity:.5;}
-.ft-cfg{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
-.ft-cfg-item{flex:1;min-width:60px;}
-.ft-cfg-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-bottom:3px;}
-.ft-cfg-inp{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:7px 9px;font-size:13px;color:var(--text-primary);font-family:ui-monospace,monospace;outline:none;transition:border-color .2s;}
-.ft-cfg-inp:focus{border-color:rgba(255,255,255,.2);}
-.ft-cfg-inp:disabled{opacity:.5;}
-.ft-display{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:16px;}
-.ft-badge{font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;font-family:ui-monospace,monospace;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.05);color:var(--text-tertiary);}
-.ft-badge.work{background:rgba(107,227,164,.12);color:#6BE3A4;}
-.ft-badge.short{background:rgba(107,178,227,.12);color:#6BB2E3;}
-.ft-badge.long{background:rgba(123,91,176,.12);color:#A07FD4;}
-.ft-time{font-size:64px;font-weight:800;letter-spacing:-.04em;font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;line-height:1;color:var(--text-primary);}
-.ft-time.running{color:#fff;}
-.ft-lbl{font-size:11px;color:var(--text-tertiary);font-style:italic;min-height:16px;}
-.ft-dots{display:flex;gap:6px;}
-.ft-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.18);background:transparent;transition:all .25s;}
-.ft-dot.done{background:#6BE3A4;border-color:#6BE3A4;}
-.ft-dot.active{background:rgba(107,227,164,.3);border-color:#6BE3A4;animation:dp 1.2s ease-in-out infinite;}
-@keyframes dp{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
-.ft-btns{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
-.ft-btn{padding:9px 20px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:all .15s;white-space:nowrap;}
-.ft-btn-g{background:linear-gradient(180deg,#6BE3A4 0%,#4EC98A 100%);color:#030f07;box-shadow:0 2px 10px rgba(107,227,164,.25);}
-.ft-btn-g:hover{transform:translateY(-1px);filter:brightness(1.06);}
-.ft-btn-s{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);color:var(--text-secondary);}
-.ft-btn-s:hover{background:rgba(255,255,255,.1);}
-.ft-btn:disabled{opacity:.3;cursor:not-allowed;transform:none !important;}
-.ft-total{text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:var(--text-tertiary);font-family:ui-monospace,monospace;}
-.ft-sessions{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
-.ft-session-item{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:rgba(107,227,164,.06);border-radius:7px;border:1px solid rgba(107,227,164,.1);}
-.ft-session-label{font-size:11px;color:var(--text-secondary);}
-.ft-session-time{font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);}
-.ft-total strong{color:var(--text-secondary);}
-/* SESSION SUMMARY */
-.ft-summary{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);}
-.ft-summary-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
-.ft-summary-title{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;}
-.ft-summary-toggle{font-size:10px;color:var(--text-tertiary);cursor:pointer;font-family:ui-monospace,monospace;background:none;border:none;padding:0;}
-.ft-summary-toggle:hover{color:var(--text-secondary);}
-.ft-summary-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
-.ft-summary-lbl{font-size:11px;color:var(--text-secondary);width:72px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ft-summary-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
-.ft-summary-bar{height:100%;background:linear-gradient(90deg,#6BE3A4,#6BB2E3);border-radius:2px;transition:width .5s cubic-bezier(.22,1,.36,1);}
-.ft-summary-time{font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);width:42px;text-align:right;flex-shrink:0;}
-.ft-log-items{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+/* HABIT DRAG */
+.habit-drag{cursor:grab;color:var(--text-tertiary);font-size:15px;flex-shrink:0;padding:0 3px;user-select:none;opacity:0;transition:opacity .15s;line-height:1;touch-action:none;}
+.habit-row:hover .habit-drag{opacity:.5;}
+.habit-row.dragging{opacity:.35;background:rgba(255,255,255,.02);}
+.habit-row.drag-over{border-color:rgba(107,227,164,.45);background:rgba(107,227,164,.04);transform:scale(1.01);}
+.habit-row{transition:background .2s,transform .1s,border-color .15s;}
 
 /* TICKER */
 .ticker{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;background-image:linear-gradient(180deg,rgba(0,0,0,.4) 0%,rgba(0,0,0,.28) 100%),repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0,rgba(255,255,255,.022) 1px,transparent 1px,transparent 3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);position:relative;overflow:hidden;margin-bottom:16px;}
@@ -302,6 +258,7 @@ body>*{position:relative;z-index:1;}
     <div class="os-date" id="osDate">—</div>
     <div class="os-streak" id="osStreak">⚡ 0 streak</div>
     <div class="os-sync" id="syncStatus" onclick="showSyncModal()" title="Cross-device sync">☁ sync</div>
+    <div class="os-sync" id="waStatus" onclick="showWAModal()" title="WhatsApp alerts">📱 alerts</div>
   </div>
 </div>
 
@@ -358,6 +315,7 @@ body>*{position:relative;z-index:1;}
     <div class="habit-footer">
       <button class="btn-ghost" id="addHabitBtn">+ Add habit</button>
       <button class="btn-ghost" id="aiHabitBtn">✦ AI suggest</button>
+      <button class="btn-ghost" id="aiPrioritizeBtn">↕ AI prioritize</button>
     </div>
   </div>
 </div>
@@ -467,33 +425,6 @@ body>*{position:relative;z-index:1;}
   </div>
 </div>
 
-<!-- FOCUS TIMER -->
-<div class="section">
-  <div class="section-label">Focus Timer</div>
-  <div class="ft-card">
-    <input class="ft-label-inp" id="ftLabel" placeholder="Working on… (e.g. JLPT, piano, CILPA)" autocomplete="off">
-    <div class="ft-cfg">
-      <div class="ft-cfg-item"><div class="ft-cfg-lbl">Work</div><input class="ft-cfg-inp" id="ftWork" type="number" value="25" min="1" max="120"></div>
-      <div class="ft-cfg-item"><div class="ft-cfg-lbl">Short</div><input class="ft-cfg-inp" id="ftShort" type="number" value="5" min="1" max="60"></div>
-      <div class="ft-cfg-item"><div class="ft-cfg-lbl">Long</div><input class="ft-cfg-inp" id="ftLong" type="number" value="15" min="1" max="120"></div>
-      <div class="ft-cfg-item"><div class="ft-cfg-lbl">Sessions</div><input class="ft-cfg-inp" id="ftSessions" type="number" value="4" min="1" max="12"></div>
-    </div>
-    <div class="ft-display">
-      <div class="ft-badge" id="ftBadge">READY</div>
-      <div class="ft-time" id="ftTime">25:00</div>
-      <div class="ft-lbl" id="ftLbl"></div>
-      <div class="ft-dots" id="ftDots"></div>
-    </div>
-    <div class="ft-btns">
-      <button class="ft-btn ft-btn-g" id="ftStart">Start</button>
-      <button class="ft-btn ft-btn-s" id="ftSkip" disabled>Skip</button>
-      <button class="ft-btn ft-btn-s" id="ftReset" disabled>Reset</button>
-    </div>
-    <div class="ft-total" id="ftTotal">Today: <strong>0 min</strong> focused</div>
-    <div id="ftDaySummary"></div>
-    <div class="ft-sessions" id="ftSessions"></div>
-  </div>
-</div>
 
 <script>
 // ═══════════════════════════════════════════
@@ -675,6 +606,8 @@ function habitStreak(id) {
   return streak;
 }
 
+let _dragSrcId = null;
+
 function renderHabits() {
   const habits=getHabits(); const today=activeDate(); const log=getHLog(today);
   const grid=document.getElementById('habitGrid'); grid.innerHTML='';
@@ -683,7 +616,10 @@ function renderHabits() {
     const hist=habitHistory(h.id,7);
     const row=document.createElement('div');
     row.className='habit-row'+(status==='done'?' done-row':status==='skip'?' skip-row':'');
+    row.setAttribute('draggable','true');
+    row.dataset.hid = h.id;
     row.innerHTML=`
+      <span class="habit-drag" title="Drag to reorder">⠿</span>
       <span class="habit-emoji">${h.emoji}</span>
       <span class="habit-name">${h.name}</span>
       <span class="habit-streak${streak>=3?' hot':''}">${streak>0?streak+'d':''}</span>
@@ -693,6 +629,25 @@ function renderHabits() {
         <button class="h-btn h-btn-skip${status==='skip'?' active':''}" onclick="logHabit('${h.id}','skip')" title="Skip (travel/rest day)">—</button>
         <button class="h-btn-del" onclick="removeHabit('${h.id}')" title="Remove">×</button>
       </div>`;
+    // ── Drag events ──
+    row.addEventListener('dragstart', e => {
+      _dragSrcId = h.id;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => row.classList.add('dragging'), 0);
+    });
+    row.addEventListener('dragend', () => { row.classList.remove('dragging'); _dragSrcId = null; document.querySelectorAll('.habit-row').forEach(r=>r.classList.remove('drag-over')); });
+    row.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+    row.addEventListener('dragenter', e => { e.preventDefault(); if (_dragSrcId && _dragSrcId !== h.id) row.classList.add('drag-over'); });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault(); row.classList.remove('drag-over');
+      if (!_dragSrcId || _dragSrcId === h.id) return;
+      const hs = getHabits();
+      const si = hs.findIndex(x=>x.id===_dragSrcId), ti = hs.findIndex(x=>x.id===h.id);
+      if (si<0||ti<0) return;
+      const [moved] = hs.splice(si,1); hs.splice(ti,0,moved);
+      saveHabits(hs); renderHabits(); renderStreakTable();
+    });
     grid.appendChild(row);
   });
 }
@@ -728,9 +683,81 @@ document.getElementById('aiHabitBtn').onclick = async () => {
   btn.textContent='✦ AI suggest'; btn.disabled=false;
 };
 
-// ═══════════════════════════════════════════
-// PROGRESS RADAR
-// ═══════════════════════════════════════════
+document.getElementById('aiPrioritizeBtn').onclick = async () => {
+  const btn = document.getElementById('aiPrioritizeBtn');
+  btn.textContent = '…'; btn.disabled = true;
+  try {
+    const habits = getHabits().filter(h => h.active);
+    if (habits.length < 2) { alert('Add at least 2 habits to prioritize.'); btn.textContent='↕ AI prioritize'; btn.disabled=false; return; }
+
+    // Build 14-day completion rates per habit
+    const today = activeDate();
+    const habitStats = habits.map(h => {
+      let done=0, total=0;
+      for (let i=0;i<14;i++) {
+        const d=addD(today,-i); const log=getHLog(d); const s=log[h.id];
+        if (s==='done') { done++; total++; }
+        else if (s==='skip') { /* skip counts as neutral */ }
+        else total++;
+      }
+      const rate = total>0 ? Math.round(done/total*100) : 0;
+      return { id:h.id, name:h.name, emoji:h.emoji, rate, streak:habitStreak(h.id) };
+    });
+
+    const today_dow = new Date().toLocaleDateString('en-US',{weekday:'long'});
+    const statsLine = habitStats.map(h=>`${h.emoji} ${h.name}: ${h.rate}% completion, ${h.streak}d streak`).join('\n');
+
+    const prompt = `${KRIS}
+
+Today is ${today_dow}.
+
+Kris's current habits with 14-day completion rates and streak:
+${statsLine}
+
+Reorder these habits by what Kris should focus on MOST right now, today, this week.
+
+Rules:
+- Weigh his goal priorities: CILPA > Physique > Music > Japanese > BPT
+- Neglected habits (low %) that are critical to his goals should rank HIGH
+- Foundation habits (sleep, movement, diet) that enable everything else rank HIGH
+- Don't just sort by completion rate — a habit that's been done consistently can rank lower since it's already ingrained
+- Be specific to today (${today_dow}) — e.g. don't rank gym highest on a rest day
+- Vary the reasoning — don't give the same order as before
+
+Return ONLY valid JSON — an array ordered highest-to-lowest priority:
+[{"id":"h_xxx","reason":"one short phrase"}]
+
+No prose, no markdown, just the JSON array.`;
+
+    const raw = await ai(prompt, '', 'haiku');
+    if (!raw) throw new Error('No response');
+
+    let ordered;
+    try {
+      const clean = raw.replace(/```[a-z]*/g,'').replace(/```/g,'').trim();
+      ordered = JSON.parse(clean);
+    } catch { throw new Error('Could not parse AI response — try again.'); }
+
+    // Apply order
+    const hs = getHabits();
+    const activeOrdered = ordered.map(o => hs.find(h=>h.id===o.id)).filter(Boolean);
+    const inactive = hs.filter(h => !h.active);
+    const remaining = hs.filter(h => h.active && !ordered.find(o=>o.id===h.id));
+    saveHabits([...activeOrdered, ...remaining, ...inactive]);
+    renderHabits(); renderStreakTable();
+
+    // Show reasoning
+    const reasons = ordered.map(o => {
+      const h = habitStats.find(s=>s.id===o.id);
+      return h ? `${h.emoji} ${h.name} — ${o.reason}` : null;
+    }).filter(Boolean).join('\n');
+
+    const bg = document.createElement('div'); bg.className='modal-bg';
+    bg.innerHTML=`<div class="modal"><h2>↕ Reordered</h2><p style="white-space:pre-wrap;color:var(--text-secondary);font-size:13px;line-height:1.8;">${reasons}</p><div class="modal-actions"><button class="btn-primary" id="prOk">Got it</button></div></div>`;
+    document.body.appendChild(bg); bg.querySelector('#prOk').onclick=()=>bg.remove();
+  } catch(e) { alert('Error: '+e.message); }
+  btn.textContent='↕ AI prioritize'; btn.disabled=false;
+};
 let radarChart = null;
 
 function getWeekScore(startISO) {
@@ -1159,72 +1186,6 @@ document.getElementById('pushBtn').onclick=()=>{
 };
 
 // ═══════════════════════════════════════════
-// FOCUS TIMER
-// ═══════════════════════════════════════════
-let ft={mode:'idle',running:false,secs:0,interval:null,done:0,label:''};
-const ftC=()=>({work:Math.max(1,parseInt(document.getElementById('ftWork').value)||25),short:Math.max(1,parseInt(document.getElementById('ftShort').value)||5),long:Math.max(1,parseInt(document.getElementById('ftLong').value)||15),sessions:Math.max(1,Math.min(12,parseInt(document.getElementById('ftSessions').value)||4))});
-const ftFmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
-function ftDots(){const c=ftC(),el=document.getElementById('ftDots');el.innerHTML='';for(let i=0;i<c.sessions;i++){const d=document.createElement('div');d.className='ft-dot'+(i<ft.done?' done':(ft.mode==='work'&&i===ft.done?' active':''));el.appendChild(d);}}
-function ftDisp(){const t=document.getElementById('ftTime'),b=document.getElementById('ftBadge'),l=document.getElementById('ftLbl');t.textContent=ftFmt(ft.secs);t.className='ft-time'+(ft.running?' running':'');if(ft.mode==='idle'){b.textContent='READY';b.className='ft-badge';l.textContent='';}else if(ft.mode==='work'){b.textContent='WORK · '+( ft.done+1);b.className='ft-badge work';l.textContent=ft.label;}else if(ft.mode==='short'){b.textContent='SHORT BREAK';b.className='ft-badge short';l.textContent='Breathe';}else{b.textContent='LONG BREAK';b.className='ft-badge long';l.textContent='Rest up';}ftDots();}
-function ftCtrl(r){const s=document.getElementById('ftStart'),sk=document.getElementById('ftSkip'),rs=document.getElementById('ftReset');s.textContent=r?'Pause':(ft.mode==='idle'?'Start':'Resume');sk.disabled=ft.mode==='idle';rs.disabled=ft.mode==='idle'&&!ft.running;document.getElementById('ftLabel').disabled=ft.mode!=='idle';['ftWork','ftShort','ftLong','ftSessions'].forEach(id=>{document.getElementById(id).disabled=ft.mode!=='idle';});}
-function ftLogSession(label,mins){const ds=activeDate(),day=sg('focus:'+ds)||{totalMins:0,sessions:[]};day.totalMins+=mins;day.sessions.push({label:label||'Focus',mins,ts:Date.now()});ss('focus:'+ds,day);renderFtTotal();renderRadar();renderFtSessions();}
-function renderFtTotal(){const d=sg('focus:'+activeDate())||{totalMins:0};document.getElementById('ftTotal').innerHTML=`Today: <strong>${d.totalMins>0?fmtMins(d.totalMins):'0 min'}</strong> focused`;}
-function showSessionLabelPrompt(defaultLabel, onConfirm) {
-  const bg = document.createElement('div'); bg.className = 'modal-bg';
-  let secs = 5;
-  bg.innerHTML = `<div class="modal">
-    <h2>Session done ✓</h2>
-    <p id="spCountdown">What did you work on? Auto-logs in ${secs}s.</p>
-    <input id="spLabelInp" value="${defaultLabel}" placeholder="e.g. JLPT, piano, CILPA" autocomplete="off">
-    <div class="modal-actions">
-      <button class="btn-primary" id="spConfirm">Log it (${secs}s)</button>
-      <button class="btn-secondary" id="spSkip">Skip</button>
-    </div>
-  </div>`;
-  document.body.appendChild(bg);
-  const inp = bg.querySelector('#spLabelInp');
-  const btn = bg.querySelector('#spConfirm');
-  const cdp = bg.querySelector('#spCountdown');
-  inp.focus(); inp.select();
-  const t = setInterval(() => {
-    secs--;
-    if (secs <= 0) { clearInterval(t); done(false); }
-    else { btn.textContent = `Log it (${secs}s)`; cdp.textContent = `What did you work on? Auto-logs in ${secs}s.`; }
-  }, 1000);
-  function done(skip) {
-    clearInterval(t);
-    const label = skip ? (defaultLabel || 'Focus') : (inp.value.trim() || defaultLabel || 'Focus');
-    bg.remove();
-    onConfirm(label);
-  }
-  btn.onclick = () => done(false);
-  bg.querySelector('#spSkip').onclick = () => done(true);
-  inp.onkeydown = e => { if (e.key === 'Enter') done(false); };
-}
-
-function ftEnd(){
-  clearInterval(ft.interval); ft.interval=null; ft.running=false;
-  const c=ftC();
-  if(ft.mode==='work'){
-    const capturedLabel=ft.label, capturedWork=c.work, capturedSessions=c.sessions, capturedLong=c.long, capturedShort=c.short, capturedDone=ft.done;
-    showSessionLabelPrompt(capturedLabel||'Focus', finalLabel => {
-      ftLogSession(finalLabel, capturedWork);
-      ft.done = capturedDone + 1;
-      if(ft.done >= capturedSessions){ ftReset(); return; }
-      ft.mode = (ft.done % capturedSessions === 0) ? 'long' : 'short';
-      ft.secs = (ft.mode==='long' ? capturedLong : capturedShort)*60;
-      ftDisp(); ft.running=true; ft.interval=setInterval(ftTick,1000); ftCtrl(true);
-    });
-  } else { ft.mode='work'; ft.secs=c.work*60; ftDisp(); ftCtrl(false); }
-}
-function ftTick(){if(ft.secs<=0){ftEnd();return;}ft.secs--;document.getElementById('ftTime').textContent=ftFmt(ft.secs);}
-function ftReset(){clearInterval(ft.interval);ft={mode:'idle',running:false,secs:0,interval:null,done:0,label:''};const c=ftC();document.getElementById('ftTime').textContent=ftFmt(c.work*60);document.getElementById('ftBadge').textContent='READY';document.getElementById('ftBadge').className='ft-badge';document.getElementById('ftLbl').textContent='';document.getElementById('ftLabel').disabled=false;['ftWork','ftShort','ftLong','ftSessions'].forEach(id=>{document.getElementById(id).disabled=false;});ftDots();ftCtrl(false);}
-document.getElementById('ftStart').onclick=()=>{const c=ftC();if(ft.mode==='idle'){ft.mode='work';ft.secs=c.work*60;ft.done=0;ft.label=document.getElementById('ftLabel').value.trim();}if(ft.running){clearInterval(ft.interval);ft.interval=null;ft.running=false;ftCtrl(false);ftDisp();return;}ft.running=true;ft.interval=setInterval(ftTick,1000);ftDisp();ftCtrl(true);};
-document.getElementById('ftSkip').onclick=()=>{clearInterval(ft.interval);ft.interval=null;ft.running=false;if(ft.mode==='work'){const c=ftC(),el=c.work*60-ft.secs;if(el>30)ftLogSession(ft.label,Math.max(1,Math.floor(el/60)));ft.done++;const c2=ftC();if(ft.done>=c2.sessions){ftReset();return;}ft.mode='short';ft.secs=c2.short*60;ftDisp();ftCtrl(false);}else{ft.mode='work';ft.secs=ftC().work*60;ftDisp();ftCtrl(false);}};
-document.getElementById('ftReset').onclick=ftReset;
-['ftWork','ftShort','ftLong','ftSessions'].forEach(id=>{document.getElementById(id).addEventListener('input',()=>{if(ft.mode==='idle'){const c=ftC();document.getElementById('ftTime').textContent=ftFmt(c.work*60);ftDots();}});});
-
-// ═══════════════════════════════════════════
 // DAY RING
 // ═══════════════════════════════════════════
 const SUN=[[255,216,158],[255,205,121],[255,227,143],[255,183,106],[255,149,89],[243,111,79],[226,93,122],[123,91,176],[47,58,102]];
@@ -1328,53 +1289,6 @@ function editSubline() {
   };
 }
 
-let _ftLogExpanded = false;
-function renderFtSessions() {
-  const logEl  = document.getElementById('ftSessions');
-  const sumEl  = document.getElementById('ftDaySummary');
-  if (!logEl || !sumEl) return;
-  const day = sg('focus:' + activeDate()) || { sessions: [] };
-
-  if (!day.sessions.length) { logEl.innerHTML = ''; sumEl.innerHTML = ''; return; }
-
-  // ── Topic breakdown ──────────────────────────────────
-  const topicMins = {};
-  day.sessions.forEach(s => {
-    const lbl = (s.label || 'Focus').trim() || 'Focus';
-    topicMins[lbl] = (topicMins[lbl] || 0) + (s.mins || 0);
-  });
-  const maxMins = Math.max(...Object.values(topicMins));
-  const entries = Object.entries(topicMins).sort((a, b) => b[1] - a[1]);
-
-  sumEl.innerHTML = `<div class="ft-summary">
-    <div class="ft-summary-head">
-      <div class="ft-summary-title">Today's breakdown</div>
-      <button class="ft-summary-toggle" onclick="toggleFtLog()">${_ftLogExpanded ? 'hide log ↑' : 'show log ↓'}</button>
-    </div>
-    ${entries.map(([lbl, mins]) => `
-      <div class="ft-summary-row">
-        <span class="ft-summary-lbl">${lbl}</span>
-        <div class="ft-summary-bar-wrap"><div class="ft-summary-bar" style="width:${Math.round(mins / maxMins * 100)}%"></div></div>
-        <span class="ft-summary-time">${fmtMins(mins)}</span>
-      </div>`).join('')}
-  </div>`;
-
-  // ── Individual session log (toggle) ──────────────────
-  if (_ftLogExpanded) {
-    logEl.innerHTML = `<div class="ft-log-items">` +
-      day.sessions.slice().reverse().map(s => {
-        const t = new Date(s.ts);
-        const timeStr = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-        return `<div class="ft-session-item">
-          <span class="ft-session-label">✓ ${s.label || 'Focus'} — ${s.mins} min</span>
-          <span class="ft-session-time">${timeStr}</span>
-        </div>`;
-      }).join('') + `</div>`;
-  } else {
-    logEl.innerHTML = '';
-  }
-}
-function toggleFtLog() { _ftLogExpanded = !_ftLogExpanded; renderFtSessions(); }
 
 // ═══════════════════════════════════════════
 // DOCUMENT CONFLICT — ask what to prioritize instead of blocking
@@ -1589,6 +1503,104 @@ window.addEventListener('kris-data-changed', scheduleSyncPush);
 })();
 
 // ═══════════════════════════════════════════
+// WHATSAPP ALERTS — CallMeBot (free)
+// ═══════════════════════════════════════════
+function waConfigured() { return !!(localStorage.getItem('_waPhone') && localStorage.getItem('_waKey')); }
+
+function updateWAStatus() {
+  const el = document.getElementById('waStatus');
+  if (!el) return;
+  el.textContent = waConfigured() ? '📱 on' : '📱 alerts';
+  el.className = 'os-sync' + (waConfigured() ? ' ok' : '');
+}
+
+async function sendWhatsApp(text) {
+  const phone = localStorage.getItem('_waPhone');
+  const key   = localStorage.getItem('_waKey');
+  if (!phone || !key) return false;
+  const encoded = encodeURIComponent(('KrisOS: ' + text).slice(0, 1600));
+  try {
+    await fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encoded}&apikey=${key}`);
+    return true;
+  } catch(e) { console.warn('WA send failed:', e); return false; }
+}
+
+async function sendScheduledBrief() {
+  const habitsNow = getHabits().filter(h=>h.active).map(h=>{ const l=getHLog(activeDate()); return h.name+':'+(l[h.id]||'not done'); }).join(', ');
+  const goalsNow  = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'done':'pending')+': '+g.text).join(', ')||'none set';
+  const docs = getDocs(); const docLine = docs.length ? docs.map(d=>d.name+': '+d.summary).join(' | ') : 'none';
+  const prompt = `${KRIS}\n\nHabits: ${habitsNow}\nGoals: ${goalsNow}\nUploaded docs: ${docLine}\n\nWrite 3 sentences starting with "Kris,". Give him a time-specific morning plan for today. Name actual tasks and durations. No filler.`;
+  try {
+    const text = await ai(prompt, KRIS, 'haiku');
+    if (text) await sendWhatsApp('☀️ 8 AM Brief\n\n' + text);
+  } catch(e) { console.warn('Scheduled brief failed:', e); }
+}
+
+async function sendScheduledCoach() {
+  const habitsToday = getHabits().filter(h=>h.active).map(h=>{ const l=getHLog(activeDate()); return h.name+':'+(l[h.id]||'NOT DONE'); }).join(', ');
+  const goalsToday  = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'DONE':'PENDING')+': '+g.text).join(', ')||'none set';
+  const prompt = `${KRIS}\n\nIt is 4 PM. Half the day remains.\nHabits: ${habitsToday}\nGoals: ${goalsToday}\n\nWrite 3 sentences starting with "Kris,". Assess what he has/hasn't done. Name one specific thing he must do right now. Be blunt. Nothing else.`;
+  try {
+    const text = await ai(prompt, '', 'sonnet');
+    if (text) await sendWhatsApp('🔥 4 PM Check-In\n\n' + text);
+  } catch(e) { console.warn('Scheduled coach failed:', e); }
+}
+
+// Check every minute for scheduled messages
+setInterval(async () => {
+  if (!waConfigured() || !API_KEY) return;
+  const now = new Date(); const h = now.getHours(), m = now.getMinutes();
+  const today = activeDate();
+  if (h === 8 && m === 0 && !localStorage.getItem('_waB_'+today)) {
+    localStorage.setItem('_waB_'+today, '1');
+    sendScheduledBrief();
+  }
+  if (h === 16 && m === 0 && !localStorage.getItem('_waC_'+today)) {
+    localStorage.setItem('_waC_'+today, '1');
+    sendScheduledCoach();
+  }
+}, 60000);
+
+function showWAModal() {
+  const phone = localStorage.getItem('_waPhone') || '';
+  const key   = localStorage.getItem('_waKey')   || '';
+  const bg = document.createElement('div'); bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal">
+    <h2>📱 WhatsApp Alerts</h2>
+    <p>Uses <strong style="color:var(--text-secondary)">CallMeBot</strong> (free). Setup takes 30 seconds:<br>
+    1. Add <strong style="color:var(--text-secondary)">+34 644 28 99 80</strong> to your WhatsApp contacts as "CallMeBot"<br>
+    2. Send that number: <em>I allow callmebot to send me messages</em><br>
+    3. You'll get an API key back — paste it below.<br><br>
+    ⚠️ Dashboard must be open in browser for alerts to send.</p>
+    <input id="waPhoneInp" placeholder="Your phone with country code (e.g. 911234567890)" value="${phone}" autocomplete="off">
+    <input id="waKeyInp" placeholder="CallMeBot API key" value="${key}" autocomplete="off" style="margin-top:6px;">
+    <div class="modal-actions">
+      <button class="btn-primary" id="waSave">Save &amp; Test</button>
+      <button class="btn-secondary" id="waDisable" ${!phone?'style="display:none"':''}>Disable</button>
+      <button class="btn-secondary" id="waCancel">Cancel</button>
+    </div>
+    <div class="status-line" id="waModalStatus">Brief at 8 AM · Coach at 4 PM — only when this page is open.</div>
+  </div>`;
+  document.body.appendChild(bg);
+  const st = bg.querySelector('#waModalStatus');
+  bg.querySelector('#waCancel').onclick = () => bg.remove();
+  bg.querySelector('#waDisable').onclick = () => {
+    localStorage.removeItem('_waPhone'); localStorage.removeItem('_waKey');
+    updateWAStatus(); bg.remove();
+  };
+  bg.querySelector('#waSave').onclick = async () => {
+    const p = bg.querySelector('#waPhoneInp').value.trim().replace(/\D/g,'');
+    const k = bg.querySelector('#waKeyInp').value.trim();
+    if (!p || !k) { st.textContent = 'Enter your phone number and API key.'; st.classList.add('err'); return; }
+    st.classList.remove('err'); st.textContent = 'Saving and sending test message…';
+    localStorage.setItem('_waPhone', p); localStorage.setItem('_waKey', k);
+    const ok = await sendWhatsApp('✅ KrisOS alerts are active. Brief at 8 AM, Coach at 4 PM — keep this page open.');
+    st.textContent = ok ? '✓ Saved. Check your WhatsApp for a test message.' : 'Saved, but test message failed — check your number and key.';
+    updateWAStatus();
+  };
+}
+
+// ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
 doRollover();
@@ -1599,13 +1611,12 @@ startTicker();
 renderHabits(); renderStreakTable();
 renderDocs();
 loadGoals(); loadTomorrow();
-ftReset(); renderFtTotal();
 renderRadar();
 updateStreak();
 checkAutoCoach();
 startSublineRotation();
-renderFtSessions();
 renderMilestones();
+updateWAStatus();
 </script>
 </body>
 </html>
