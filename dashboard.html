@@ -179,11 +179,11 @@ body>*{position:relative;z-index:1;}
 .tomorrow-sub{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
 
 /* HABIT DRAG */
-.habit-drag{cursor:grab;color:var(--text-tertiary);font-size:15px;flex-shrink:0;padding:0 3px;user-select:none;opacity:0;transition:opacity .15s;line-height:1;touch-action:none;}
-.habit-row:hover .habit-drag{opacity:.5;}
-.habit-row.dragging{opacity:.35;background:rgba(255,255,255,.02);}
-.habit-row.drag-over{border-color:rgba(107,227,164,.45);background:rgba(107,227,164,.04);transform:scale(1.01);}
-.habit-row{transition:background .2s,transform .1s,border-color .15s;}
+.habit-drag{cursor:grab;color:var(--text-tertiary);font-size:15px;flex-shrink:0;padding:0 3px;user-select:none;opacity:0;transition:opacity .15s;line-height:1;}
+.habit-row:hover .habit-drag{opacity:.55;}
+.habit-row.dragging{opacity:.3;}
+.habit-row.drag-over{border-color:rgba(107,227,164,.45) !important;background:rgba(107,227,164,.05) !important;}
+.habit-row{transition:background .2s,border-color .15s;}
 
 /* TICKER */
 .ticker{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;background-image:linear-gradient(180deg,rgba(0,0,0,.4) 0%,rgba(0,0,0,.28) 100%),repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0,rgba(255,255,255,.022) 1px,transparent 1px,transparent 3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);position:relative;overflow:hidden;margin-bottom:16px;}
@@ -617,7 +617,6 @@ function renderHabits() {
     const row=document.createElement('div');
     row.className='habit-row'+(status==='done'?' done-row':status==='skip'?' skip-row':'');
     row.setAttribute('draggable','true');
-    row.dataset.hid = h.id;
     row.innerHTML=`
       <span class="habit-drag" title="Drag to reorder">⠿</span>
       <span class="habit-emoji">${h.emoji}</span>
@@ -626,31 +625,119 @@ function renderHabits() {
       <div class="habit-dots">${hist.map(x=>`<div class="habit-dot${x.status==='done'?' d':x.status==='skip'?' s':''}" title="${x.date}"></div>`).join('')}</div>
       <div class="habit-actions">
         <button class="h-btn h-btn-done${status==='done'?' active':''}" onclick="logHabit('${h.id}','done')">✓</button>
-        <button class="h-btn h-btn-skip${status==='skip'?' active':''}" onclick="logHabit('${h.id}','skip')" title="Skip (travel/rest day)">—</button>
+        <button class="h-btn h-btn-skip${status==='skip'?' active':''}" onclick="logHabit('${h.id}','skip')" title="Skip">—</button>
         <button class="h-btn-del" onclick="removeHabit('${h.id}')" title="Remove">×</button>
       </div>`;
-    // ── Drag events ──
-    row.addEventListener('dragstart', e => {
-      _dragSrcId = h.id;
-      e.dataTransfer.effectAllowed = 'move';
-      setTimeout(() => row.classList.add('dragging'), 0);
-    });
-    row.addEventListener('dragend', () => { row.classList.remove('dragging'); _dragSrcId = null; document.querySelectorAll('.habit-row').forEach(r=>r.classList.remove('drag-over')); });
+    row.addEventListener('dragstart', e => { _dragSrcId=h.id; e.dataTransfer.effectAllowed='move'; setTimeout(()=>row.classList.add('dragging'),0); });
+    row.addEventListener('dragend', () => { row.classList.remove('dragging'); _dragSrcId=null; document.querySelectorAll('.habit-row').forEach(r=>r.classList.remove('drag-over')); });
     row.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='move'; });
-    row.addEventListener('dragenter', e => { e.preventDefault(); if (_dragSrcId && _dragSrcId !== h.id) row.classList.add('drag-over'); });
-    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('dragenter', e => { e.preventDefault(); if(_dragSrcId&&_dragSrcId!==h.id) row.classList.add('drag-over'); });
+    row.addEventListener('dragleave', ()=>row.classList.remove('drag-over'));
     row.addEventListener('drop', e => {
       e.preventDefault(); row.classList.remove('drag-over');
-      if (!_dragSrcId || _dragSrcId === h.id) return;
-      const hs = getHabits();
-      const si = hs.findIndex(x=>x.id===_dragSrcId), ti = hs.findIndex(x=>x.id===h.id);
-      if (si<0||ti<0) return;
-      const [moved] = hs.splice(si,1); hs.splice(ti,0,moved);
+      if(!_dragSrcId||_dragSrcId===h.id) return;
+      const hs=getHabits(), si=hs.findIndex(x=>x.id===_dragSrcId), ti=hs.findIndex(x=>x.id===h.id);
+      if(si<0||ti<0) return;
+      const [moved]=hs.splice(si,1); hs.splice(ti,0,moved);
       saveHabits(hs); renderHabits(); renderStreakTable();
     });
     grid.appendChild(row);
   });
 }
+
+document.getElementById('aiPrioritizeBtn').onclick = async () => {
+  const btn = document.getElementById('aiPrioritizeBtn');
+  btn.textContent = '↕ thinking…'; btn.disabled = true;
+  try {
+    const habits = getHabits().filter(h => h.active);
+    if (habits.length < 2) { alert('Add at least 2 habits first.'); btn.textContent='↕ AI prioritize'; btn.disabled=false; return; }
+
+    // Build 14-day stats per habit — name-keyed so AI can reference them
+    const today = activeDate();
+    const statsLines = habits.map(h => {
+      let done=0, total=0;
+      for(let i=0;i<14;i++){
+        const d=addD(today,-i), log=getHLog(d), s=log[h.id];
+        if(s==='done'){done++;total++;} else if(s!=='skip') total++;
+      }
+      const pct = total>0 ? Math.round(done/total*100) : 0;
+      const streak = habitStreak(h.id);
+      return `"${h.name}": ${pct}% completion over 14 days, ${streak}d current streak`;
+    }).join('\n');
+
+    const dow = new Date().toLocaleDateString('en-US',{weekday:'long'});
+
+    const prompt = `${KRIS}
+
+Today is ${dow}.
+
+Kris's habits with 14-day completion rates:
+${statsLines}
+
+Reorder these habits by what he should prioritise MOST right now.
+
+Think about:
+- His goal hierarchy: CILPA > Physique > Music > Japanese > BPT
+- Habits he's been avoiding (low %) that matter most for his goals should rank HIGH
+- Foundation habits (sleep, movement, diet) that unlock everything else should rank HIGH
+- A habit already at 80%+ completion can rank lower — it's ingrained, not the problem
+- It's ${dow} — factor in what's realistic today
+- Give a different reason each time, don't be generic
+
+Return ONLY a JSON array of habit names in priority order, highest first:
+[{"name":"exact habit name here","reason":"specific 1-phrase reason"}]
+
+Use the EXACT habit names as listed above. No extra text, no markdown, just the JSON array.`;
+
+    const raw = await ai(prompt, '', 'sonnet');
+    if (!raw) throw new Error('No response from AI');
+
+    // Robust parsing — strip any markdown fences
+    let ordered;
+    const cleaned = raw.replace(/```[\s\S]*?```/g, m => m.replace(/```[a-z]*/g,'').replace(/```/g,'')).replace(/^[^[]*(\[)/,'$1').replace(/\][^]]*$/,']').trim();
+    try {
+      ordered = JSON.parse(cleaned);
+    } catch(parseErr) {
+      // Last resort: extract JSON array from anywhere in the response
+      const match = raw.match(/\[[\s\S]*\]/);
+      if (match) { try { ordered = JSON.parse(match[0]); } catch { throw new Error('AI returned unreadable format. Try again.'); } }
+      else throw new Error('AI did not return a valid list. Try again.');
+    }
+
+    if (!Array.isArray(ordered) || !ordered.length) throw new Error('Empty response. Try again.');
+
+    // Match by name (case-insensitive, partial match as fallback)
+    const hs = getHabits();
+    const activeHabits = hs.filter(h=>h.active);
+    const matched = ordered.map(o => {
+      const name = (o.name||'').toLowerCase().trim();
+      return activeHabits.find(h=>h.name.toLowerCase()===name) ||
+             activeHabits.find(h=>h.name.toLowerCase().includes(name)||name.includes(h.name.toLowerCase()));
+    }).filter(Boolean);
+
+    // Remove duplicates (keep first occurrence)
+    const seen = new Set();
+    const deduped = matched.filter(h => { if(seen.has(h.id)) return false; seen.add(h.id); return true; });
+
+    // Append any habits the AI missed at the end
+    const missed = activeHabits.filter(h => !seen.has(h.id));
+    const inactive = hs.filter(h => !h.active);
+    saveHabits([...deduped, ...missed, ...inactive]);
+    renderHabits(); renderStreakTable();
+
+    // Show reasoning modal
+    const reasons = ordered.map(o => {
+      const h = activeHabits.find(ah=>ah.name.toLowerCase()===(o.name||'').toLowerCase().trim());
+      return h ? `${h.emoji} ${h.name}\n   → ${o.reason}` : null;
+    }).filter(Boolean).join('\n\n');
+    const bg = document.createElement('div'); bg.className='modal-bg';
+    bg.innerHTML=`<div class="modal"><h2>↕ Reordered</h2><p style="white-space:pre-wrap;color:var(--text-secondary);font-size:12.5px;line-height:1.85;">${reasons}</p><div class="modal-actions"><button class="btn-primary" id="prOk">Got it</button></div></div>`;
+    document.body.appendChild(bg); bg.querySelector('#prOk').onclick=()=>bg.remove();
+  } catch(e) {
+    alert('Prioritize failed: ' + e.message);
+  }
+  btn.textContent='↕ AI prioritize'; btn.disabled=false;
+};
 
 function removeHabit(id) {
   if(!confirm('Remove this habit?')) return;
@@ -683,81 +770,9 @@ document.getElementById('aiHabitBtn').onclick = async () => {
   btn.textContent='✦ AI suggest'; btn.disabled=false;
 };
 
-document.getElementById('aiPrioritizeBtn').onclick = async () => {
-  const btn = document.getElementById('aiPrioritizeBtn');
-  btn.textContent = '…'; btn.disabled = true;
-  try {
-    const habits = getHabits().filter(h => h.active);
-    if (habits.length < 2) { alert('Add at least 2 habits to prioritize.'); btn.textContent='↕ AI prioritize'; btn.disabled=false; return; }
-
-    // Build 14-day completion rates per habit
-    const today = activeDate();
-    const habitStats = habits.map(h => {
-      let done=0, total=0;
-      for (let i=0;i<14;i++) {
-        const d=addD(today,-i); const log=getHLog(d); const s=log[h.id];
-        if (s==='done') { done++; total++; }
-        else if (s==='skip') { /* skip counts as neutral */ }
-        else total++;
-      }
-      const rate = total>0 ? Math.round(done/total*100) : 0;
-      return { id:h.id, name:h.name, emoji:h.emoji, rate, streak:habitStreak(h.id) };
-    });
-
-    const today_dow = new Date().toLocaleDateString('en-US',{weekday:'long'});
-    const statsLine = habitStats.map(h=>`${h.emoji} ${h.name}: ${h.rate}% completion, ${h.streak}d streak`).join('\n');
-
-    const prompt = `${KRIS}
-
-Today is ${today_dow}.
-
-Kris's current habits with 14-day completion rates and streak:
-${statsLine}
-
-Reorder these habits by what Kris should focus on MOST right now, today, this week.
-
-Rules:
-- Weigh his goal priorities: CILPA > Physique > Music > Japanese > BPT
-- Neglected habits (low %) that are critical to his goals should rank HIGH
-- Foundation habits (sleep, movement, diet) that enable everything else rank HIGH
-- Don't just sort by completion rate — a habit that's been done consistently can rank lower since it's already ingrained
-- Be specific to today (${today_dow}) — e.g. don't rank gym highest on a rest day
-- Vary the reasoning — don't give the same order as before
-
-Return ONLY valid JSON — an array ordered highest-to-lowest priority:
-[{"id":"h_xxx","reason":"one short phrase"}]
-
-No prose, no markdown, just the JSON array.`;
-
-    const raw = await ai(prompt, '', 'haiku');
-    if (!raw) throw new Error('No response');
-
-    let ordered;
-    try {
-      const clean = raw.replace(/```[a-z]*/g,'').replace(/```/g,'').trim();
-      ordered = JSON.parse(clean);
-    } catch { throw new Error('Could not parse AI response — try again.'); }
-
-    // Apply order
-    const hs = getHabits();
-    const activeOrdered = ordered.map(o => hs.find(h=>h.id===o.id)).filter(Boolean);
-    const inactive = hs.filter(h => !h.active);
-    const remaining = hs.filter(h => h.active && !ordered.find(o=>o.id===h.id));
-    saveHabits([...activeOrdered, ...remaining, ...inactive]);
-    renderHabits(); renderStreakTable();
-
-    // Show reasoning
-    const reasons = ordered.map(o => {
-      const h = habitStats.find(s=>s.id===o.id);
-      return h ? `${h.emoji} ${h.name} — ${o.reason}` : null;
-    }).filter(Boolean).join('\n');
-
-    const bg = document.createElement('div'); bg.className='modal-bg';
-    bg.innerHTML=`<div class="modal"><h2>↕ Reordered</h2><p style="white-space:pre-wrap;color:var(--text-secondary);font-size:13px;line-height:1.8;">${reasons}</p><div class="modal-actions"><button class="btn-primary" id="prOk">Got it</button></div></div>`;
-    document.body.appendChild(bg); bg.querySelector('#prOk').onclick=()=>bg.remove();
-  } catch(e) { alert('Error: '+e.message); }
-  btn.textContent='↕ AI prioritize'; btn.disabled=false;
-};
+// ═══════════════════════════════════════════
+// PROGRESS RADAR
+// ═══════════════════════════════════════════
 let radarChart = null;
 
 function getWeekScore(startISO) {
@@ -1185,6 +1200,7 @@ document.getElementById('pushBtn').onclick=()=>{
   ss(mk,tmr); ss(tk,today.filter(g=>g.done)); loadGoals(); loadTomorrow();
 };
 
+
 // ═══════════════════════════════════════════
 // DAY RING
 // ═══════════════════════════════════════════
@@ -1289,10 +1305,8 @@ function editSubline() {
   };
 }
 
-
 // ═══════════════════════════════════════════
-// DOCUMENT CONFLICT — ask what to prioritize instead of blocking
-// ═══════════════════════════════════════════
+// DOCUMENT CONFLICT
 async function checkDocConflict(docs) {
   if (docs.length < 2) { document.getElementById('docConflict').innerHTML = ''; return; }
   try {
@@ -1503,100 +1517,96 @@ window.addEventListener('kris-data-changed', scheduleSyncPush);
 })();
 
 // ═══════════════════════════════════════════
-// WHATSAPP ALERTS — CallMeBot (free)
+// TELEGRAM ALERTS — free, reliable
 // ═══════════════════════════════════════════
-function waConfigured() { return !!(localStorage.getItem('_waPhone') && localStorage.getItem('_waKey')); }
+function tgConfigured() { return !!(localStorage.getItem('_tgToken') && localStorage.getItem('_tgChatId')); }
 
-function updateWAStatus() {
+function updateTGStatus() {
   const el = document.getElementById('waStatus');
   if (!el) return;
-  el.textContent = waConfigured() ? '📱 on' : '📱 alerts';
-  el.className = 'os-sync' + (waConfigured() ? ' ok' : '');
+  el.textContent = tgConfigured() ? '🔔 on' : '📱 alerts';
+  el.className = 'os-sync' + (tgConfigured() ? ' ok' : '');
 }
 
-async function sendWhatsApp(text) {
-  const phone = localStorage.getItem('_waPhone');
-  const key   = localStorage.getItem('_waKey');
-  if (!phone || !key) return false;
-  const encoded = encodeURIComponent(('KrisOS: ' + text).slice(0, 1600));
+async function sendTelegram(text) {
+  const token  = localStorage.getItem('_tgToken');
+  const chatId = localStorage.getItem('_tgChatId');
+  if (!token || !chatId) return false;
   try {
-    await fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encoded}&apikey=${key}`);
-    return true;
-  } catch(e) { console.warn('WA send failed:', e); return false; }
+    const r = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' })
+    });
+    const d = await r.json();
+    return d.ok === true;
+  } catch(e) { console.warn('Telegram send failed:', e); return false; }
 }
 
 async function sendScheduledBrief() {
-  const habitsNow = getHabits().filter(h=>h.active).map(h=>{ const l=getHLog(activeDate()); return h.name+':'+(l[h.id]||'not done'); }).join(', ');
-  const goalsNow  = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'done':'pending')+': '+g.text).join(', ')||'none set';
+  const habitsLine = getHabits().filter(h=>h.active).map(h=>{ const l=getHLog(activeDate()); return h.name+': '+(l[h.id]||'not done'); }).join(', ');
+  const goalsLine  = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'done':'pending')+': '+g.text).join(', ')||'none set';
   const docs = getDocs(); const docLine = docs.length ? docs.map(d=>d.name+': '+d.summary).join(' | ') : 'none';
-  const prompt = `${KRIS}\n\nHabits: ${habitsNow}\nGoals: ${goalsNow}\nUploaded docs: ${docLine}\n\nWrite 3 sentences starting with "Kris,". Give him a time-specific morning plan for today. Name actual tasks and durations. No filler.`;
+  const prompt = `${KRIS}\n\nHabits today: ${habitsLine}\nGoals today: ${goalsLine}\nUploaded docs: ${docLine}\n\nWrite 3 tight sentences starting with "Kris,". Give a specific morning plan with actual tasks and times. No filler.`;
   try {
     const text = await ai(prompt, KRIS, 'haiku');
-    if (text) await sendWhatsApp('☀️ 8 AM Brief\n\n' + text);
+    if (text) await sendTelegram(`☀️ <b>8 AM Brief</b>\n\n${text}`);
   } catch(e) { console.warn('Scheduled brief failed:', e); }
 }
 
 async function sendScheduledCoach() {
-  const habitsToday = getHabits().filter(h=>h.active).map(h=>{ const l=getHLog(activeDate()); return h.name+':'+(l[h.id]||'NOT DONE'); }).join(', ');
-  const goalsToday  = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'DONE':'PENDING')+': '+g.text).join(', ')||'none set';
-  const prompt = `${KRIS}\n\nIt is 4 PM. Half the day remains.\nHabits: ${habitsToday}\nGoals: ${goalsToday}\n\nWrite 3 sentences starting with "Kris,". Assess what he has/hasn't done. Name one specific thing he must do right now. Be blunt. Nothing else.`;
+  const habitsLine = getHabits().filter(h=>h.active).map(h=>{ const l=getHLog(activeDate()); return h.name+': '+(l[h.id]||'NOT DONE'); }).join(', ');
+  const goalsLine  = (sg('goals:'+activeDate())||[]).filter(g=>!g._rolledOver).map(g=>(g.done?'DONE':'PENDING')+': '+g.text).join(', ')||'none set';
+  const prompt = `${KRIS}\n\nIt's 4 PM. Half the day remains.\nHabits: ${habitsLine}\nGoals: ${goalsLine}\n\nWrite 3 sentences starting with "Kris,". Be honest about what he hasn't done. Name one specific thing he must do right now. Blunt.`;
   try {
     const text = await ai(prompt, '', 'sonnet');
-    if (text) await sendWhatsApp('🔥 4 PM Check-In\n\n' + text);
+    if (text) await sendTelegram(`🔥 <b>4 PM Coach</b>\n\n${text}`);
   } catch(e) { console.warn('Scheduled coach failed:', e); }
 }
 
-// Check every minute for scheduled messages
 setInterval(async () => {
-  if (!waConfigured() || !API_KEY) return;
-  const now = new Date(); const h = now.getHours(), m = now.getMinutes();
-  const today = activeDate();
-  if (h === 8 && m === 0 && !localStorage.getItem('_waB_'+today)) {
-    localStorage.setItem('_waB_'+today, '1');
-    sendScheduledBrief();
-  }
-  if (h === 16 && m === 0 && !localStorage.getItem('_waC_'+today)) {
-    localStorage.setItem('_waC_'+today, '1');
-    sendScheduledCoach();
-  }
+  if (!tgConfigured() || !API_KEY) return;
+  const now = new Date(), h = now.getHours(), m = now.getMinutes(), today = activeDate();
+  if (h===8  && m===0 && !localStorage.getItem('_tgB_'+today)) { localStorage.setItem('_tgB_'+today,'1'); sendScheduledBrief(); }
+  if (h===16 && m===0 && !localStorage.getItem('_tgC_'+today)) { localStorage.setItem('_tgC_'+today,'1'); sendScheduledCoach(); }
 }, 60000);
 
 function showWAModal() {
-  const phone = localStorage.getItem('_waPhone') || '';
-  const key   = localStorage.getItem('_waKey')   || '';
+  const token  = localStorage.getItem('_tgToken')  || '';
+  const chatId = localStorage.getItem('_tgChatId') || '';
   const bg = document.createElement('div'); bg.className = 'modal-bg';
   bg.innerHTML = `<div class="modal">
-    <h2>📱 WhatsApp Alerts</h2>
-    <p>Uses <strong style="color:var(--text-secondary)">CallMeBot</strong> (free). Setup takes 30 seconds:<br>
-    1. Add <strong style="color:var(--text-secondary)">+34 644 28 99 80</strong> to your WhatsApp contacts as "CallMeBot"<br>
-    2. Send that number: <em>I allow callmebot to send me messages</em><br>
-    3. You'll get an API key back — paste it below.<br><br>
-    ⚠️ Dashboard must be open in browser for alerts to send.</p>
-    <input id="waPhoneInp" placeholder="Your phone with country code (e.g. 911234567890)" value="${phone}" autocomplete="off">
-    <input id="waKeyInp" placeholder="CallMeBot API key" value="${key}" autocomplete="off" style="margin-top:6px;">
-    <div class="modal-actions">
-      <button class="btn-primary" id="waSave">Save &amp; Test</button>
-      <button class="btn-secondary" id="waDisable" ${!phone?'style="display:none"':''}>Disable</button>
-      <button class="btn-secondary" id="waCancel">Cancel</button>
+    <h2>🔔 Telegram Alerts</h2>
+    <p>Free, takes 2 min. You get a Brief at <strong style="color:var(--text-secondary)">8 AM</strong> and Coach check-in at <strong style="color:var(--text-secondary)">4 PM</strong> sent to your Telegram.</p>
+    <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text-secondary);line-height:1.9;">
+      <b style="color:var(--text-primary)">Setup (once):</b><br>
+      1. Open Telegram → search <b>@BotFather</b> → send <code>/newbot</code><br>
+      2. Give it any name (e.g. <em>KrisOS</em>) → copy the <b>token</b> it gives you<br>
+      3. Search <b>@userinfobot</b> → send any message → copy your <b>Chat ID</b><br>
+      4. Paste both below and hit Save
     </div>
-    <div class="status-line" id="waModalStatus">Brief at 8 AM · Coach at 4 PM — only when this page is open.</div>
+    <input id="tgTokenInp" placeholder="Bot token (e.g. 7123456789:AAH...)" value="${token}" autocomplete="off">
+    <input id="tgChatInp" placeholder="Your Chat ID (e.g. 123456789)" value="${chatId}" autocomplete="off" style="margin-top:6px;">
+    <div class="modal-actions">
+      <button class="btn-primary" id="tgSave">Save &amp; Test</button>
+      <button class="btn-secondary" id="tgDisable" ${!token?'style="display:none"':''}>Disable</button>
+      <button class="btn-secondary" id="tgCancel">Cancel</button>
+    </div>
+    <div class="status-line" id="tgStatus">Page must be open for alerts to fire.</div>
   </div>`;
   document.body.appendChild(bg);
-  const st = bg.querySelector('#waModalStatus');
-  bg.querySelector('#waCancel').onclick = () => bg.remove();
-  bg.querySelector('#waDisable').onclick = () => {
-    localStorage.removeItem('_waPhone'); localStorage.removeItem('_waKey');
-    updateWAStatus(); bg.remove();
-  };
-  bg.querySelector('#waSave').onclick = async () => {
-    const p = bg.querySelector('#waPhoneInp').value.trim().replace(/\D/g,'');
-    const k = bg.querySelector('#waKeyInp').value.trim();
-    if (!p || !k) { st.textContent = 'Enter your phone number and API key.'; st.classList.add('err'); return; }
-    st.classList.remove('err'); st.textContent = 'Saving and sending test message…';
-    localStorage.setItem('_waPhone', p); localStorage.setItem('_waKey', k);
-    const ok = await sendWhatsApp('✅ KrisOS alerts are active. Brief at 8 AM, Coach at 4 PM — keep this page open.');
-    st.textContent = ok ? '✓ Saved. Check your WhatsApp for a test message.' : 'Saved, but test message failed — check your number and key.';
-    updateWAStatus();
+  const st = bg.querySelector('#tgStatus');
+  bg.querySelector('#tgCancel').onclick = () => bg.remove();
+  bg.querySelector('#tgDisable').onclick = () => { localStorage.removeItem('_tgToken'); localStorage.removeItem('_tgChatId'); updateTGStatus(); bg.remove(); };
+  bg.querySelector('#tgSave').onclick = async () => {
+    const t = bg.querySelector('#tgTokenInp').value.trim();
+    const c = bg.querySelector('#tgChatInp').value.trim();
+    if (!t || !c) { st.textContent = 'Enter both your bot token and chat ID.'; st.style.color='#ff6b6b'; return; }
+    st.style.color=''; st.textContent = 'Saving and sending test message…';
+    localStorage.setItem('_tgToken', t); localStorage.setItem('_tgChatId', c);
+    const ok = await sendTelegram('✅ <b>KrisOS connected.</b>\n\nBrief at 8 AM · Coach at 4 PM\nKeep this page open for alerts to fire.');
+    if (ok) { st.textContent = '✓ Saved! Check your Telegram.'; updateTGStatus(); }
+    else { st.textContent = 'Saved, but test failed — double-check token and chat ID.'; st.style.color='#ff6b6b'; }
   };
 }
 
@@ -1616,7 +1626,7 @@ updateStreak();
 checkAutoCoach();
 startSublineRotation();
 renderMilestones();
-updateWAStatus();
+updateTGStatus();
 </script>
 </body>
 </html>
