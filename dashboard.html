@@ -508,12 +508,25 @@ const fmtClock = d => { let h=d.getHours(); const m=String(d.getMinutes()).padSt
 function showKeyModal(force=false) {
   if (API_KEY && !force) return;
   const bg = document.createElement('div'); bg.className='modal-bg'; bg.id='keyModal';
-  bg.innerHTML = `<div class="modal"><h2>🔑 Groq API Key</h2><p>Free API — no credit card. 14,400 requests/day. Sign up at console.groq.com</p><input type="password" id="keyInp" placeholder="gsk_…" autocomplete="off"/><div class="modal-actions"><button class="btn-primary" id="keySave">Save</button><button class="btn-secondary" id="keySkip">Skip</button></div><div class="modal-footer">Get free key at <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a></div></div>`;
+  bg.innerHTML = `<div class="modal"><h2>🔑 API Keys</h2>
+    <p>For best results use both. Both are free.</p>
+    <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:4px;">Gemini key (Daily Briefing) — free at aistudio.google.com</label>
+    <input type="password" id="geminiInp" placeholder="AIza…" autocomplete="off" value="${localStorage.getItem('_geminiKey')||''}"/>
+    <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:4px;margin-top:4px;">OpenRouter key (Coach, Weekly Review) — free at openrouter.ai</label>
+    <input type="password" id="orInp" placeholder="sk-or-…" autocomplete="off" value="${API_KEY||''}"/>
+    <div class="modal-actions"><button class="btn-primary" id="keySave">Save</button><button class="btn-secondary" id="keySkip">Skip</button></div>
+    <div class="modal-footer"><a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> · <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></div>
+  </div>`;
   document.body.appendChild(bg);
-  const inp = bg.querySelector('#keyInp'); inp.focus();
-  bg.querySelector('#keySave').onclick = () => { const v=inp.value.trim(); if(!v) return; API_KEY=v; localStorage.setItem('_apik',v); bg.remove(); };
+  bg.querySelector('#keySave').onclick = () => {
+    const g = bg.querySelector('#geminiInp').value.trim();
+    const o = bg.querySelector('#orInp').value.trim();
+    if(g) localStorage.setItem('_geminiKey', g);
+    if(o) { API_KEY=o; localStorage.setItem('_apik',o); }
+    bg.remove();
+  };
   bg.querySelector('#keySkip').onclick = () => bg.remove();
-  inp.onkeydown = e => { if(e.key==='Enter') bg.querySelector('#keySave').click(); };
+  bg.querySelector('#geminiInp').onkeydown = e => { if(e.key==='Enter') bg.querySelector('#keySave').click(); };
 }
 if (!API_KEY) showKeyModal();
 document.getElementById('apikeyBtn').onclick = () => showKeyModal(true);
@@ -901,20 +914,26 @@ Uploaded docs: ${docLine}
 
 Output exactly 4 sentences. Each sentence must start with "Kris,". Each sentence is one time block with specific tasks and durations for the rest of today. No thinking. No preamble. No explanation. Just the 4 sentences, nothing else.`;
     const sysprompt = `${KRIS}\n\nYou output ONLY the requested sentences. No internal monologue. No "we need to" or "let's". No meta-commentary. Just the final answer directly.`;
-    // Use llama-3.3-70b for briefing — non-reasoning model, follows instructions cleanly
-    const briefModel = 'meta-llama/llama-3.3-70b-instruct:free';
+    // Use Google Gemini API directly — free, no chain-of-thought, clean output
     let raw = null;
-    try {
-      const msgs = [{ role:'system', content: sysprompt }, { role:'user', content: briefPrompt }];
-      const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+API_KEY,'HTTP-Referer':'https://dashboard-tau-six-31.vercel.app','X-Title':'Kris OS'},
-        body: JSON.stringify({model: briefModel, messages: msgs, max_tokens:400, temperature:0.3})
-      });
-      const d = await r.json();
-      if (!d.error) raw = d.choices?.[0]?.message?.content;
-    } catch(e) {}
-    if (!raw) raw = await ai(briefPrompt, sysprompt, 'haiku'); // fallback
+    const geminiKey = localStorage.getItem('_geminiKey') || '';
+    if (geminiKey) {
+      try {
+        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            system_instruction:{parts:[{text: sysprompt}]},
+            contents:[{parts:[{text: briefPrompt}]}],
+            generationConfig:{maxOutputTokens:400, temperature:0.3}
+          })
+        });
+        const d = await r.json();
+        raw = d.candidates?.[0]?.content?.parts?.[0]?.text || null;
+      } catch(e) {}
+    }
+    // Fallback to OpenRouter
+    if (!raw) raw = await ai(briefPrompt, sysprompt, 'haiku').catch(()=>null);
     const krisIdx = raw ? raw.indexOf('Kris,') : -1;
     const text = krisIdx >= 0 ? raw.slice(krisIdx).trim() : raw;
     if(text) {
