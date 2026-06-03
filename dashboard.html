@@ -902,12 +902,8 @@ Uploaded docs: ${docLine}
 Output exactly 4 sentences. Each sentence must start with "Kris,". Each sentence is one time block with specific tasks and durations for the rest of today. No thinking. No preamble. No explanation. Just the 4 sentences, nothing else.`;
     const sysprompt = `${KRIS}\n\nYou output ONLY the requested sentences. No internal monologue. No "we need to" or "let's". No meta-commentary. Just the final answer directly.`;
     const raw = await ai(briefPrompt, sysprompt, 'haiku');
-    // Slice from first "Kris," — strips all thinking preamble
     const krisIdx = raw ? raw.indexOf('Kris,') : -1;
-    const cleaned = krisIdx >= 0 ? raw.slice(krisIdx) : raw;
-    // Keep only the first 4 Kris sentences
-    const sentences = cleaned ? cleaned.match(/Kris,[^.!?]*[.!?]/g) : null;
-    const text = sentences ? sentences.slice(0,4).join('\n') : cleaned;
+    const text = krisIdx >= 0 ? raw.slice(krisIdx).trim() : raw;
     if(text) {
       out.className='cmd-output'; out.textContent=text;
       ss(cacheKey,{text,ts:Date.now()});
