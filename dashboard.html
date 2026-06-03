@@ -901,7 +901,20 @@ Uploaded docs: ${docLine}
 
 Output exactly 4 sentences. Each sentence must start with "Kris,". Each sentence is one time block with specific tasks and durations for the rest of today. No thinking. No preamble. No explanation. Just the 4 sentences, nothing else.`;
     const sysprompt = `${KRIS}\n\nYou output ONLY the requested sentences. No internal monologue. No "we need to" or "let's". No meta-commentary. Just the final answer directly.`;
-    const raw = await ai(briefPrompt, sysprompt, 'haiku');
+    // Use llama-3.3-70b for briefing — non-reasoning model, follows instructions cleanly
+    const briefModel = 'meta-llama/llama-3.3-70b-instruct:free';
+    let raw = null;
+    try {
+      const msgs = [{ role:'system', content: sysprompt }, { role:'user', content: briefPrompt }];
+      const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+API_KEY,'HTTP-Referer':'https://dashboard-tau-six-31.vercel.app','X-Title':'Kris OS'},
+        body: JSON.stringify({model: briefModel, messages: msgs, max_tokens:400, temperature:0.3})
+      });
+      const d = await r.json();
+      if (!d.error) raw = d.choices?.[0]?.message?.content;
+    } catch(e) {}
+    if (!raw) raw = await ai(briefPrompt, sysprompt, 'haiku'); // fallback
     const krisIdx = raw ? raw.indexOf('Kris,') : -1;
     const text = krisIdx >= 0 ? raw.slice(krisIdx).trim() : raw;
     if(text) {
