@@ -300,35 +300,45 @@ body>*{position:relative;z-index:1;}
 #osSubline{transition:opacity .3s;}
 
 /* ANKI HEATMAP */
-.anki-heatmap-wrap{width:100%;overflow-x:auto;padding-bottom:4px;}
-.anki-heatmap-grid{display:flex;gap:3px;align-items:flex-start;}
-.anki-heatmap-col{display:flex;flex-direction:column;gap:3px;}
-.anki-cell{width:11px;height:11px;border-radius:2px;background:rgba(255,255,255,.06);cursor:default;transition:transform .1s;}
-.anki-cell:hover{transform:scale(1.4);z-index:2;position:relative;}
-.anki-cell[data-n="0"]{background:rgba(255,255,255,.06);}
-.anki-cell[data-n="1"]{background:rgba(107,178,227,.25);}
-.anki-cell[data-n="2"]{background:rgba(107,178,227,.45);}
-.anki-cell[data-n="3"]{background:rgba(107,178,227,.65);}
-.anki-cell[data-n="4"]{background:rgba(107,178,227,.85);}
-.anki-cell[data-n="5"]{background:#6BB2E3;}
-.anki-heatmap-months{display:flex;gap:3px;margin-bottom:4px;padding-left:0;}
-.anki-month-lbl{font-size:8px;font-family:ui-monospace,monospace;color:var(--text-tertiary);white-space:nowrap;}
-.anki-heatmap-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
-.anki-heatmap-legend{display:flex;align-items:center;gap:4px;}
+.anki-heatmap-wrap{width:100%;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+.anki-heatmap-inner{display:flex;gap:2px;min-width:max-content;}
+.anki-week-col{display:flex;flex-direction:column;gap:2px;}
+.anki-cell{width:13px;height:13px;border-radius:2px;cursor:default;transition:opacity .1s;flex-shrink:0;}
+.anki-cell:hover{opacity:.75;outline:1px solid rgba(255,255,255,.3);}
+.anki-cell[data-n="0"]{background:rgba(255,255,255,.07);}
+.anki-cell[data-n="1"]{background:#1a4d2e;}
+.anki-cell[data-n="2"]{background:#196130;}
+.anki-cell[data-n="3"]{background:#26a641;}
+.anki-cell[data-n="4"]{background:#39d353;}
+.anki-cell[data-n="5"]{background:#69ff85;}
+.anki-cell.future{background:rgba(255,255,255,.03);}
+.anki-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.anki-title-left{display:flex;align-items:center;gap:10px;}
+.anki-title{font-size:13px;font-weight:700;color:var(--text-secondary);}
+.anki-status-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15);flex-shrink:0;}
+.anki-status-dot.connected{background:#39d353;box-shadow:0 0 6px rgba(57,211,83,.5);}
+.anki-status-dot.error{background:var(--danger);}
+.anki-connect-btn{padding:5px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text-tertiary);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.anki-connect-btn:hover{color:var(--text-secondary);border-color:rgba(255,255,255,.2);}
+.anki-connect-btn.syncing{color:#39d353;border-color:rgba(57,211,83,.3);}
+.anki-month-row{display:flex;gap:2px;margin-bottom:4px;min-width:max-content;}
+.anki-month-lbl{font-size:9px;font-family:ui-monospace,monospace;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;}
+.anki-stats-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);}
+.anki-stat{display:flex;flex-direction:column;gap:2px;}
+.anki-stat-val{font-size:18px;font-weight:700;font-family:ui-monospace,monospace;letter-spacing:-.03em;color:var(--success);}
+.anki-stat-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;}
+.anki-legend-row{display:flex;align-items:center;gap:3px;margin-top:10px;}
 .anki-legend-lbl{font-size:9px;font-family:ui-monospace,monospace;color:var(--text-tertiary);}
-.anki-legend-cell{width:9px;height:9px;border-radius:2px;}
-.anki-heatmap-stats{font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);}
-.anki-heatmap-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
-.anki-sync-btn{padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text-tertiary);font-size:10px;cursor:pointer;font-family:ui-monospace,monospace;transition:all .15s;}
-.anki-sync-btn:hover{color:var(--text-secondary);border-color:rgba(255,255,255,.2);}
-.anki-tooltip{position:fixed;background:#1a1a1c;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 10px;font-size:11px;font-family:ui-monospace,monospace;color:var(--text-primary);pointer-events:none;z-index:9999;white-space:nowrap;display:none;box-shadow:0 4px 16px rgba(0,0,0,.5);}
-.anki-input-row{display:flex;gap:8px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);}
-.anki-input-lbl{font-size:11px;color:var(--text-tertiary);white-space:nowrap;}
-.anki-count-inp{width:70px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--text-primary);font-family:ui-monospace,monospace;outline:none;text-align:center;transition:border-color .2s;}
+.anki-legend-cell{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
+.anki-tooltip{position:fixed;background:#1c1c1e;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:7px 11px;font-size:11px;font-family:ui-monospace,monospace;color:var(--text-primary);pointer-events:none;z-index:9999;white-space:nowrap;display:none;box-shadow:0 8px 24px rgba(0,0,0,.6);}
+.anki-manual-row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;}
+.anki-manual-lbl{font-size:11px;color:var(--text-tertiary);white-space:nowrap;}
+.anki-count-inp{width:75px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--text-primary);font-family:ui-monospace,monospace;outline:none;text-align:center;transition:border-color .2s;}
 .anki-count-inp:focus{border-color:rgba(255,255,255,.2);}
-.anki-log-btn{padding:7px 14px;border-radius:8px;border:none;background:linear-gradient(180deg,#6BB2E3 0%,#4A96CC 100%);color:#040d14;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;}
-.anki-log-btn:hover{filter:brightness(1.08);}
-.anki-note{font-size:10px;color:var(--text-tertiary);margin-top:6px;font-style:italic;}
+.anki-log-btn{padding:7px 14px;border-radius:8px;border:none;background:rgba(57,211,83,.15);border:1px solid rgba(57,211,83,.25);color:#39d353;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.anki-log-btn:hover{background:rgba(57,211,83,.25);}
+.anki-cors-note{margin-top:10px;padding:10px 14px;background:rgba(242,192,99,.06);border:1px solid rgba(242,192,99,.18);border-radius:9px;font-size:11px;color:rgba(242,192,99,.9);line-height:1.7;display:none;}
+.anki-cors-note.visible{display:block;}
 </style>
 </head>
 <body>
@@ -418,31 +428,43 @@ body>*{position:relative;z-index:1;}
 <div class="section">
   <div class="section-label">Anki Consistency</div>
   <div class="card">
-    <div class="anki-heatmap-title">
-      <span>Cards Reviewed — Past Year</span>
-      <button class="anki-sync-btn" id="ankiSyncBtn" onclick="showAnkiSyncModal()">⚙ Connect AnkiWeb</button>
-    </div>
-    <div class="anki-heatmap-months" id="ankiMonthLabels"></div>
-    <div class="anki-heatmap-wrap">
-      <div class="anki-heatmap-grid" id="ankiGrid"></div>
-    </div>
-    <div class="anki-heatmap-footer">
-      <div class="anki-heatmap-legend">
-        <span class="anki-legend-lbl">Less</span>
-        <div class="anki-legend-cell" style="background:rgba(255,255,255,.06)"></div>
-        <div class="anki-legend-cell" data-n="1" style="background:rgba(107,178,227,.25)"></div>
-        <div class="anki-legend-cell" data-n="3" style="background:rgba(107,178,227,.65)"></div>
-        <div class="anki-legend-cell" data-n="5" style="background:#6BB2E3"></div>
-        <span class="anki-legend-lbl">More</span>
+    <div class="anki-top-row">
+      <div class="anki-title-left">
+        <div class="anki-status-dot" id="ankiDot"></div>
+        <span class="anki-title">Cards Reviewed</span>
       </div>
-      <div class="anki-heatmap-stats" id="ankiStats">—</div>
+      <button class="anki-connect-btn" id="ankiConnectBtn" onclick="ankiSync()">⟳ Sync AnkiConnect</button>
     </div>
-    <div class="anki-input-row">
-      <span class="anki-input-lbl">Log today manually:</span>
-      <input class="anki-count-inp" id="ankiCountInp" type="number" min="0" placeholder="0" title="Cards reviewed today">
-      <button class="anki-log-btn" onclick="ankiLogManual()">Log</button>
+    <div class="anki-heatmap-wrap">
+      <div class="anki-month-row" id="ankiMonthLabels"></div>
+      <div class="anki-heatmap-inner" id="ankiGrid"></div>
     </div>
-    <div class="anki-note" id="ankiNote">No AnkiWeb connection — log manually or connect below. Data is stored locally.</div>
+    <div class="anki-legend-row">
+      <span class="anki-legend-lbl">Less</span>
+      <div class="anki-legend-cell" style="background:rgba(255,255,255,.07)"></div>
+      <div class="anki-legend-cell" style="background:#1a4d2e"></div>
+      <div class="anki-legend-cell" style="background:#26a641"></div>
+      <div class="anki-legend-cell" style="background:#39d353"></div>
+      <div class="anki-legend-cell" style="background:#69ff85"></div>
+      <span class="anki-legend-lbl">More</span>
+    </div>
+    <div class="anki-stats-row" id="ankiStatsRow">
+      <div class="anki-stat"><div class="anki-stat-val" id="ankiStatAvg">—</div><div class="anki-stat-lbl">Daily Average</div></div>
+      <div class="anki-stat"><div class="anki-stat-val" id="ankiStatDays">—</div><div class="anki-stat-lbl">Days Learned</div></div>
+      <div class="anki-stat"><div class="anki-stat-val" id="ankiStatStreak">—</div><div class="anki-stat-lbl">Current Streak</div></div>
+      <div class="anki-stat"><div class="anki-stat-val" id="ankiStatLongest">—</div><div class="anki-stat-lbl">Longest Streak</div></div>
+    </div>
+    <div class="anki-cors-note" id="ankiCorsNote">
+      ⚠ AnkiConnect CORS fix needed — Anki is running but blocking requests from this site.<br>
+      In Anki: <strong>Tools → Add-ons → AnkiConnect → Config</strong>, add your site to <code>webCorsOriginList</code>:<br>
+      <code style="user-select:all;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;">"https://dashboard-tau-six-31.vercel.app"</code><br>
+      Then restart Anki and click Sync again.
+    </div>
+    <div class="anki-manual-row">
+      <span class="anki-manual-lbl">Manual log:</span>
+      <input class="anki-count-inp" id="ankiCountInp" type="number" min="0" placeholder="cards" title="Cards reviewed today">
+      <button class="anki-log-btn" onclick="ankiLogManual()">+ Log today</button>
+    </div>
   </div>
 </div>
 <div id="ankiTooltip" class="anki-tooltip"></div>
@@ -1587,11 +1609,109 @@ window.addEventListener('kris-data-changed', scheduleSyncPush);
 })();
 
 // ═══════════════════════════════════════════
-// ANKI HEATMAP
+// ANKI HEATMAP + ANKICONNECT
 // ═══════════════════════════════════════════
+const ANKI_URL = 'http://127.0.0.1:8765';
+
 function ankiGetData() { return sg('_ankiData') || {}; }
 function ankiSaveData(d) { ss('_ankiData', d); }
 
+// Call AnkiConnect
+async function ankiCall(action, params={}) {
+  const r = await fetch(ANKI_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({action, version: 6, params})
+  });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j.result;
+}
+
+// Pull full review history from AnkiConnect and merge into local storage
+async function ankiSync() {
+  const btn = document.getElementById('ankiConnectBtn');
+  const dot = document.getElementById('ankiDot');
+  const corsNote = document.getElementById('ankiCorsNote');
+  btn.textContent = '⟳ Syncing…';
+  btn.classList.add('syncing');
+  corsNote.classList.remove('visible');
+
+  try {
+    // Test connection
+    await ankiCall('version');
+
+    // Get all review logs — action: cardReviews with deck:"" gets all decks
+    // Use getNumCardsReviewedByDay which returns {date: count} for all decks
+    // Fall back: get all review IDs and aggregate by day
+    let dayMap = {};
+
+    try {
+      // Try getNumCardsReviewedByDay (available in newer AnkiConnect)
+      const result = await ankiCall('getNumCardsReviewedByDay');
+      // result is array of [dateStr, count] pairs
+      if (Array.isArray(result)) {
+        result.forEach(([d, n]) => { dayMap[d] = (dayMap[d]||0) + n; });
+      }
+    } catch(e) {
+      // Fallback: use getReviewsOfCards approach
+      // Get all card IDs across all decks
+      const cardIds = await ankiCall('findCards', {query: 'deck:*'});
+      if (cardIds && cardIds.length) {
+        // Fetch reviews in batches of 500
+        const BATCH = 500;
+        for (let i = 0; i < Math.min(cardIds.length, 10000); i += BATCH) {
+          const batch = cardIds.slice(i, i+BATCH);
+          try {
+            const reviews = await ankiCall('getReviewsOfCards', {cards: batch});
+            // reviews is {cardId: [{id, usn, ease, ivl, lastIvl, factor, time, type}, ...]}
+            Object.values(reviews).forEach(cardReviews => {
+              cardReviews.forEach(rev => {
+                // rev.id is timestamp in ms
+                const d = new Date(rev.id);
+                const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                dayMap[iso] = (dayMap[iso]||0) + 1;
+              });
+            });
+          } catch(batchErr) { console.warn('Batch error', batchErr); }
+        }
+      }
+    }
+
+    // Merge with existing local data (keep manual entries for days not in AnkiConnect)
+    const existing = ankiGetData();
+    const merged = Object.assign({}, existing, dayMap);
+    ankiSaveData(merged);
+
+    dot.className = 'anki-status-dot connected';
+    btn.textContent = '✓ Synced';
+    btn.classList.remove('syncing');
+    setTimeout(() => { btn.textContent = '⟳ Sync AnkiConnect'; }, 3000);
+    localStorage.setItem('_ankiLastSync', Date.now());
+    renderAnkiHeatmap();
+
+  } catch(e) {
+    btn.textContent = '⟳ Sync AnkiConnect';
+    btn.classList.remove('syncing');
+    const msg = e.message || '';
+
+    if (msg.includes('CORS') || msg.includes('fetch') || msg.toLowerCase().includes('failed')) {
+      // Anki might be running but CORS not configured
+      // Try a no-cors ping to see if it's a CORS issue vs not running
+      dot.className = 'anki-status-dot error';
+      corsNote.classList.add('visible');
+    } else if (msg.includes('connect') || msg.includes('refused') || msg.includes('NetworkError')) {
+      dot.className = 'anki-status-dot';
+      // Anki not open — silent fail, just use cached data
+    } else {
+      dot.className = 'anki-status-dot error';
+      corsNote.classList.add('visible');
+    }
+    renderAnkiHeatmap();
+  }
+}
+
+// Manual log
 function ankiLogManual() {
   const inp = document.getElementById('ankiCountInp');
   const n = parseInt(inp.value);
@@ -1601,14 +1721,16 @@ function ankiLogManual() {
   data[today] = n;
   ankiSaveData(data);
   inp.value = '';
+  inp.placeholder = String(n);
   renderAnkiHeatmap();
 }
 
+// Color level: matches Anki heatmap addon thresholds
 function ankiLevel(n) {
-  if(!n || n===0) return 0;
-  if(n < 10) return 1;
-  if(n < 30) return 2;
-  if(n < 60) return 3;
+  if(!n || n === 0) return 0;
+  if(n < 10)  return 1;
+  if(n < 25)  return 2;
+  if(n < 50)  return 3;
   if(n < 100) return 4;
   return 5;
 }
@@ -1616,42 +1738,35 @@ function ankiLevel(n) {
 function renderAnkiHeatmap() {
   const data = ankiGetData();
   const today = activeDate();
-  const DAYS = 364; // 52 weeks
-  
-  // Build array of dates (oldest first), padded to start on Sunday
-  const todayObj = new Date(today+'T00:00:00');
-  const startObj = new Date(todayObj); startObj.setDate(startObj.getDate() - DAYS);
-  // Shift back to Sunday
-  startObj.setDate(startObj.getDate() - startObj.getDay());
-  
-  const dates = [];
-  const cur = new Date(startObj);
-  while(cur <= todayObj) {
-    dates.push(cur.toISOString().slice(0,10));
-    cur.setDate(cur.getDate()+1);
-  }
-  // Pad end to complete last week
-  while(dates.length % 7 !== 0) {
-    cur.setDate(cur.getDate()+1);
-    dates.push(cur.toISOString().slice(0,10));
-  }
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // Build 53 weeks ending today, columns = weeks, rows = days Sun-Sat
+  const todayObj = new Date(today + 'T00:00:00');
+  // Go back to last Sunday 52 weeks ago
+  const startObj = new Date(todayObj);
+  startObj.setDate(startObj.getDate() - 364);
+  startObj.setDate(startObj.getDate() - startObj.getDay()); // align to Sunday
 
   const weeks = [];
-  for(let i=0;i<dates.length;i+=7) weeks.push(dates.slice(i,i+7));
+  const cur = new Date(startObj);
+  while (cur <= todayObj || weeks[weeks.length-1]?.length < 7) {
+    if (!weeks.length || weeks[weeks.length-1].length === 7) weeks.push([]);
+    weeks[weeks.length-1].push(cur.toISOString().slice(0,10));
+    cur.setDate(cur.getDate()+1);
+    if (weeks[weeks.length-1].length === 7 && cur > todayObj) break;
+  }
 
-  // Month labels
+  // Month labels — one per column, show label at month boundary
   const monthEl = document.getElementById('ankiMonthLabels');
   monthEl.innerHTML = '';
-  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   let lastMonth = -1;
-  weeks.forEach((week, wi) => {
-    const firstDay = new Date(week[0]+'T00:00:00');
-    const m = firstDay.getMonth();
+  weeks.forEach(week => {
+    const d = new Date(week[0] + 'T00:00:00');
+    const m = d.getMonth();
     const lbl = document.createElement('div');
     lbl.className = 'anki-month-lbl';
-    lbl.style.width = '14px';
-    lbl.style.minWidth = '14px';
-    if(m !== lastMonth) { lbl.textContent = MONTHS[m]; lastMonth = m; }
+    lbl.style.cssText = 'width:15px;min-width:15px;flex-shrink:0;';
+    if (m !== lastMonth) { lbl.textContent = MONTHS[m]; lastMonth = m; }
     monthEl.appendChild(lbl);
   });
 
@@ -1662,82 +1777,85 @@ function renderAnkiHeatmap() {
 
   weeks.forEach(week => {
     const col = document.createElement('div');
-    col.className = 'anki-heatmap-col';
+    col.className = 'anki-week-col';
     week.forEach(dateStr => {
       const cell = document.createElement('div');
-      cell.className = 'anki-cell';
       const isFuture = dateStr > today;
       const count = data[dateStr] || 0;
-      const level = isFuture ? -1 : ankiLevel(count);
-      if(!isFuture) cell.dataset.n = level;
-      if(isFuture) { cell.style.background = 'rgba(255,255,255,.02)'; cell.style.opacity='.3'; }
+      if (isFuture) {
+        cell.className = 'anki-cell future';
+      } else {
+        cell.className = 'anki-cell';
+        cell.dataset.n = ankiLevel(count);
+      }
       cell.addEventListener('mouseenter', e => {
-        if(isFuture) return;
-        const d = new Date(dateStr+'T00:00:00');
-        const label = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
-        tooltip.textContent = count ? `${count} cards · ${label}` : `No cards · ${label}`;
+        if (isFuture) return;
+        const d = new Date(dateStr + 'T00:00:00');
+        const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+        tooltip.textContent = count
+          ? `${count} cards · ${dayName}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
+          : `No cards · ${dayName}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
         tooltip.style.display = 'block';
-        tooltip.style.left = (e.clientX+12)+'px';
-        tooltip.style.top = (e.clientY-28)+'px';
+        tooltip.style.left = (e.clientX + 14) + 'px';
+        tooltip.style.top = (e.clientY - 32) + 'px';
       });
-      cell.addEventListener('mousemove', e => { tooltip.style.left=(e.clientX+12)+'px'; tooltip.style.top=(e.clientY-28)+'px'; });
-      cell.addEventListener('mouseleave', () => { tooltip.style.display='none'; });
+      cell.addEventListener('mousemove', e => {
+        tooltip.style.left = (e.clientX + 14) + 'px';
+        tooltip.style.top = (e.clientY - 32) + 'px';
+      });
+      cell.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
       col.appendChild(cell);
     });
     grid.appendChild(col);
   });
 
   // Stats
-  const allEntries = Object.entries(data).filter(([d]) => d >= dates[0] && d <= today);
-  const totalCards = allEntries.reduce((s,[,n])=>s+n,0);
-  const activeDays = allEntries.filter(([,n])=>n>0).length;
-  const statsEl = document.getElementById('ankiStats');
-  statsEl.textContent = activeDays ? `${totalCards.toLocaleString()} cards · ${activeDays} active days` : 'No data yet';
+  const allDates = Object.keys(data).filter(d => d <= today).sort();
+  const activeDates = allDates.filter(d => (data[d]||0) > 0);
+  const totalCards = activeDates.reduce((s,d) => s + data[d], 0);
+  const totalDays = allDates.length || 1;
+  const dailyAvg = activeDates.length ? Math.round(totalCards / totalDays) : 0;
+  const daysLearnedPct = allDates.length
+    ? Math.round(activeDates.length / Math.max(allDates.length, 1) * 100)
+    : 0;
 
-  // Pre-fill today's count if exists
+  // Streak calculation
+  let currentStreak = 0, longestStreak = 0, streak = 0;
+  const t = new Date(today + 'T00:00:00');
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(t); d.setDate(d.getDate()-i);
+    const iso = d.toISOString().slice(0,10);
+    if ((data[iso]||0) > 0) { streak++; if(i===currentStreak) currentStreak=streak; longestStreak=Math.max(longestStreak,streak); }
+    else { if(i>0) streak=0; }
+  }
+
+  document.getElementById('ankiStatAvg').textContent = dailyAvg ? dailyAvg + ' cards' : '—';
+  document.getElementById('ankiStatDays').textContent = daysLearnedPct ? daysLearnedPct + '%' : '—';
+  document.getElementById('ankiStatStreak').textContent = currentStreak ? currentStreak + ' days' : '—';
+  document.getElementById('ankiStatLongest').textContent = longestStreak ? longestStreak + ' days' : '—';
+
+  // Pre-fill manual input if today already logged
   const inp = document.getElementById('ankiCountInp');
-  if(data[today]) inp.placeholder = data[today];
+  if (data[today]) inp.placeholder = String(data[today]);
 }
 
-function showAnkiSyncModal() {
-  const bg = document.createElement('div'); bg.className = 'modal-bg';
-  bg.innerHTML = `<div class="modal">
-    <h2>📚 Anki Heatmap</h2>
-    <p>AnkiWeb doesn't have a public API, so you have two options to keep your heatmap updated:</p>
-    <p style="margin-top:10px;color:var(--text-secondary);font-size:12px;line-height:1.8;">
-      <strong style="color:var(--text-primary);">Option 1 — Manual log (easiest):</strong><br>
-      After each Anki session, type your card count in the heatmap widget and hit Log.<br><br>
-      <strong style="color:var(--text-primary);">Option 2 — AnkiConnect addon:</strong><br>
-      Install the <a href="https://ankiweb.net/shared/info/2055492159" target="_blank" style="color:#6BB2E3;">AnkiConnect addon (2055492159)</a> on your desktop Anki. Then paste your daily count via its local API. Ask me to build a bookmarklet for this if you want full automation.<br><br>
-      <strong style="color:var(--text-primary);">Option 3 — Import from addon:</strong><br>
-      Export your review log from Anki's "Card Info" or use the Heatmap addon's export, paste the JSON below.
-    </p>
-    <textarea id="ankiImportJson" placeholder='Paste JSON: {"2025-06-01": 45, "2025-06-02": 120, …}' style="height:80px;font-size:11px;font-family:ui-monospace,monospace;margin-top:8px;"></textarea>
-    <div class="modal-actions">
-      <button class="btn-primary" id="ankiImportBtn">Import JSON</button>
-      <button class="btn-secondary" id="ankiModalClose">Close</button>
-    </div>
-    <div class="status-line" id="ankiModalStatus"></div>
-  </div>`;
-  document.body.appendChild(bg);
-  bg.querySelector('#ankiModalClose').onclick = () => bg.remove();
-  bg.querySelector('#ankiImportBtn').onclick = () => {
-    const raw = bg.querySelector('#ankiImportJson').value.trim();
-    const st = bg.querySelector('#ankiModalStatus');
+// Auto-sync on load (silent — if Anki isn't open it just fails quietly)
+(async () => {
+  const lastSync = parseInt(localStorage.getItem('_ankiLastSync') || '0');
+  const hoursSince = (Date.now() - lastSync) / 3600000;
+  if (hoursSince > 1) {
+    // Try silently — don't show CORS warning on auto-sync, only on manual
     try {
-      const parsed = JSON.parse(raw);
-      if(typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Expected a JSON object');
-      const data = ankiGetData();
-      let count = 0;
-      Object.entries(parsed).forEach(([k,v]) => {
-        if(/^\d{4}-\d{2}-\d{2}$/.test(k) && typeof v === 'number') { data[k]=v; count++; }
-      });
-      ankiSaveData(data);
+      await ankiCall('version');
+      await ankiSync();
+    } catch(e) {
+      // Anki not open, just render with cached data
       renderAnkiHeatmap();
-      st.textContent = `✓ Imported ${count} entries.`;
-    } catch(e) { st.classList.add('err'); st.textContent = 'Invalid JSON: ' + e.message; }
-  };
-}
+    }
+  } else {
+    renderAnkiHeatmap();
+  }
+})();
 
 // ═══════════════════════════════════════════
 // INIT
@@ -1764,7 +1882,6 @@ updateStreak();
 checkAutoCoach();
 startSublineRotation();
 renderMilestones();
-renderAnkiHeatmap();
 </script>
 </body>
 </html>
