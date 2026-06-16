@@ -339,6 +339,83 @@ body>*{position:relative;z-index:1;}
 .anki-log-btn:hover{background:rgba(57,211,83,.25);}
 .anki-cors-note{margin-top:10px;padding:10px 14px;background:rgba(242,192,99,.06);border:1px solid rgba(242,192,99,.18);border-radius:9px;font-size:11px;color:rgba(242,192,99,.9);line-height:1.7;display:none;}
 .anki-cors-note.visible{display:block;}
+
+/* PLAYBOOK */
+.pb-section-wrap{margin-bottom:0;}
+.pb-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:0;}
+.pb-add{padding:6px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.pb-add:hover{background:rgba(255,255,255,.08);color:var(--text-primary);}
+
+.pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pb-card{background:var(--card-bg);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color .2s,background .2s,transform .15s;position:relative;}
+.pb-card:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.065);transform:translateY(-1px);}
+.pb-card:active{transform:translateY(0) scale(.99);}
+.pb-card-head{padding:16px;display:flex;align-items:center;gap:12px;}
+.pb-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.pb-icon.morning{background:rgba(255,185,90,.15);}
+.pb-icon.breath{background:rgba(107,178,227,.13);}
+.pb-icon.night{background:rgba(147,130,227,.15);}
+.pb-icon.workout{background:rgba(107,227,164,.12);}
+.pb-card-meta{flex:1;min-width:0;}
+.pb-card-name{font-size:13px;font-weight:700;color:var(--text-primary);line-height:1.2;margin-bottom:2px;}
+.pb-card-sub{font-size:10px;color:var(--text-tertiary);font-family:ui-monospace,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pb-arrow{font-size:13px;color:var(--text-tertiary);flex-shrink:0;margin-left:auto;transition:transform .15s;}
+.pb-card:hover .pb-arrow{transform:translateX(2px);color:var(--text-secondary);}
+.pb-accent{height:2px;width:100%;}
+.morning .pb-accent{background:linear-gradient(90deg,rgba(255,185,90,.6),transparent);}
+.breath .pb-accent{background:linear-gradient(90deg,rgba(107,178,227,.5),transparent);}
+.night .pb-accent{background:linear-gradient(90deg,rgba(147,130,227,.55),transparent);}
+.workout .pb-accent{background:linear-gradient(90deg,rgba(107,227,164,.5),transparent);}
+
+/* MODAL */
+.pb-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.pb-overlay.open{opacity:1;pointer-events:auto;}
+.pb-modal{background:#0D0D0E;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:440px;max-height:82vh;display:flex;flex-direction:column;transform:scale(.94) translateY(8px);transition:transform .25s cubic-bezier(.22,1,.36,1);box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.pb-overlay.open .pb-modal{transform:scale(1) translateY(0);}
+.pb-modal-head{display:flex;align-items:center;gap:12px;padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;}
+.pb-modal-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.pb-modal-title{font-size:15px;font-weight:700;line-height:1.2;pointer-events:none;}
+.pb-modal-title.editing{pointer-events:auto;}
+.pb-modal-sub{font-size:10.5px;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-top:2px;pointer-events:none;}
+.pb-modal-sub.editing{pointer-events:auto;}
+.pb-modal-close{margin-left:auto;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.05);border:none;color:var(--text-secondary);font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.pb-modal-close:hover{background:rgba(255,255,255,.1);}
+.pb-modal-body{padding:14px 18px 18px;overflow-y:auto;}
+.pb-sec-label{font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-bottom:8px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;}
+.pb-sec-label:first-child{margin-top:0;}
+.pb-sec-add{background:none;border:none;color:var(--text-tertiary);font-size:13px;cursor:pointer;line-height:1;padding:0 2px;font-family:inherit;transition:color .15s;}
+.pb-sec-add:hover{color:var(--text-primary);}
+.pb-row{display:flex;gap:10px;align-items:flex-start;padding:9px 8px;border-radius:10px;margin-bottom:3px;transition:background .15s;position:relative;}
+.pb-row:hover{background:rgba(255,255,255,.035);}
+.pb-row:hover .pb-row-del{opacity:1;}
+.pb-row-bar{width:3px;border-radius:3px;flex-shrink:0;align-self:stretch;min-height:30px;}
+.pb-row-body{flex:1;min-width:0;}
+.pb-row-name{font-size:12.5px;font-weight:600;color:var(--text-primary);line-height:1.35;outline:none;border-radius:5px;padding:1px 3px;margin:-1px -3px;transition:background .15s;}
+.pb-row-name:focus{background:rgba(255,255,255,.07);}
+.pb-row-note{font-size:10.5px;color:var(--text-tertiary);line-height:1.5;margin-top:1px;outline:none;border-radius:5px;padding:1px 3px;margin-left:-3px;transition:background .15s;}
+.pb-row-note:focus{background:rgba(255,255,255,.07);color:var(--text-secondary);}
+.pb-row-note:empty::before{content:'Add a note…';color:rgba(255,255,255,.18);}
+.pb-row-time{font-size:9.5px;font-family:ui-monospace,monospace;color:rgba(255,255,255,.3);flex-shrink:0;padding-top:2px;text-align:right;min-width:38px;outline:none;border-radius:5px;}
+.pb-row-time:focus{background:rgba(255,255,255,.07);}
+.pb-row-del{background:none;border:none;cursor:pointer;color:rgba(255,90,90,.6);font-size:13px;padding:2px 3px;opacity:0;transition:opacity .15s;flex-shrink:0;align-self:center;}
+.pb-row-del:hover{color:#ff5a5a;}
+.bar-amber{background:#FFB95A;}.bar-blue{background:#6BB2E3;}.bar-violet{background:#9382E3;}.bar-green{background:#6BE3A4;}
+.bar-rose{background:#E37690;}.bar-cyan{background:#5AD4D4;}.bar-yellow{background:#E3D15A;}.bar-coral{background:#E07658;}
+.pb-add-row{display:flex;align-items:center;gap:6px;padding:8px;margin-top:2px;font-size:11px;color:var(--text-tertiary);cursor:pointer;background:none;border:1px dashed rgba(255,255,255,.1);border-radius:10px;font-family:inherit;width:100%;transition:all .15s;}
+.pb-add-row:hover{color:var(--text-secondary);border-color:rgba(255,255,255,.22);}
+.pb-modal-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px;}
+.pb-footer-hint{font-size:10px;color:var(--text-tertiary);}
+.pb-footer-actions{display:flex;align-items:center;gap:14px;}
+.pb-footer-edit{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text-secondary);font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit;padding:5px 12px;border-radius:999px;transition:all .15s;}
+.pb-footer-edit:hover{background:rgba(255,255,255,.1);color:var(--text-primary);}
+.pb-footer-edit.active{background:rgba(107,178,227,.18);border-color:rgba(107,178,227,.4);color:#9CCBEA;}
+.pb-footer-del{background:none;border:none;color:rgba(255,90,90,.55);font-size:10.5px;cursor:pointer;font-family:ui-monospace,monospace;}
+.pb-footer-del:hover{color:#ff5a5a;}
+.pb-modal-body:not(.editing) [contenteditable]{caret-color:transparent;}
+.pb-modal-body:not(.editing) .pb-row-name,.pb-modal-body:not(.editing) .pb-row-note,.pb-modal-body:not(.editing) .pb-row-time{pointer-events:none;}
+.pb-modal-body:not(.editing) .pb-row-del,.pb-modal-body:not(.editing) .pb-add-row,.pb-modal-body:not(.editing) .pb-sec-add{display:none;}
+.pb-modal-body.editing .pb-row-name:focus,.pb-modal-body.editing .pb-row-note:focus,.pb-modal-body.editing .pb-row-time:focus{background:rgba(255,255,255,.08);}
+.pb-modal-body.editing .sec-title-edit{border-bottom:1px dashed rgba(255,255,255,.15);}
 </style>
 </head>
 <body>
@@ -381,6 +458,36 @@ body>*{position:relative;z-index:1;}
     <div class="ring-status" id="ringStatus">😴 Still sleeping</div>
     <div class="ring-rem" id="ringRem">—</div>
     <div class="ring-range">8:00 AM – 12:00 AM</div>
+  </div>
+</div>
+
+<!-- PLAYBOOK / PERSONAL REFERENCE -->
+<div class="section">
+  <div class="pb-header-row" style="margin-bottom:10px;">
+    <div class="section-label" style="margin-bottom:0;">Playbook</div>
+    <button class="pb-add" onclick="pbCreateNewRoutine()">⊕ Add</button>
+  </div>
+  <div class="pb-grid" id="pbGrid"></div>
+</div>
+
+<div class="pb-overlay" id="pbOverlay" onclick="if(event.target===this) pbCloseModal()">
+  <div class="pb-modal">
+    <div class="pb-modal-head">
+      <div class="pb-modal-icon" id="pbModalIcon"></div>
+      <div>
+        <div class="pb-modal-title" id="pbModalTitle" contenteditable="true" onblur="pbUpdateRoutineField('label',this.textContent)"></div>
+        <div class="pb-modal-sub" id="pbModalSub" contenteditable="true" onblur="pbUpdateRoutineField('sub',this.textContent)"></div>
+      </div>
+      <button class="pb-modal-close" onclick="pbCloseModal()">✕</button>
+    </div>
+    <div class="pb-modal-body" id="pbModalBody"></div>
+    <div class="pb-modal-footer">
+      <span class="pb-footer-hint" id="pbFooterHint">Tap Edit to make changes</span>
+      <div class="pb-footer-actions">
+        <button class="pb-footer-edit" id="pbEditToggle" onclick="pbToggleEdit()">✎ Edit</button>
+        <button class="pb-footer-del" onclick="pbDeleteRoutine()">Delete routine</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -450,7 +557,6 @@ body>*{position:relative;z-index:1;}
     </div>
     <div class="anki-stats-row" id="ankiStatsRow">
       <div class="anki-stat"><div class="anki-stat-val" id="ankiStatAvg">—</div><div class="anki-stat-lbl">Daily Average</div></div>
-      <div class="anki-stat"><div class="anki-stat-val" id="ankiStatDays">—</div><div class="anki-stat-lbl">Days Learned</div></div>
       <div class="anki-stat"><div class="anki-stat-val" id="ankiStatStreak">—</div><div class="anki-stat-lbl">Current Streak</div></div>
       <div class="anki-stat"><div class="anki-stat-val" id="ankiStatLongest">—</div><div class="anki-stat-lbl">Longest Streak</div></div>
     </div>
@@ -1830,7 +1936,6 @@ function renderAnkiHeatmap() {
   }
 
   document.getElementById('ankiStatAvg').textContent = dailyAvg ? dailyAvg + ' cards' : '—';
-  document.getElementById('ankiStatDays').textContent = daysLearnedPct ? daysLearnedPct + '%' : '—';
   document.getElementById('ankiStatStreak').textContent = currentStreak ? currentStreak + ' days' : '—';
   document.getElementById('ankiStatLongest').textContent = longestStreak ? longestStreak + ' days' : '—';
 
@@ -1856,6 +1961,276 @@ function renderAnkiHeatmap() {
     renderAnkiHeatmap();
   }
 })();
+
+// ═══════════════════════════════════════════
+// PLAYBOOK — Personal Reference System
+// ═══════════════════════════════════════════
+const PB_KEY = '_playbook_v1';
+const PB_COLORS = ['amber','blue','violet','green','rose','cyan','yellow','coral'];
+
+const PB_DEFAULT = [
+  {
+    id:'morning', label:'Morning', sub:'8:00 – 10:00 AM', icon:'🌅', iconClass:'morning',
+    sections:[
+      {title:'Wake-up', steps:[
+        {time:'',name:'Hydrate',note:'250–500ml water immediately',color:'blue'},
+        {time:'',name:'Natural sunlight',note:'10+ min outside',color:'amber'},
+      ]},
+      {title:'Breathwork', steps:[
+        {time:'',name:'Wim Hof',note:'2–5 rounds',color:'cyan'},
+        {time:'',name:'Kapalabhati',note:'3–5 rounds',color:'violet'},
+        {time:'',name:'Bhramari',note:'~8 rounds',color:'rose'},
+        {time:'opt',name:'Nadi Shodhana',note:'Alternate nostril',color:'green'},
+        {time:'opt',name:'Buteyko Sit',note:'Breath hold practice',color:'yellow'},
+      ]},
+      {title:'Body & Grooming', steps:[
+        {time:'',name:'Workout',note:'PPL / UL split',color:'green'},
+        {time:'',name:'Shower → Skincare → Breakfast',note:'',color:'blue'},
+        {time:'opt',name:'Vocal warm-up',note:'Singing days only',color:'coral'},
+        {time:'opt',name:'JLPT Study Block',note:'Anki + reading',color:'amber'},
+      ]},
+    ]
+  },
+  {
+    id:'breath', label:'Breathwork', sub:'Daily · full sequence', icon:'🌬', iconClass:'breath',
+    sections:[
+      {title:'Sequence', steps:[
+        {time:'1st',name:'Wim Hof',note:'30 deep breaths → hold exhale → recovery. 2–5 rounds.',color:'cyan'},
+        {time:'2nd',name:'Kapalabhati',note:'Rapid pumping exhales, passive inhale. 3–5×30.',color:'violet'},
+        {time:'3rd',name:'Bhramari',note:'Humming bee breath. ~8 rounds. Calms nervous system.',color:'rose'},
+        {time:'opt',name:'Nadi Shodhana',note:'Alternate nostril. Balancing.',color:'green'},
+        {time:'opt',name:'Buteyko Sit',note:'Reduced breathing + breath holds.',color:'yellow'},
+      ]},
+    ]
+  },
+  {
+    id:'night', label:'Night', sub:'9:00 – 10:30 PM', icon:'🌙', iconClass:'night',
+    sections:[
+      {title:'Wind-down', steps:[
+        {time:'9:00',name:'Hard food cutoff',note:'No eating after 9 PM — late meals raise core temp.',color:'coral'},
+        {time:'9:00',name:'Night skincare',note:'Cleanse → Adapalene (alt. nights) → moisturiser.',color:'rose'},
+        {time:'9:15',name:'Screens off',note:'Blue light kills melatonin. Phone face-down.',color:'blue'},
+        {time:'9:15',name:'Creative window',note:'Ableton / piano / lyrics. No pressure. 30 min.',color:'violet'},
+        {time:'9:45',name:'Brain dump',note:'5–10 min journal. Empty the mind.',color:'yellow'},
+        {time:'10:00',name:'Wind down',note:'Physical book, calm music, or breathing.',color:'cyan'},
+        {time:'10:15',name:'Ashwagandha',note:'With water. Lowers cortisol.',color:'green'},
+        {time:'10:30',name:'Sleep 🛌',note:'Target 10:30. Hard stop 11:30.',color:'amber'},
+      ]},
+    ]
+  },
+  {
+    id:'workout', label:'Workout', sub:'PPL · 5×/week', icon:'💪', iconClass:'workout',
+    sections:[
+      {title:'Split', steps:[
+        {time:'',name:'Push',note:'Chest, shoulders, triceps. 20+ sets/week shoulders.',color:'amber'},
+        {time:'',name:'Pull',note:'Back, biceps, rear delts.',color:'blue'},
+        {time:'',name:'Legs',note:'Modify for hip/sciatica/PF as needed.',color:'green'},
+      ]},
+      {title:'Notes', steps:[
+        {time:'',name:'Ankylosing Spondylitis',note:'Anti-inflammatory diet crucial. Modify on flare days.',color:'rose'},
+      ]},
+    ]
+  },
+];
+
+function pbLoad() {
+  const raw = sg(PB_KEY);
+  return raw && Array.isArray(raw) && raw.length ? raw : JSON.parse(JSON.stringify(PB_DEFAULT));
+}
+function pbSaveData(data) { ss(PB_KEY, data); }
+
+let pbCurrentId = null;
+let pbIsEditing = false;
+
+function pbRenderGrid() {
+  const data = pbLoad();
+  const grid = document.getElementById('pbGrid');
+  grid.innerHTML = '';
+  data.forEach(routine => {
+    const card = document.createElement('div');
+    card.className = 'pb-card ' + routine.iconClass;
+    card.onclick = () => pbOpenModal(routine.id);
+    card.innerHTML = `
+      <div class="pb-accent"></div>
+      <div class="pb-card-head">
+        <div class="pb-icon ${routine.iconClass}">${routine.icon}</div>
+        <div class="pb-card-meta">
+          <div class="pb-card-name">${routine.label}</div>
+          <div class="pb-card-sub">${routine.sub}</div>
+        </div>
+        <div class="pb-arrow">→</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function pbGetCurrent() { return pbLoad().find(r => r.id === pbCurrentId); }
+
+function pbOpenModal(id) {
+  pbCurrentId = id;
+  pbIsEditing = false;
+  const routine = pbGetCurrent();
+  document.getElementById('pbModalIcon').textContent = routine.icon;
+  document.getElementById('pbModalIcon').className = 'pb-modal-icon ' + routine.iconClass;
+  document.getElementById('pbModalTitle').textContent = routine.label;
+  document.getElementById('pbModalSub').textContent = routine.sub;
+  pbRenderModalBody(routine);
+  pbApplyEditState();
+  document.getElementById('pbOverlay').classList.add('open');
+}
+
+function pbCloseModal() {
+  document.getElementById('pbOverlay').classList.remove('open');
+  pbCurrentId = null;
+}
+
+function pbToggleEdit() {
+  pbIsEditing = !pbIsEditing;
+  pbApplyEditState();
+}
+
+function pbApplyEditState() {
+  const body = document.getElementById('pbModalBody');
+  const btn = document.getElementById('pbEditToggle');
+  const title = document.getElementById('pbModalTitle');
+  const sub = document.getElementById('pbModalSub');
+  const hint = document.getElementById('pbFooterHint');
+  body.classList.toggle('editing', pbIsEditing);
+  title.classList.toggle('editing', pbIsEditing);
+  sub.classList.toggle('editing', pbIsEditing);
+  btn.classList.toggle('active', pbIsEditing);
+  btn.textContent = pbIsEditing ? '✓ Done' : '✎ Edit';
+  hint.textContent = pbIsEditing ? 'Click any text to edit · tap Done when finished' : 'Tap Edit to make changes';
+}
+
+function pbRenderModalBody(routine) {
+  const body = document.getElementById('pbModalBody');
+  body.innerHTML = '';
+  routine.sections.forEach((sec, si) => {
+    const secLabel = document.createElement('div');
+    secLabel.className = 'pb-sec-label';
+    secLabel.innerHTML = `<span contenteditable="true" data-si="${si}" class="sec-title-edit" onblur="pbUpdateSectionTitle(${si},this.textContent)">${sec.title}</span><button class="pb-sec-add" onclick="pbAddStep(${si})">+</button>`;
+    body.appendChild(secLabel);
+
+    sec.steps.forEach((step, xi) => {
+      const row = document.createElement('div');
+      row.className = 'pb-row';
+      row.innerHTML = `
+        <div class="pb-row-bar bar-${step.color}"></div>
+        <div class="pb-row-body">
+          <div class="pb-row-name" contenteditable="true" onblur="pbUpdateStep(${si},${xi},'name',this.textContent)">${step.name}</div>
+          <div class="pb-row-note" contenteditable="true" onblur="pbUpdateStep(${si},${xi},'note',this.textContent)">${step.note||''}</div>
+        </div>
+        <div class="pb-row-time" contenteditable="true" onblur="pbUpdateStep(${si},${xi},'time',this.textContent)">${step.time||''}</div>
+        <button class="pb-row-del" onclick="pbDeleteStep(${si},${xi})" title="Remove">✕</button>`;
+      body.appendChild(row);
+    });
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'pb-add-row';
+    addBtn.textContent = '+ Add step';
+    addBtn.onclick = () => pbAddStep(si);
+    body.appendChild(addBtn);
+  });
+
+  const addSecBtn = document.createElement('button');
+  addSecBtn.className = 'pb-add-row';
+  addSecBtn.style.marginTop = '14px';
+  addSecBtn.textContent = '+ Add section';
+  addSecBtn.onclick = pbAddSection;
+  body.appendChild(addSecBtn);
+}
+
+function pbUpdateRoutineField(field, value) {
+  const data = pbLoad();
+  const r = data.find(r => r.id === pbCurrentId);
+  if (!r) return;
+  r[field] = value.trim();
+  pbSaveData(data);
+  pbRenderGrid();
+}
+
+function pbUpdateSectionTitle(si, value) {
+  const data = pbLoad();
+  const r = data.find(r => r.id === pbCurrentId);
+  if (!r) return;
+  r.sections[si].title = value.trim();
+  pbSaveData(data);
+}
+
+function pbUpdateStep(si, xi, field, value) {
+  const data = pbLoad();
+  const r = data.find(r => r.id === pbCurrentId);
+  if (!r) return;
+  r.sections[si].steps[xi][field] = value.trim();
+  pbSaveData(data);
+}
+
+function pbAddStep(si) {
+  const data = pbLoad();
+  const r = data.find(r => r.id === pbCurrentId);
+  if (!r) return;
+  const color = PB_COLORS[Math.floor(Math.random()*PB_COLORS.length)];
+  r.sections[si].steps.push({time:'',name:'New step',note:'',color});
+  pbSaveData(data);
+  pbRenderModalBody(r);
+  pbApplyEditState();
+  setTimeout(()=>{
+    const rows = document.querySelectorAll('.pb-row-name');
+    if (rows.length) {
+      rows[rows.length-1].focus();
+      document.execCommand('selectAll', false, null);
+    }
+  }, 0);
+}
+
+function pbAddSection() {
+  const data = pbLoad();
+  const r = data.find(r => r.id === pbCurrentId);
+  if (!r) return;
+  r.sections.push({title:'New section', steps:[]});
+  pbSaveData(data);
+  pbRenderModalBody(r);
+  pbApplyEditState();
+}
+
+function pbDeleteStep(si, xi) {
+  const data = pbLoad();
+  const r = data.find(r => r.id === pbCurrentId);
+  if (!r) return;
+  r.sections[si].steps.splice(xi, 1);
+  pbSaveData(data);
+  pbRenderModalBody(r);
+  pbApplyEditState();
+}
+
+function pbDeleteRoutine() {
+  if (!confirm('Delete this routine? This cannot be undone.')) return;
+  const data = pbLoad().filter(r => r.id !== pbCurrentId);
+  pbSaveData(data);
+  pbCloseModal();
+  pbRenderGrid();
+}
+
+function pbCreateNewRoutine() {
+  const data = pbLoad();
+  const id = 'routine_' + Date.now();
+  const icons = ['🎯','📚','🎹','🧘','✍️','🍽️','🚿','🧴'];
+  const icon = icons[Math.floor(Math.random()*icons.length)];
+  data.push({id, label:'New Routine', sub:'Tap to edit', icon, iconClass:'morning',
+    sections:[{title:'Steps', steps:[{time:'',name:'First step',note:'',color:'blue'}]}]});
+  pbSaveData(data);
+  pbRenderGrid();
+  pbOpenModal(id);
+  pbIsEditing = true;
+  pbApplyEditState();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('pbOverlay').classList.contains('open')) pbCloseModal();
+});
+
+pbRenderGrid();
 
 // ═══════════════════════════════════════════
 // INIT
