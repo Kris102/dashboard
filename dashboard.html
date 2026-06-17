@@ -439,6 +439,30 @@ body>*{position:relative;z-index:1;}
 .pb-modal-body:not(.editing) .pb-row-del,.pb-modal-body:not(.editing) .pb-add-row,.pb-modal-body:not(.editing) .pb-sec-add,.pb-modal-body:not(.editing) .pb-sec-btn,.pb-modal-body:not(.editing) .pb-row-arrows{display:none;}
 .pb-modal-body.editing .pb-row-name:focus,.pb-modal-body.editing .pb-row-note:focus,.pb-modal-body.editing .pb-row-time:focus{background:rgba(255,255,255,.08);}
 .pb-modal-body.editing .sec-title-edit{border-bottom:1px dashed rgba(255,255,255,.15);}
+
+/* TYPOGRAPHY — HEADINGS */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
+.os-header-left h1,.modal h2,.section-label,.cmd-title,.pb-modal-title,
+.streak-table-title,.gm-eyebrow,.ft-summary-title,.milestone-emoji-label,
+.mood-slider-name{
+  font-family:'Barlow Condensed',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-weight:600;
+}
+.os-header-left h1{font-size:25px;letter-spacing:.01em;}
+.section-label{letter-spacing:.16em;}
+.modal h2,.cmd-title,.pb-modal-title{letter-spacing:.02em;}
+
+/* MOOD & ENERGY */
+.mood-slider-block{margin-bottom:16px;}
+.mood-slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.mood-slider-name{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);}
+.mood-slider-state{font-size:12px;font-weight:700;font-family:ui-monospace,monospace;color:var(--text-tertiary);transition:color .2s;}
+.mood-range{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:999px;background:linear-gradient(90deg,#6BE3A4 0%,#F2C063 33%,#FF6B6B 66%,#6BB2E3 100%);outline:none;cursor:pointer;}
+.mood-range::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;cursor:grab;box-shadow:0 0 14px 4px var(--glow,rgba(255,255,255,.35)),0 1px 4px rgba(0,0,0,.4);transition:box-shadow .2s ease;}
+.mood-range::-moz-range-thumb{width:20px;height:20px;border-radius:50%;border:none;background:#fff;cursor:grab;box-shadow:0 0 14px 4px var(--glow,rgba(255,255,255,.35)),0 1px 4px rgba(0,0,0,.4);}
+.mood-range::-moz-range-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#6BE3A4 0%,#F2C063 33%,#FF6B6B 66%,#6BB2E3 100%);}
+.mood-logged-hint{font-size:10px;color:var(--text-tertiary);font-family:ui-monospace,monospace;white-space:nowrap;}
+.mood-chart-wrap{height:150px;margin-top:18px;}
 </style>
 </head>
 <body>
@@ -481,6 +505,26 @@ body>*{position:relative;z-index:1;}
     <div class="ring-status" id="ringStatus">😴 Still sleeping</div>
     <div class="ring-rem" id="ringRem">—</div>
     <div class="ring-range">8:00 AM – 12:00 AM</div>
+  </div>
+</div>
+
+<!-- MOOD & ENERGY -->
+<div class="section">
+  <div class="section-label">Mood &amp; Energy</div>
+  <div class="card">
+    <div class="mood-slider-block">
+      <div class="mood-slider-top"><span class="mood-slider-name">Mood</span><span class="mood-slider-state" id="moodState">—</span></div>
+      <input type="range" min="0" max="100" value="50" class="mood-range" id="moodSlider" oninput="updateMoodSliderUI('mood')">
+    </div>
+    <div class="mood-slider-block">
+      <div class="mood-slider-top"><span class="mood-slider-name">Energy</span><span class="mood-slider-state" id="energyState">—</span></div>
+      <input type="range" min="0" max="100" value="50" class="mood-range" id="energySlider" oninput="updateMoodSliderUI('energy')">
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="cmd-btn cmd-btn-main" style="flex:1;" id="logMoodBtn" onclick="logMood()">+ Log mood</button>
+      <span class="mood-logged-hint" id="moodLoggedHint"></span>
+    </div>
+    <div class="mood-chart-wrap"><canvas id="moodChart"></canvas></div>
   </div>
 </div>
 
@@ -1044,6 +1088,84 @@ function renderStreakTable() {
     html+=`<div class="streak-row"><div class="streak-name" title="${h.name}">${h.emoji} ${h.name}</div><div class="streak-cells">${cells}</div></div>`;
   });
   el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════
+// MOOD & ENERGY
+// ═══════════════════════════════════════════
+const MOOD_STOPS=[{p:0,c:[107,227,164]},{p:33,c:[242,192,99]},{p:66,c:[255,107,107]},{p:100,c:[107,178,227]}];
+function moodColor(pct){
+  for(let i=0;i<MOOD_STOPS.length-1;i++){
+    const a=MOOD_STOPS[i],b=MOOD_STOPS[i+1];
+    if(pct>=a.p&&pct<=b.p){
+      const t=(pct-a.p)/(b.p-a.p);
+      return [0,1,2].map(j=>Math.round(a.c[j]+(b.c[j]-a.c[j])*t)).join(',');
+    }
+  }
+  return MOOD_STOPS[MOOD_STOPS.length-1].c.join(',');
+}
+const moodLabel=p=>p<25?'Great':p<50?'Okay':p<75?'Low':'Calm';
+const energyLabel=p=>p<25?'Energized':p<50?'Steady':p<75?'Tired':'Drained';
+function updateMoodSliderUI(type){
+  const slider=document.getElementById(type+'Slider');
+  const pct=+slider.value;
+  const c=moodColor(pct);
+  slider.style.setProperty('--glow',`rgba(${c},.55)`);
+  const stateEl=document.getElementById(type+'State');
+  stateEl.textContent=type==='mood'?moodLabel(pct):energyLabel(pct);
+  stateEl.style.color=`rgb(${c})`;
+}
+function getMoodLog(){ return sg('_moodLog')||[]; }
+function logMood(){
+  const mood=+document.getElementById('moodSlider').value;
+  const energy=+document.getElementById('energySlider').value;
+  const log=getMoodLog();
+  const today=activeDate();
+  const idx=log.findIndex(e=>e.date===today);
+  const entry={date:today,mood,energy,t:Date.now()};
+  if(idx>-1) log[idx]=entry; else log.push(entry);
+  ss('_moodLog',log);
+  renderMoodChart();
+  const hint=document.getElementById('moodLoggedHint');
+  hint.textContent='✓ logged';
+  setTimeout(()=>{ hint.textContent='Today · mood '+mood+' · energy '+energy; },1200);
+}
+let moodChart;
+function renderMoodChart(){
+  const log=getMoodLog();
+  const byDate={}; log.forEach(e=>byDate[e.date]=e);
+  const today=activeDate();
+  const days=[]; for(let i=13;i>=0;i--) days.push(addD(today,-i));
+  const labels=days.map(d=>{ const [y,m,dy]=d.split('-').map(Number); return new Date(y,m-1,dy).toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
+  const moodData=days.map(d=>byDate[d]?byDate[d].mood:null);
+  const energyData=days.map(d=>byDate[d]?byDate[d].energy:null);
+  const ctx=document.getElementById('moodChart').getContext('2d');
+  if(moodChart) moodChart.destroy();
+  moodChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Mood',data:moodData,borderColor:'rgba(242,192,99,.85)',backgroundColor:'rgba(242,192,99,.08)',pointBackgroundColor:moodData.map(v=>v==null?'transparent':`rgb(${moodColor(v)})`),pointRadius:4,pointHoverRadius:5,borderWidth:2,tension:.35,spanGaps:true,fill:true},
+      {label:'Energy',data:energyData,borderColor:'rgba(107,178,227,.6)',backgroundColor:'transparent',pointRadius:3,borderWidth:1.5,borderDash:[4,3],tension:.35,spanGaps:true}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      scales:{
+        y:{min:0,max:100,ticks:{display:false},grid:{color:'rgba(255,255,255,.05)'}},
+        x:{ticks:{color:'rgba(255,255,255,.4)',font:{size:9,family:'ui-monospace,monospace'},maxRotation:0,autoSkip:true},grid:{display:false}}
+      },
+      plugins:{legend:{display:true,position:'top',align:'end',labels:{color:'rgba(255,255,255,.55)',font:{size:10,family:'ui-monospace,monospace'},boxWidth:10,usePointStyle:true}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw}`}}}
+    }
+  });
+}
+function initMoodWidget(){
+  const today=activeDate();
+  const todayEntry=getMoodLog().find(e=>e.date===today);
+  const m=todayEntry?todayEntry.mood:50, en=todayEntry?todayEntry.energy:50;
+  document.getElementById('moodSlider').value=m;
+  document.getElementById('energySlider').value=en;
+  updateMoodSliderUI('mood'); updateMoodSliderUI('energy');
+  document.getElementById('moodLoggedHint').textContent=todayEntry?('Today · mood '+m+' · energy '+en):'';
+  renderMoodChart();
 }
 
 // ═══════════════════════════════════════════
@@ -2372,6 +2494,7 @@ document.getElementById('ringFill').style.strokeDasharray=RC;
 updateRing(); setInterval(updateRing,60000);
 startTicker();
 renderHabits(); renderStreakTable();
+initMoodWidget();
 renderDocs();
 loadGoals(); loadTomorrow();
 renderRadar();
