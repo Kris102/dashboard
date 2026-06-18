@@ -421,11 +421,18 @@ body>*{position:relative;z-index:1;}
 @media (max-width: 768px){
 
   .pb-grid{
-    grid-template-columns:repeat(2,1fr);
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
   }
 
-  .pb-card{
-    aspect-ratio:1/1.15;
+  .pb-card-name{
+    font-size:12px;
+    letter-spacing:.12em;
+  }
+
+  .pb-card-sub{
+    font-size:8px;
+    letter-spacing:.14em;
   }
 
 }
@@ -677,7 +684,7 @@ body>*{position:relative;z-index:1;}
     </div>
   </div>
   <div class="ring-info">
-    <div class="ring-status" id="ringStatus">😴 Still sleeping</div>
+    <div class="ring-status" id="ringStatus">REST</div>
     <div class="ring-rem" id="ringRem">—</div>
     <div class="ring-range">8:00 AM – 12:00 AM</div>
   </div>
@@ -1832,14 +1839,16 @@ function renderMilestones() {
     </div>`;
 }
 
+// CROSS-DEVICE SYNC — Firebase Firestore (REST API, no SDK)
 // ═══════════════════════════════════════════
-// CROSS-DEVICE SYNC — JSONBin.io (free)
-// ═══════════════════════════════════════════
-let SYNC_KEY = localStorage.getItem('_syncKey') || '';
-let SYNC_BIN = localStorage.getItem('_syncBin') || '';
-let _syncTimer = null;
-const SYNC_SKIP = new Set(['_syncKey','_syncBin','_apik','_syncTs','_syncLast']);
+let SYNC_PROJECT  = localStorage.getItem('_syncProject') || '';
+let SYNC_APIKEY   = localStorage.getItem('_syncApiKey')  || '';
+let SYNC_UID      = localStorage.getItem('_syncUid')     || '';  // set after sign-in
+let SYNC_TOKEN    = '';   // Firebase ID token (in-memory only)
+let _syncTimer    = null;
+const SYNC_SKIP = new Set(['_syncProject','_syncApiKey','_syncUid','_apik','_syncTs','_syncLast']);
 
+// ── helpers ──────────────────────────────────────────────────
 function setSyncStatus(state, label) {
   const el = document.getElementById('syncStatus');
   if (!el) return;
@@ -1847,20 +1856,65 @@ function setSyncStatus(state, label) {
   el.textContent = label;
 }
 
-async function syncPush(showStatus=false) {
-  if (!SYNC_KEY || !SYNC_BIN) return;
-  if (showStatus) setSyncStatus('', '☁ syncing…');
-  const data = { _syncTs: Date.now() };
+function firestoreUrl() {
+  // Document path: krios/{uid}
+  return `https://firestore.googleapis.com/v1/projects/${SYNC_PROJECT}/databases/(default)/documents/krios/${SYNC_UID}`;
+}
+
+/** Sign in anonymously → returns idToken */
+async function firebaseSignIn() {
+  const r = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInAnonymously?key=${SYNC_APIKEY}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }
+  );
+  if (!r.ok) throw new Error('Auth failed: ' + r.status);
+  const d = await r.json();
+  SYNC_TOKEN = d.idToken;
+  SYNC_UID   = d.localId;
+  localStorage.setItem('_syncUid', SYNC_UID);
+  return SYNC_TOKEN;
+}
+
+/** Ensure we have a valid token; re-auth if missing or forced */
+async function ensureToken(force = false) {
+  if (!SYNC_TOKEN || force) await firebaseSignIn();
+}
+
+/** Encode localStorage snapshot to Firestore fields map */
+function encodeFields() {
+  const fields = { _syncTs: { integerValue: String(Date.now()) } };
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
-    if (k && !SYNC_SKIP.has(k)) data[k] = localStorage.getItem(k);
+    if (!k || SYNC_SKIP.has(k)) continue;
+    const v = localStorage.getItem(k);
+    if (v && v.startsWith('data:image')) continue;   // skip base64 blobs
+    fields[k] = { stringValue: v };
   }
+  return fields;
+}
+
+/** Decode Firestore fields map back to plain key→value */
+function decodeFields(fields) {
+  const out = {};
+  for (const [k, wrap] of Object.entries(fields)) {
+    out[k] = wrap.stringValue ?? wrap.integerValue ?? wrap.booleanValue ?? '';
+  }
+  return out;
+}
+
+// ── core sync ────────────────────────────────────────────────
+async function syncPush(showStatus = false) {
+  if (!SYNC_PROJECT || !SYNC_APIKEY) return;
+  if (showStatus) setSyncStatus('', '☁ syncing…');
+  const doRequest = async () => fetch(firestoreUrl(), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SYNC_TOKEN}` },
+    body: JSON.stringify({ fields: encodeFields() })
+  });
   try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${SYNC_BIN}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': SYNC_KEY },
-      body: JSON.stringify(data)
-    });
+    await ensureToken();
+    let r = await doRequest();
+    if (r.status === 401) { await ensureToken(true); r = await doRequest(); }
     if (!r.ok) throw new Error('status ' + r.status);
     localStorage.setItem('_syncLast', Date.now().toString());
     setSyncStatus('ok', '☁ synced');
@@ -1872,17 +1926,20 @@ async function syncPush(showStatus=false) {
 }
 
 async function syncPull() {
-  if (!SYNC_KEY || !SYNC_BIN) return false;
+  if (!SYNC_PROJECT || !SYNC_APIKEY) return false;
   setSyncStatus('', '☁ pulling…');
+  const doRequest = () => fetch(firestoreUrl(), {
+    headers: { 'Authorization': `Bearer ${SYNC_TOKEN}` }
+  });
   try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${SYNC_BIN}/latest`, {
-      headers: { 'X-Master-Key': SYNC_KEY }
-    });
+    await ensureToken();
+    let r = await doRequest();
+    if (r.status === 401) { await ensureToken(true); r = await doRequest(); }
+    if (r.status === 404) { setSyncStatus('ok', '☁ sync'); return false; }
     if (!r.ok) throw new Error('status ' + r.status);
-    const d = await r.json();
-    const data = d.record;
-    if (!data) return false;
-    const localTs = parseInt(localStorage.getItem('_syncTs') || '0');
+    const doc  = await r.json();
+    const data = decodeFields(doc.fields || {});
+    const localTs  = parseInt(localStorage.getItem('_syncTs') || '0');
     const remoteTs = parseInt(data._syncTs || '0');
     if (remoteTs > localTs) {
       Object.entries(data).forEach(([k, v]) => {
@@ -1902,34 +1959,28 @@ async function syncPull() {
 }
 
 function scheduleSyncPush() {
-  if (!SYNC_KEY || !SYNC_BIN) return;
+  if (!SYNC_PROJECT || !SYNC_APIKEY) return;
   if (_syncTimer) clearTimeout(_syncTimer);
   _syncTimer = setTimeout(() => syncPush(true), 3000);
 }
 
-async function createBinAndSave(apiKey) {
-  const r = await fetch('https://api.jsonbin.io/v3/b', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Master-Key': apiKey, 'X-Bin-Name': 'KrisOS', 'X-Bin-Private': 'true' },
-    body: JSON.stringify({ _syncTs: 0 })
-  });
-  if (!r.ok) throw new Error('Could not create bin. Check your API key.');
-  const d = await r.json();
-  return d.metadata?.id || null;
-}
-
+// ── modal ────────────────────────────────────────────────────
 function showSyncModal() {
   const lastSync = localStorage.getItem('_syncLast');
-  const lastStr = lastSync ? new Date(parseInt(lastSync)).toLocaleTimeString() : 'never';
+  const lastStr  = lastSync ? new Date(parseInt(lastSync)).toLocaleTimeString() : 'never';
   const bg = document.createElement('div'); bg.className = 'modal-bg';
   bg.innerHTML = `<div class="modal">
     <h2>☁ Cross-Device Sync</h2>
-    <p>Free private sync via <a href="https://jsonbin.io" target="_blank" style="color:var(--text-secondary);">JSONBin.io</a>. Get a free API key at jsonbin.io → API Keys. Your data is stored in your own private bin.</p>
-    <input id="syncKeyInp" type="password" placeholder="Master Key ($2b$…)" value="${SYNC_KEY}" autocomplete="off">
-    <input id="syncBinInp" placeholder="Bin ID (auto-created if empty)" value="${SYNC_BIN}" autocomplete="off" style="margin-top:6px;">
-    <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:10px;font-family:ui-monospace,monospace;">Last synced: ${lastStr}</div>
+    <p>Sync via <a href="https://firebase.google.com" target="_blank" style="color:var(--text-secondary);">Firebase Firestore</a>.
+       Create a free project at console.firebase.google.com, enable Firestore, and paste your Web API key below.
+       No account login required — data is stored under an anonymous device ID.</p>
+    <input id="syncProjectInp" placeholder="Firebase Project ID (e.g. my-app-12345)" value="${SYNC_PROJECT}" autocomplete="off">
+    <input id="syncApiKeyInp" type="password" placeholder="Web API Key (AIza…)" value="${SYNC_APIKEY}" autocomplete="off" style="margin-top:6px;">
+    <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:10px;font-family:ui-monospace,monospace;">
+      Device UID: ${SYNC_UID || '(assigned on first connect)'} · Last synced: ${lastStr}
+    </div>
     <div class="modal-actions">
-      <button class="btn-primary" id="syncSave">Connect &amp; Push</button>
+      <button class="btn-primary"   id="syncSave">Connect &amp; Push</button>
       <button class="btn-secondary" id="syncPullBtn">Pull from cloud</button>
       <button class="btn-secondary" id="syncCancel">Cancel</button>
     </div>
@@ -1938,28 +1989,29 @@ function showSyncModal() {
   document.body.appendChild(bg);
   const st = bg.querySelector('#syncModalStatus');
   bg.querySelector('#syncCancel').onclick = () => bg.remove();
+
   bg.querySelector('#syncPullBtn').onclick = async () => {
     st.textContent = 'Pulling from cloud…';
     const pulled = await syncPull();
     if (pulled) { st.textContent = '✓ Pulled! Reloading in 1s…'; setTimeout(() => location.reload(), 1200); }
     else st.textContent = 'Already up to date.';
   };
+
   bg.querySelector('#syncSave').onclick = async () => {
-    const key = bg.querySelector('#syncKeyInp').value.trim();
-    let binId = bg.querySelector('#syncBinInp').value.trim();
+    const project = bg.querySelector('#syncProjectInp').value.trim();
+    const apiKey  = bg.querySelector('#syncApiKeyInp').value.trim();
     st.classList.remove('err');
-    if (!key) { st.textContent = 'Enter your JSONBin Master Key.'; st.classList.add('err'); return; }
-    st.textContent = binId ? 'Connecting…' : 'Creating new bin…';
+    if (!project || !apiKey) { st.textContent = 'Enter both Project ID and API Key.'; st.classList.add('err'); return; }
+    SYNC_PROJECT = project; SYNC_APIKEY = apiKey;
+    localStorage.setItem('_syncProject', project);
+    localStorage.setItem('_syncApiKey',  apiKey);
+    SYNC_TOKEN = '';   // force re-auth with new key
+    st.textContent = 'Authenticating…';
     try {
-      if (!binId) binId = await createBinAndSave(key);
-      if (!binId) throw new Error('Empty bin ID returned');
-      SYNC_KEY = key; SYNC_BIN = binId;
-      localStorage.setItem('_syncKey', key);
-      localStorage.setItem('_syncBin', binId);
-      bg.querySelector('#syncBinInp').value = binId;
-      st.textContent = 'Connected! Pushing your data…';
+      await firebaseSignIn();
+      st.textContent = `Signed in as ${SYNC_UID}. Pushing…`;
       await syncPush(false);
-      st.textContent = `✓ Done. Bin ID: ${binId} — paste this on other devices.`;
+      st.textContent = `✓ Done. Share Project ID + API Key on other devices. UID auto-assigned per device.`;
       setSyncStatus('ok', '☁ sync');
     } catch(e) { st.classList.add('err'); st.textContent = 'Error: ' + e.message; }
   };
@@ -1969,14 +2021,13 @@ window.addEventListener('kris-data-changed', scheduleSyncPush);
 
 // Auto-pull on load if sync is configured
 (async () => {
-  if (SYNC_KEY && SYNC_BIN) {
+  if (SYNC_PROJECT && SYNC_APIKEY) {
     const pulled = await syncPull();
     if (pulled) { setTimeout(() => location.reload(), 400); }
   } else {
     setSyncStatus('', '☁ sync');
   }
 })();
-
 // ═══════════════════════════════════════════
 // ANKI HEATMAP + ANKICONNECT
 // ═══════════════════════════════════════════
