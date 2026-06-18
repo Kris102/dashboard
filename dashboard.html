@@ -274,18 +274,19 @@ body>*{position:relative;z-index:1;}
 
 .ticker-track{
   position:absolute;
+  left:0;
   white-space:nowrap;
-  display:inline-block;
 
   font-family:'Syne',sans-serif;
   font-size:12px;
-  font-weight:400;
-  letter-spacing:.3em;
+  font-weight:300;
+  letter-spacing:.25em;
   text-transform:uppercase;
 
-  animation:tickerScroll 50s linear infinite;
-}
+  will-change:transform;
 
+  animation:tickerScroll 80s linear infinite;
+}
 @keyframes tickerScroll{
   from{
     transform:translateX(100%);
@@ -295,11 +296,6 @@ body>*{position:relative;z-index:1;}
     transform:translateX(-100%);
   }
 }
-.t-row.leaving{display:none;}
-.t-status[data-s="done"]{color:#6BE3A4;}
-.t-status[data-s="empty"]{color:var(--text-tertiary);}
-.t-meta{font-family:ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--text-secondary);padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.04);flex-shrink:0;}
-
 /* DAY RING */
 .ring-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:16px;}
 .ring-container{width:160px;height:160px;position:relative;flex-shrink:0;}
@@ -1525,8 +1521,10 @@ function renderTicker() {
     text + '      ' + text;
 const track = document.getElementById('tickerTrack');
 
-const duration = Math.max(40, text.length * 0.8);
-
+const duration = Math.max(50, text.length * 0.5);
+track.style.animationDuration = duration + 's';
+console.log("Ticker length:", text.length);
+console.log("Duration:", duration);
 track.style.animationDuration = duration + 's';
   const done = goals.filter(g => g.done).length;
 
