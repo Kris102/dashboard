@@ -1517,8 +1517,7 @@ function renderTicker() {
   const text =
     '○ ' + items.join('   ○   ');
 
-  document.getElementById('tickerTrack').textContent =
-    text + '      ' + text;
+document.getElementById('tickerTrack').textContent = text;
 const track = document.getElementById('tickerTrack');
 
 const duration = Math.max(50, text.length * 0.5);
