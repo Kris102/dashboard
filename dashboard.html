@@ -50,7 +50,13 @@ body>*{position:relative;z-index:1;}
 
 /* HEADER */
 .os-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.06);}
-.os-header-right h1{font-size:18px;font-weight:800;letter-spacing:-.01em;background:linear-gradient(180deg,#fff 0%,#C7C4BC 120%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.os-header-right h1{
+  font-family:'Syne',sans-serif;
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+}
 .os-header-right .os-sub{font-size:12px;color:var(--text-tertiary);text-align:center;letter-spacing:0.2em;text-transform: uppercase;margin-top:7px;font-family:ui-monospace,monospace;}
 .os-header-right{text-align:right;}
 .os-date{
@@ -298,7 +304,13 @@ body>*{position:relative;z-index:1;}
   }
 }
 /* DAY RING */
-.ring-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:16px;}
+.ring-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:30px;
+  margin-bottom:16px;
+}
 .ring-container{width:160px;height:160px;position:relative;flex-shrink:0;}
 .ring-container svg{width:100%;height:100%;}
 .ring-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;gap:1px;}
@@ -325,7 +337,7 @@ body>*{position:relative;z-index:1;}
 
 @media(max-width:480px){
   .ft-time{font-size:52px;}
-  .ring-container{width:120px;height:120px;}
+  .ring-container{width:200px;height:200px;}
   .ring-pct{font-size:26px;}
   .os-header-right h1{font-size:18px;}
   .cmd-actions{flex-wrap:wrap;}
@@ -401,26 +413,113 @@ body>*{position:relative;z-index:1;}
 .pb-add{padding:6px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
 .pb-add:hover{background:rgba(255,255,255,.08);color:var(--text-primary);}
 
-.pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.pb-card{background:var(--card-bg);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color .2s,background .2s,transform .15s;position:relative;}
-.pb-card:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.065);transform:translateY(-1px);}
-.pb-card:active{transform:translateY(0) scale(.99);}
-.pb-card-head{padding:16px;display:flex;align-items:center;gap:12px;}
-.pb-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.pb-icon.morning{background:rgba(255,185,90,.15);}
-.pb-icon.breath{background:rgba(107,178,227,.13);}
-.pb-icon.night{background:rgba(147,130,227,.15);}
-.pb-icon.workout{background:rgba(107,227,164,.12);}
-.pb-card-meta{flex:1;min-width:0;}
-.pb-card-name{font-size:13px;font-weight:700;color:var(--text-primary);line-height:1.2;margin-bottom:2px;}
-.pb-card-sub{font-size:10px;color:var(--text-tertiary);font-family:ui-monospace,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pb-arrow{font-size:13px;color:var(--text-tertiary);flex-shrink:0;margin-left:auto;transition:transform .15s;}
-.pb-card:hover .pb-arrow{transform:translateX(2px);color:var(--text-secondary);}
-.pb-accent{height:2px;width:100%;}
-.morning .pb-accent{background:linear-gradient(90deg,rgba(255,185,90,.6),transparent);}
-.breath .pb-accent{background:linear-gradient(90deg,rgba(107,178,227,.5),transparent);}
-.night .pb-accent{background:linear-gradient(90deg,rgba(147,130,227,.55),transparent);}
-.workout .pb-accent{background:linear-gradient(90deg,rgba(107,227,164,.5),transparent);}
+.pb-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+/* MEDITATION-STYLE CARDS */
+.pb-card{
+  border-radius:20px;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s;
+  position:relative;
+  background:#1a1a2e;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+.pb-card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 16px 48px rgba(0,0,0,.6);}
+.pb-card:active{transform:scale(.98);}
+
+/* Background image layer */
+.pb-card-bg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  transition:transform .3s ease;
+}
+.pb-card:hover .pb-card-bg{transform:scale(1.04);}
+
+/* Gradient overlay — always on top of image */
+.pb-card-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    180deg,
+    rgba(0,0,0,.18) 0%,
+    rgba(0,0,0,.05) 35%,
+    rgba(0,0,0,.05) 55%,
+    rgba(0,0,0,.55) 100%
+  );
+}
+
+/* Content sits above overlay */
+.pb-card-head{
+  position:absolute;
+  inset:0;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+/* Title row at top */
+.pb-card-top{
+  width:100%;
+  transform:translateY(-60px);
+}
+.pb-card-name{
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:.30em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.98);
+  text-align:center;
+  text-shadow:
+    0 0 8px rgba(255,255,255,.20),
+    0 0 16px rgba(255,255,255,.10);
+}
+.pb-card-author{
+  font-size:15px;
+  font-weight:400;
+  color:rgba(255,255,255,.75);
+  margin-top:2px;
+  text-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+
+/* Bottom meta */
+.pb-card-bottom{
+  width:100%;
+  transform:translateY(70px);
+}
+.pb-card-sub{
+  font-size:9px;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.22em;
+  color:rgba(255,255,255,.90);
+  text-align:center;
+  text-shadow:
+    0 0 6px rgba(255,255,255,.15),
+    0 0 12px rgba(255,255,255,.08);
+}
+
+/* Fallback gradient backgrounds (when no image) */
+.pb-card-bg.morning{background:linear-gradient(135deg,#e07855 0%,#c84b6a 40%,#8b3a7a 70%,#5a2d7a 100%);}
+.pb-card-bg.breath{background:linear-gradient(135deg,#2d5f8a 0%,#3a7ab8 35%,#4a9dd4 60%,#5bb8e8 100%);}
+.pb-card-bg.night{background:linear-gradient(135deg,#3d2060 0%,#5a2d8a 40%,#7a4db0 70%,#9a6dca 100%);}
+.pb-card-bg.workout{background:linear-gradient(135deg,#1a6b3d 0%,#2d9a5a 40%,#4dc87a 70%,#6be3a4 100%);}
+.pb-card-bg.default{background:linear-gradient(135deg,#2a2a3e 0%,#3a3a5a 40%,#4a4a7a 100%);}
+
+/* Hide old elements */
+.pb-icon{display:none;}
+.pb-arrow{display:none;}
+.pb-accent{display:none;}
 
 /* MODAL */
 .pb-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s;}
@@ -488,6 +587,28 @@ body>*{position:relative;z-index:1;}
 .pb-modal-body:not(.editing) .pb-row-del,.pb-modal-body:not(.editing) .pb-add-row,.pb-modal-body:not(.editing) .pb-sec-add,.pb-modal-body:not(.editing) .pb-sec-btn,.pb-modal-body:not(.editing) .pb-row-arrows{display:none;}
 .pb-modal-body.editing .pb-row-name:focus,.pb-modal-body.editing .pb-row-note:focus,.pb-modal-body.editing .pb-row-time:focus{background:rgba(255,255,255,.08);}
 .pb-modal-body.editing .sec-title-edit{border-bottom:1px dashed rgba(255,255,255,.15);}
+
+/* IMAGE PICKER MODAL */
+.pb-img-picker-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease;}
+.pb-img-picker{background:#111113;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.8);}
+.pb-img-picker h3{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text-primary);}
+.pb-img-picker p{font-size:11.5px;color:var(--text-tertiary);margin-bottom:16px;line-height:1.6;}
+.pb-img-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.pb-img-opt{width:100%;aspect-ratio:1;border-radius:12px;border:2px solid transparent;cursor:pointer;overflow:hidden;transition:border-color .15s,transform .15s;background-size:cover;background-position:center;}
+.pb-img-opt:hover{transform:scale(1.04);}
+.pb-img-opt.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.3);}
+.pb-img-opt.gradient-morning{background:linear-gradient(135deg,#e07855,#c84b6a,#8b3a7a,#5a2d7a);}
+.pb-img-opt.gradient-breath{background:linear-gradient(135deg,#2d5f8a,#3a7ab8,#4a9dd4,#5bb8e8);}
+.pb-img-opt.gradient-night{background:linear-gradient(135deg,#3d2060,#5a2d8a,#7a4db0,#9a6dca);}
+.pb-img-opt.gradient-workout{background:linear-gradient(135deg,#1a6b3d,#2d9a5a,#4dc87a,#6be3a4);}
+.pb-img-opt.gradient-fire{background:linear-gradient(135deg,#ff6b35,#f7931e,#ffd700);}
+.pb-img-opt.gradient-ocean{background:linear-gradient(135deg,#0f3460,#16213e,#0d4f8b,#1a7abf);}
+.pb-img-opt.gradient-rose{background:linear-gradient(135deg,#c471ed,#f64f59,#e07855);}
+.pb-img-opt.gradient-forest{background:linear-gradient(135deg,#134e5e,#71b280,#2d9a5a);}
+.pb-img-upload-row{display:flex;gap:8px;margin-bottom:14px;}
+.pb-img-upload-btn{flex:1;padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,.15);background:rgba(255,255,255,.03);color:var(--text-tertiary);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center;}
+.pb-img-upload-btn:hover{border-color:rgba(255,255,255,.3);color:var(--text-secondary);}
+.pb-img-picker-actions{display:flex;gap:8px;}
 
 /* TYPOGRAPHY — HEADINGS */
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
@@ -1499,7 +1620,7 @@ function updateRing(){
   const fill=document.getElementById('ringFill'),pEl=document.getElementById('ringPct'),ph=document.getElementById('ringPhase'),cl=document.getElementById('ringClock'),st=document.getElementById('ringStatus'),rm=document.getElementById('ringRem');
   cl.textContent=fmtClock(now);
   if(h<WAKE){fill.style.strokeDashoffset=RC;fill.style.stroke='#4D4B47';pEl.textContent='—';ph.textContent='SLEEPING';st.textContent='😴 Still sleeping';rm.textContent=fmtHM(WAKE-h)+' until wake-up';}
-  else if(h<SLEEP){const p=(h-WAKE)/(SLEEP-WAKE)*100;fill.style.strokeDashoffset=RC*(1-p/100);fill.style.stroke=sunC(p);pEl.textContent=Math.round(p)+'%';const[pp,ps]=p<25?['MORNING','☀️ Morning']:p<50?['MIDDAY','⚡ Midday']:p<75?['AFTERNOON','🔥 Afternoon']:p<90?['EVENING','⏳ Evening']:['BEDTIME','🌙 Bedtime'];ph.textContent=pp;st.textContent=ps;rm.textContent=fmtHM(SLEEP-h)+' awake left';}
+  else if(h<SLEEP){const p=(h-WAKE)/(SLEEP-WAKE)*100;fill.style.strokeDashoffset=RC*(1-p/100);fill.style.stroke=sunC(p);pEl.textContent=Math.round(p)+'%';const[pp,ps]=p<25?['MORNING','MORNING']:p<50?['MIDDAY','⚡ MIDDAY']:p<75?['AFTERNOON','AFTERNOON']:p<90?['EVENING','EVENING']:['BEDTIME','BEDTIME'];ph.textContent=pp;st.textContent=ps;rm.textContent=fmtHM(SLEEP-h)+' awake left';}
   else{fill.style.strokeDashoffset=0;fill.style.stroke='#E25D7A';pEl.textContent='100%';ph.textContent='PAST BEDTIME';st.textContent='⚠️ Sleep';rm.textContent='Get to bed';}
 }
 
@@ -2117,7 +2238,7 @@ const PB_COLORS = ['amber','blue','violet','green','rose','cyan','yellow','coral
 
 const PB_DEFAULT = [
   {
-    id:'morning', label:'Morning', sub:'8:00 – 10:00 AM', icon:'🌅', iconClass:'morning',
+    id:'morning', label:'Morning', sub:'8:00 – 10:00 AM', icon:'', iconClass:'morning', cardImage:'gradient-morning',
     sections:[
       {title:'Wake-up', steps:[
         {time:'',name:'Hydrate',note:'250–500ml water immediately',color:'blue'},
@@ -2139,7 +2260,28 @@ const PB_DEFAULT = [
     ]
   },
   {
-    id:'breath', label:'Breathwork', sub:'Daily · full sequence', icon:'🌬', iconClass:'breath',
+    sections:[
+      {title:'Wake-up', steps:[
+        {time:'',name:'Hydrate',note:'250–500ml water immediately',color:'blue'},
+        {time:'',name:'Natural sunlight',note:'10+ min outside',color:'amber'},
+      ]},
+      {title:'Breathwork', steps:[
+        {time:'',name:'Wim Hof',note:'2–5 rounds',color:'cyan'},
+        {time:'',name:'Kapalabhati',note:'3–5 rounds',color:'violet'},
+        {time:'',name:'Bhramari',note:'~8 rounds',color:'rose'},
+        {time:'opt',name:'Nadi Shodhana',note:'Alternate nostril',color:'green'},
+        {time:'opt',name:'Buteyko Sit',note:'Breath hold practice',color:'yellow'},
+      ]},
+      {title:'Body & Grooming', steps:[
+        {time:'',name:'Workout',note:'PPL / UL split',color:'green'},
+        {time:'',name:'Shower → Skincare → Breakfast',note:'',color:'blue'},
+        {time:'opt',name:'Vocal warm-up',note:'Singing days only',color:'coral'},
+        {time:'opt',name:'JLPT Study Block',note:'Anki + reading',color:'amber'},
+      ]},
+    ]
+  },
+  {
+    id:'breath', label:'Breathwork', sub:'Daily · full sequence', icon:' ', iconClass:'breath',
     sections:[
       {title:'Sequence', steps:[
         {time:'1st',name:'Wim Hof',note:'30 deep breaths → hold exhale → recovery. 2–5 rounds.',color:'cyan'},
@@ -2151,7 +2293,7 @@ const PB_DEFAULT = [
     ]
   },
   {
-    id:'night', label:'Night', sub:'9:00 – 10:30 PM', icon:'🌙', iconClass:'night',
+    id:'night', label:'Night', sub:'9:00 – 10:30 PM', icon:' ', iconClass:'night',
     sections:[
       {title:'Wind-down', steps:[
         {time:'9:00',name:'Hard food cutoff',note:'No eating after 9 PM — late meals raise core temp.',color:'coral'},
@@ -2166,7 +2308,7 @@ const PB_DEFAULT = [
     ]
   },
   {
-    id:'workout', label:'Workout', sub:'PPL · 5×/week', icon:'💪', iconClass:'workout',
+    id:'workout', label:'Workout', sub:'PPL · 5×/week', icon:' ', iconClass:'workout',
     sections:[
       {title:'Split', steps:[
         {time:'',name:'Push',note:'Chest, shoulders, triceps. 20+ sets/week shoulders.',color:'amber'},
@@ -2195,18 +2337,44 @@ function pbRenderGrid() {
   grid.innerHTML = '';
   data.forEach(routine => {
     const card = document.createElement('div');
-    card.className = 'pb-card ' + routine.iconClass;
+    card.className = 'pb-card';
     card.onclick = () => pbOpenModal(routine.id);
+
+    // Build background layer
+  const bgDiv = document.createElement('div');
+bgDiv.className = 'pb-card-bg';
+
+if (routine.cardImage && routine.cardImage.startsWith('data:')) {
+
+  bgDiv.style.backgroundImage = `url("${routine.cardImage}")`;
+
+} else if (routine.cardImage && routine.cardImage.startsWith('gradient-')) {
+
+  bgDiv.classList.add(
+    routine.cardImage.replace('gradient-', '')
+  );
+
+} else {
+
+  bgDiv.classList.add(routine.iconClass || 'morning');
+
+}
+    // Step count for sub-label
+    const totalSteps = (routine.sections || []).reduce((n, s) => n + (s.steps||[]).length, 0);
+    const subLabel = routine.sub || (totalSteps ? `${totalSteps} steps` : 'Tap to view');
+
     card.innerHTML = `
-      <div class="pb-accent"></div>
+      <div class="pb-card-overlay"></div>
       <div class="pb-card-head">
-        <div class="pb-icon ${routine.iconClass}">${routine.icon}</div>
-        <div class="pb-card-meta">
+        <div class="pb-card-top">
           <div class="pb-card-name">${routine.label}</div>
-          <div class="pb-card-sub">${routine.sub}</div>
+          <div class="pb-card-author"></div>
         </div>
-        <div class="pb-arrow">→</div>
+        <div class="pb-card-bottom">
+          <div class="pb-card-sub">${subLabel}</div>
+        </div>
       </div>`;
+    card.insertBefore(bgDiv, card.firstChild);
     grid.appendChild(card);
   });
 }
@@ -2217,16 +2385,28 @@ function pbOpenModal(id) {
   pbCurrentId = id;
   pbIsEditing = false;
   pbCollapsed = {};
+
   const routine = pbGetCurrent();
-  document.getElementById('pbModalIcon').textContent = routine.icon;
-  document.getElementById('pbModalIcon').className = 'pb-modal-icon ' + routine.iconClass;
-  document.getElementById('pbModalTitle').textContent = routine.label;
-  document.getElementById('pbModalSub').textContent = routine.sub;
+
+  document.getElementById('pbModalIcon').textContent = '';
+  document.getElementById('pbModalIcon').className =
+    'pb-modal-icon ' + routine.iconClass;
+
+  document.getElementById('pbModalIcon').onclick =
+    pbChangeRoutineImage;
+
+  document.getElementById('pbModalTitle').textContent =
+    routine.label;
+
+  document.getElementById('pbModalSub').textContent =
+    routine.sub;
+
   pbRenderModalBody(routine);
   pbApplyEditState();
-  document.getElementById('pbOverlay').classList.add('open');
-}
 
+  document.getElementById('pbOverlay')
+    .classList.add('open');
+}
 function pbCloseModal() {
   document.getElementById('pbOverlay').classList.remove('open');
   pbCurrentId = null;
@@ -2442,19 +2622,125 @@ function pbDeleteRoutine() {
   pbCloseModal();
   pbRenderGrid();
 }
-
-function pbCreateNewRoutine() {
+function pbChangeRoutineImage() {
   const data = pbLoad();
-  const id = 'routine_' + Date.now();
-  const icons = ['🎯','📚','🎹','🧘','✍️','🍽️','🚿','🧴'];
-  const icon = icons[Math.floor(Math.random()*icons.length)];
-  data.push({id, label:'New Routine', sub:'Tap to edit', icon, iconClass:'morning',
-    sections:[{title:'Steps', steps:[{time:'',name:'First step',note:'',color:'blue'}]}]});
-  pbSaveData(data);
-  pbRenderGrid();
-  pbOpenModal(id);
-  pbIsEditing = true;
-  pbApplyEditState();
+  const routine = data.find(r => r.id === pbCurrentId);
+
+  if (!routine) return;
+
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*';
+
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = ev => {
+      routine.cardImage = ev.target.result;
+
+      pbSaveData(data);
+      pbRenderGrid();
+
+      document.getElementById('pbModalIcon').style.backgroundImage =
+        `url("${routine.cardImage}")`;
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  inp.click();
+}
+function pbCreateNewRoutine() {
+  // Show image picker first
+  const gradients = [
+    {key:'gradient-morning', label:'Dawn'},
+    {key:'gradient-breath', label:'Sky'},
+    {key:'gradient-night', label:'Night'},
+    {key:'gradient-workout', label:'Forest'},
+    {key:'gradient-fire', label:'Fire'},
+    {key:'gradient-ocean', label:'Ocean'},
+    {key:'gradient-rose', label:'Rose'},
+    {key:'gradient-forest', label:'Moss'},
+  ];
+
+  let selectedImage = 'gradient-morning';
+
+  const pickerBg = document.createElement('div');
+  pickerBg.className = 'pb-img-picker-bg';
+  pickerBg.innerHTML = `
+    <div class="pb-img-picker">
+      <h3>Choose a card look</h3>
+      <p>Pick a gradient or upload your own image.</p>
+      <div class="pb-img-options" id="pbImgOpts">
+        ${gradients.map(g => `<div class="pb-img-opt ${g.key}${g.key===selectedImage?' selected':''}" data-key="${g.key}" title="${g.label}"></div>`).join('')}
+      </div>
+      <div class="pb-img-upload-row">
+        <label class="pb-img-upload-btn" id="pbUploadLabel">📁 Upload image
+          <input type="file" accept="image/*" style="display:none" id="pbImgFileInp">
+        </label>
+      </div>
+      <div class="pb-img-picker-actions">
+        <button class="btn-primary" id="pbImgConfirm">Create Routine</button>
+        <button class="btn-secondary" id="pbImgCancel">Cancel</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(pickerBg);
+
+  // Selection logic
+  pickerBg.querySelectorAll('.pb-img-opt').forEach(el => {
+    el.onclick = () => {
+      pickerBg.querySelectorAll('.pb-img-opt').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedImage = el.dataset.key;
+    };
+  });
+
+  // File upload logic
+  pickerBg.querySelector('#pbImgFileInp').onchange = function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      selectedImage = e.target.result; // base64 data URL
+      // Show preview on upload label
+      pickerBg.querySelector('#pbUploadLabel').style.backgroundImage = `url('${selectedImage}')`;
+      pickerBg.querySelector('#pbUploadLabel').style.backgroundSize = 'cover';
+      pickerBg.querySelector('#pbUploadLabel').style.backgroundPosition = 'center';
+      pickerBg.querySelector('#pbUploadLabel').style.color = '#fff';
+      pickerBg.querySelector('#pbUploadLabel').textContent = '✓ Image ready';
+      pickerBg.querySelectorAll('.pb-img-opt').forEach(x => x.classList.remove('selected'));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  pickerBg.querySelector('#pbImgCancel').onclick = () => pickerBg.remove();
+
+  pickerBg.querySelector('#pbImgConfirm').onclick = () => {
+    pickerBg.remove();
+    const data = pbLoad();
+    const id = 'routine_' + Date.now();
+    const iconClassMap = {
+      'gradient-morning':'morning','gradient-breath':'breath',
+      'gradient-night':'night','gradient-workout':'workout',
+      'gradient-fire':'morning','gradient-ocean':'breath',
+      'gradient-rose':'night','gradient-forest':'workout',
+    };
+    const iconClass = iconClassMap[selectedImage] || 'morning';
+    data.push({
+      id, label:'New Routine', sub:'Tap to edit', icon:'', iconClass,
+      cardImage: selectedImage,
+      sections:[{title:'Steps', steps:[{time:'',name:'First step',note:'',color:'blue'}]}]
+    });
+    pbSaveData(data);
+    pbRenderGrid();
+    pbOpenModal(id);
+    pbIsEditing = true;
+    pbApplyEditState();
+  };
 }
 
 document.addEventListener('keydown', e => {
