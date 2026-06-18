@@ -301,11 +301,11 @@ body>*{position:relative;z-index:1;}
 .ring-container{width:160px;height:160px;position:relative;flex-shrink:0;}
 .ring-container svg{width:100%;height:100%;}
 .ring-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;gap:1px;}
-..ring-pct{
-  font-size:90px;
-  font-weight:600;
-  font-family:'Syne';
-  letter-spacing:0.08em;
+.ring-pct{
+  font-size:30px;
+  font-weight:400;
+  font-family:'Syne',sans-serif;
+  letter-spacing:0.04em;
 }
 .ring-phase{font-size:8px;font-family:ui-monospace,monospace;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--text-tertiary);margin-top:3px;}
 .ring-clock{font-size:9px;font-family:ui-monospace,monospace;color:var(--text-tertiary);}
@@ -1520,7 +1520,7 @@ function renderTicker() {
 document.getElementById('tickerTrack').textContent = text;
 const track = document.getElementById('tickerTrack');
 
-const duration = Math.max(50, text.length * 0.5);
+const duration = Math.max(35, text.length * 0.12);
 track.style.animationDuration = duration + 's';
 console.log("Ticker length:", text.length);
 console.log("Duration:", duration);
