@@ -4,11 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kris OS</title>
-<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Kris%20OS%22%2C%22short_name%22%3A%22Kris%20OS%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23050506%22%2C%22theme_color%22%3A%22%23050506%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%2520100%2520100%2527%253E%253Crect%2520width%253D%2527100%2527%2520height%253D%2527100%2527%2520rx%253D%252722%2527%2520fill%253D%2527%2523050506%2527%252F%253E%253Ctext%2520y%253D%252773%2527%2520x%253D%252712%2527%2520font-size%253D%252775%2527%253E%25F0%259F%258C%2599%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon_io/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon_io/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png">
+<link rel="manifest" href="favicon_io/site.webmanifest">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kris OS">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23050506'/><text y='73' x='12' font-size='75'>🌙</text></svg>">
 <meta name="theme-color" content="#050506">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -43,11 +48,17 @@ body>*{position:relative;z-index:1;}
 .modal-footer a{color:var(--text-secondary);}
 
 /* HEADER */
-.os-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.06);}
-.os-header-left h1{font-size:22px;font-weight:800;letter-spacing:-.03em;background:linear-gradient(180deg,#fff 0%,#C7C4BC 120%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.os-header-left .os-sub{font-size:11px;color:var(--text-tertiary);margin-top:3px;font-family:ui-monospace,monospace;}
+.os-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.06);}
+.os-header-right h1{font-size:18px;font-weight:800;letter-spacing:-.01em;background:linear-gradient(180deg,#fff 0%,#C7C4BC 120%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.os-header-right .os-sub{font-size:12px;color:var(--text-tertiary);text-align:center;letter-spacing:0.2em;text-transform: uppercase;margin-top:7px;font-family:ui-monospace,monospace;}
 .os-header-right{text-align:right;}
-.os-date{font-size:12px;font-family:ui-monospace,monospace;color:var(--text-secondary);}
+.os-date{
+  font-size:20px;
+  margin-top:3px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--text-secondary);
+}
 .os-streak{margin-top:4px;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:rgba(242,192,99,.08);color:#F2C063;font-size:11px;font-weight:700;border:1px solid rgba(242,192,99,.2);}
 
 /* SECTION */
@@ -245,9 +256,45 @@ body>*{position:relative;z-index:1;}
 @keyframes tsweep{0%{left:-40%;}100%{left:110%;}}
 .t-dot{width:6px;height:6px;border-radius:50%;background:#6BE3A4;box-shadow:0 0 7px rgba(107,227,164,.65);animation:lp 1.6s ease-in-out infinite;flex-shrink:0;}
 @keyframes lp{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
-.t-lbl{font-family:ui-monospace,monospace;font-size:9px;font-weight:800;letter-spacing:.16em;color:var(--text-tertiary);flex-shrink:0;text-transform:uppercase;}
-.t-stage{flex:1;height:20px;overflow:hidden;min-width:0;transition:opacity .18s ease;}
-.t-row{display:flex;align-items:center;height:20px;gap:7px;font-family:ui-monospace,monospace;font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;}
+.t-lbl{
+  font-family:'Syne',sans-serif;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.50em;
+  color:var(--text-tertiary);
+  text-transform:uppercase;
+}
+.t-stage{
+  flex:1;
+  height:20px;
+  overflow:hidden;
+  min-width:0;
+  position:relative;
+}
+
+.ticker-track{
+  position:absolute;
+  white-space:nowrap;
+  display:inline-block;
+
+  font-family:'Syne',sans-serif;
+  font-size:12px;
+  font-weight:400;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+
+  animation:tickerScroll 45s linear infinite;
+}
+
+@keyframes tickerScroll{
+  from{
+    transform:translateX(100%);
+  }
+
+  to{
+    transform:translateX(-100%);
+  }
+}
 .t-row.leaving{display:none;}
 .t-status[data-s="done"]{color:#6BE3A4;}
 .t-status[data-s="empty"]{color:var(--text-tertiary);}
@@ -255,10 +302,15 @@ body>*{position:relative;z-index:1;}
 
 /* DAY RING */
 .ring-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:16px;}
-.ring-container{width:140px;height:140px;position:relative;flex-shrink:0;}
+.ring-container{width:160px;height:160px;position:relative;flex-shrink:0;}
 .ring-container svg{width:100%;height:100%;}
 .ring-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;gap:1px;}
-.ring-pct{font-size:32px;font-weight:800;font-family:ui-monospace,monospace;letter-spacing:-.04em;color:var(--text-primary);line-height:1;}
+..ring-pct{
+  font-size:90px;
+  font-weight:600;
+  font-family:'Syne';
+  letter-spacing:0.08em;
+}
 .ring-phase{font-size:8px;font-family:ui-monospace,monospace;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--text-tertiary);margin-top:3px;}
 .ring-clock{font-size:9px;font-family:ui-monospace,monospace;color:var(--text-tertiary);}
 .ring-info{display:flex;flex-direction:column;gap:5px;}
@@ -278,11 +330,11 @@ body>*{position:relative;z-index:1;}
   .ft-time{font-size:52px;}
   .ring-container{width:120px;height:120px;}
   .ring-pct{font-size:26px;}
-  .os-header-left h1{font-size:18px;}
+  .os-header-right h1{font-size:18px;}
   .cmd-actions{flex-wrap:wrap;}
 }
 
-.os-sync{margin-top:5px;font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);cursor:pointer;text-align:right;transition:color .2s;}
+.os-sync{margin-top:5px;font-size:10px;font-family:ui-monospace,monospace;color:var(--text-tertiary);cursor:pointer;text-align:left;transition:color .2s;}
 .os-sync:hover{color:var(--text-secondary);}
 .os-sync.ok{color:rgba(107,227,164,.65);}
 .os-sync.err{color:rgba(255,107,107,.7);}
@@ -292,7 +344,7 @@ body>*{position:relative;z-index:1;}
 .milestone-pill{flex:1;min-width:130px;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid rgba(255,255,255,.06);}
 .milestone-emoji-label{font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-bottom:5px;}
 .milestone-days{font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--text-primary);}
-.milestone-sub{font-size:10px;color:var(--text-tertiary);margin-top:2px;font-family:ui-monospace,monospace;}
+.milestone-sub{font-size:8px;color:var(--text-tertiary);margin-top:2px;font-family:ui-monospace,monospace;}
 .milestone-bar{height:2px;border-radius:2px;background:rgba(255,255,255,.07);margin-top:10px;overflow:hidden;}
 .milestone-fill{height:100%;border-radius:2px;}
 
@@ -442,27 +494,17 @@ body>*{position:relative;z-index:1;}
 
 /* TYPOGRAPHY — HEADINGS */
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
-.os-header-left h1,.modal h2,.section-label,.cmd-title,.pb-modal-title,
-.streak-table-title,.gm-eyebrow,.ft-summary-title,.milestone-emoji-label,
-.mood-slider-name{
+.os-header-right h1,.modal h2,.section-label,.cmd-title,.pb-modal-title,
+.streak-table-title,.gm-eyebrow,.ft-summary-title,.milestone-emoji-label{
   font-family:'Barlow Condensed',-apple-system,BlinkMacSystemFont,sans-serif;
   font-weight:600;
 }
-.os-header-left h1{font-size:25px;letter-spacing:.01em;}
-.section-label{letter-spacing:.16em;}
-.modal h2,.cmd-title,.pb-modal-title{letter-spacing:.02em;}
-
-/* MOOD & ENERGY */
-.mood-slider-block{margin-bottom:16px;}
-.mood-slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
-.mood-slider-name{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);}
-.mood-slider-state{font-size:12px;font-weight:700;font-family:ui-monospace,monospace;color:var(--text-tertiary);transition:color .2s;}
-.mood-range{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:999px;background:linear-gradient(90deg,#6BE3A4 0%,#F2C063 33%,#FF6B6B 66%,#6BB2E3 100%);outline:none;cursor:pointer;}
-.mood-range::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;cursor:grab;box-shadow:0 0 14px 4px var(--glow,rgba(255,255,255,.35)),0 1px 4px rgba(0,0,0,.4);transition:box-shadow .2s ease;}
-.mood-range::-moz-range-thumb{width:20px;height:20px;border-radius:50%;border:none;background:#fff;cursor:grab;box-shadow:0 0 14px 4px var(--glow,rgba(255,255,255,.35)),0 1px 4px rgba(0,0,0,.4);}
-.mood-range::-moz-range-track{height:8px;border-radius:999px;background:linear-gradient(90deg,#6BE3A4 0%,#F2C063 33%,#FF6B6B 66%,#6BB2E3 100%);}
-.mood-logged-hint{font-size:10px;color:var(--text-tertiary);font-family:ui-monospace,monospace;white-space:nowrap;}
-.mood-chart-wrap{height:150px;margin-top:18px;}
+.os-header-right h1{
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
 </style>
 </head>
 <body>
@@ -470,13 +512,13 @@ body>*{position:relative;z-index:1;}
 <!-- HEADER -->
 <div class="os-header">
   <div class="os-header-left">
-    <h1>TOSHIN</h1>
-    <div class="os-sub" id="osSubline" title="Click to edit your vision" style="cursor:pointer;" onclick="editSubline()">BPT Y2 · Haldwani → Australia · JLPT N3 Dec 2026</div>
-  </div>
-  <div class="os-header-right">
-    <div class="os-date" id="osDate">—</div>
+     <div class="os-date" id="osDate">—</div>
     <div class="os-streak" id="osStreak">⚡ 0 streak</div>
     <div class="os-sync" id="syncStatus" onclick="showSyncModal()" title="Cross-device sync">☁ sync</div>
+      </div>
+  <div class="os-header-right">
+    <h1>TOSHIN'S DASHBOARD</h1>
+    <div class="os-sub" id="osSubline" title="Click to edit your vision" style="cursor:pointer;" onclick="editSubline()">BPT Y2 · Haldwani → Australia · JLPT N3 Dec 2026</div>
   </div>
 </div>
 
@@ -484,7 +526,11 @@ body>*{position:relative;z-index:1;}
 <div class="ticker" id="ticker">
   <div class="t-dot"></div>
   <div class="t-lbl">TODAY</div>
-  <div class="t-stage" id="tStage"><div class="t-row"><span class="t-status" data-s="">·</span><span>Loading…</span></div></div>
+ <div class="t-stage" id="tStage">
+  <div class="ticker-track" id="tickerTrack">
+    Loading...
+  </div>
+</div>
   <div class="t-meta" id="tMeta">0/0</div>
 </div>
 
@@ -492,6 +538,7 @@ body>*{position:relative;z-index:1;}
   <div class="ring-container">
     <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
       <defs><filter id="rg"><feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      
       <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
       <circle id="ringFill" cx="60" cy="60" r="50" fill="none" stroke="#FFD89E" stroke-width="8" stroke-linecap="round" transform="rotate(-90 60 60)" filter="url(#rg)" style="stroke-dasharray:314.16;stroke-dashoffset:314.16;transition:stroke-dashoffset .7s cubic-bezier(.22,1,.36,1),stroke .7s ease;"/>
     </svg>
@@ -505,26 +552,6 @@ body>*{position:relative;z-index:1;}
     <div class="ring-status" id="ringStatus">😴 Still sleeping</div>
     <div class="ring-rem" id="ringRem">—</div>
     <div class="ring-range">8:00 AM – 12:00 AM</div>
-  </div>
-</div>
-
-<!-- MOOD & ENERGY -->
-<div class="section">
-  <div class="section-label">Mood &amp; Energy</div>
-  <div class="card">
-    <div class="mood-slider-block">
-      <div class="mood-slider-top"><span class="mood-slider-name">Mood</span><span class="mood-slider-state" id="moodState">—</span></div>
-      <input type="range" min="0" max="100" value="50" class="mood-range" id="moodSlider" oninput="updateMoodSliderUI('mood')">
-    </div>
-    <div class="mood-slider-block">
-      <div class="mood-slider-top"><span class="mood-slider-name">Energy</span><span class="mood-slider-state" id="energyState">—</span></div>
-      <input type="range" min="0" max="100" value="50" class="mood-range" id="energySlider" oninput="updateMoodSliderUI('energy')">
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <button class="cmd-btn cmd-btn-main" style="flex:1;" id="logMoodBtn" onclick="logMood()">+ Log mood</button>
-      <span class="mood-logged-hint" id="moodLoggedHint"></span>
-    </div>
-    <div class="mood-chart-wrap"><canvas id="moodChart"></canvas></div>
   </div>
 </div>
 
@@ -1091,84 +1118,6 @@ function renderStreakTable() {
 }
 
 // ═══════════════════════════════════════════
-// MOOD & ENERGY
-// ═══════════════════════════════════════════
-const MOOD_STOPS=[{p:0,c:[107,227,164]},{p:33,c:[242,192,99]},{p:66,c:[255,107,107]},{p:100,c:[107,178,227]}];
-function moodColor(pct){
-  for(let i=0;i<MOOD_STOPS.length-1;i++){
-    const a=MOOD_STOPS[i],b=MOOD_STOPS[i+1];
-    if(pct>=a.p&&pct<=b.p){
-      const t=(pct-a.p)/(b.p-a.p);
-      return [0,1,2].map(j=>Math.round(a.c[j]+(b.c[j]-a.c[j])*t)).join(',');
-    }
-  }
-  return MOOD_STOPS[MOOD_STOPS.length-1].c.join(',');
-}
-const moodLabel=p=>p<25?'Great':p<50?'Okay':p<75?'Low':'Calm';
-const energyLabel=p=>p<25?'Energized':p<50?'Steady':p<75?'Tired':'Drained';
-function updateMoodSliderUI(type){
-  const slider=document.getElementById(type+'Slider');
-  const pct=+slider.value;
-  const c=moodColor(pct);
-  slider.style.setProperty('--glow',`rgba(${c},.55)`);
-  const stateEl=document.getElementById(type+'State');
-  stateEl.textContent=type==='mood'?moodLabel(pct):energyLabel(pct);
-  stateEl.style.color=`rgb(${c})`;
-}
-function getMoodLog(){ return sg('_moodLog')||[]; }
-function logMood(){
-  const mood=+document.getElementById('moodSlider').value;
-  const energy=+document.getElementById('energySlider').value;
-  const log=getMoodLog();
-  const today=activeDate();
-  const idx=log.findIndex(e=>e.date===today);
-  const entry={date:today,mood,energy,t:Date.now()};
-  if(idx>-1) log[idx]=entry; else log.push(entry);
-  ss('_moodLog',log);
-  renderMoodChart();
-  const hint=document.getElementById('moodLoggedHint');
-  hint.textContent='✓ logged';
-  setTimeout(()=>{ hint.textContent='Today · mood '+mood+' · energy '+energy; },1200);
-}
-let moodChart;
-function renderMoodChart(){
-  const log=getMoodLog();
-  const byDate={}; log.forEach(e=>byDate[e.date]=e);
-  const today=activeDate();
-  const days=[]; for(let i=13;i>=0;i--) days.push(addD(today,-i));
-  const labels=days.map(d=>{ const [y,m,dy]=d.split('-').map(Number); return new Date(y,m-1,dy).toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
-  const moodData=days.map(d=>byDate[d]?byDate[d].mood:null);
-  const energyData=days.map(d=>byDate[d]?byDate[d].energy:null);
-  const ctx=document.getElementById('moodChart').getContext('2d');
-  if(moodChart) moodChart.destroy();
-  moodChart=new Chart(ctx,{
-    type:'line',
-    data:{labels,datasets:[
-      {label:'Mood',data:moodData,borderColor:'rgba(242,192,99,.85)',backgroundColor:'rgba(242,192,99,.08)',pointBackgroundColor:moodData.map(v=>v==null?'transparent':`rgb(${moodColor(v)})`),pointRadius:4,pointHoverRadius:5,borderWidth:2,tension:.35,spanGaps:true,fill:true},
-      {label:'Energy',data:energyData,borderColor:'rgba(107,178,227,.6)',backgroundColor:'transparent',pointRadius:3,borderWidth:1.5,borderDash:[4,3],tension:.35,spanGaps:true}
-    ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      scales:{
-        y:{min:0,max:100,ticks:{display:false},grid:{color:'rgba(255,255,255,.05)'}},
-        x:{ticks:{color:'rgba(255,255,255,.4)',font:{size:9,family:'ui-monospace,monospace'},maxRotation:0,autoSkip:true},grid:{display:false}}
-      },
-      plugins:{legend:{display:true,position:'top',align:'end',labels:{color:'rgba(255,255,255,.55)',font:{size:10,family:'ui-monospace,monospace'},boxWidth:10,usePointStyle:true}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw}`}}}
-    }
-  });
-}
-function initMoodWidget(){
-  const today=activeDate();
-  const todayEntry=getMoodLog().find(e=>e.date===today);
-  const m=todayEntry?todayEntry.mood:50, en=todayEntry?todayEntry.energy:50;
-  document.getElementById('moodSlider').value=m;
-  document.getElementById('energySlider').value=en;
-  updateMoodSliderUI('mood'); updateMoodSliderUI('energy');
-  document.getElementById('moodLoggedHint').textContent=todayEntry?('Today · mood '+m+' · energy '+en):'';
-  renderMoodChart();
-}
-
-// ═══════════════════════════════════════════
 // DOCUMENT VAULT
 // ═══════════════════════════════════════════
 function getDocs() { return sg('_docs')||[]; }
@@ -1560,20 +1509,52 @@ function updateRing(){
 // ═══════════════════════════════════════════
 // TICKER
 // ═══════════════════════════════════════════
-let tkInterval=null,tkIdx=0;
-function tkItems(){const goals=sg('goals:'+activeDate())||[];const done=goals.filter(g=>g.done).length,total=goals.length;let items;if(!total)items=[{s:'empty',t:'No goals — add one.'}];else if(done===total)items=[{s:'done',t:'✓ All done — solid.'}];else items=goals.filter(g=>!g.done).map(g=>({s:'pending',t:g.text}));return{items,done,total};}
-function tkTick(reset){const stage=document.getElementById('tStage'),meta=document.getElementById('tMeta');const{items,done,total}=tkItems();if(reset)tkIdx=0;if(tkIdx>=items.length)tkIdx=0;const item=items[tkIdx];tkIdx=(tkIdx+1)%items.length;meta.textContent=`${done}/${total}`;stage.style.opacity='0';setTimeout(()=>{stage.innerHTML='';const nr=document.createElement('div');nr.className='t-row';const ss_=document.createElement('span');ss_.className='t-status';ss_.dataset.s=item.s;ss_.textContent=item.s==='done'?'✓':'○';const ts=document.createElement('span');ts.textContent=item.t;nr.appendChild(ss_);nr.appendChild(ts);stage.appendChild(nr);stage.style.opacity='1';},180);}
-function startTicker(){tkTick(true);if(tkInterval)clearInterval(tkInterval);tkInterval=setInterval(()=>tkTick(false),5000);}
-window.addEventListener('data-changed',()=>tkTick(true));
 
+function renderTicker() {
+
+  const goals = sg('goals:' + activeDate()) || [];
+
+  const items = goals.length
+    ? goals.filter(g => !g.done).map(g => g.text.toUpperCase())
+    : ['NO GOALS SET'];
+
+  const text =
+    '○ ' + items.join('   ○   ');
+
+  document.getElementById('tickerTrack').textContent =
+    text + '      ' + text;
+
+  const done = goals.filter(g => g.done).length;
+
+  document.getElementById('tMeta').textContent =
+    `${done}/${goals.length}`;
+}
+
+window.addEventListener('data-changed', renderTicker);
 // ═══════════════════════════════════════════
 // HEADER DATE
 // ═══════════════════════════════════════════
 function updateHeader(){
-  const now=new Date();
-  document.getElementById('osDate').textContent=fmtDate(activeDate())+' · '+fmtClock(now);
-}
+  const now = new Date();
 
+  const months = [
+    'JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE',
+    'JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'
+  ];
+
+  const weekdaysJP = [
+    '日曜日','月曜日','火曜日','水曜日',
+    '木曜日','金曜日','土曜日'
+  ];
+
+  const weekdaysEN = [
+    'SUN','MON','TUE','WED',
+    'THU','FRI','SAT'
+  ];
+
+  document.getElementById('osDate').textContent =
+    `${now.getDate()} 日   ${now.getMonth()+1}  ${months[now.getMonth()]}   ${weekdaysJP[now.getDay()]} [ ${weekdaysEN[now.getDay()]} ]`;
+}
 // ═══════════════════════════════════════════
 // SUBLINE — dynamic rotating identity
 // ═══════════════════════════════════════════
@@ -1584,13 +1565,17 @@ function getSublineLines() {
   const jlptDate = new Date('2026-12-06');
   const jlptDays = Math.max(0, Math.ceil((jlptDate - now) / 86400000));
   return [
-    `${jlptDays}d to JLPT N3 · stay locked in`,
-    'Producer. Pianist. Physio. Toshin.',
+    `${jlptDays}d to JLPT N3 · LOCK IN`,
+    'Everything works in my favor ',
+    'Producer. Pianist. Physio. ',
+    'Create things you wish existed',
     'BPT Y2 · Haldwani → Australia · 2029',
-    'Greatest musician in every room.',
-    'Singer. Model. Physio. All of it.',
-    'Building an unconventional international life.',
-    'CILPA. Toshin Music. Beats. Kanji. Reps.',
+    'LOCK TF IN ',
+    'Greatest Musician of ALL TIME.',
+    'Block all negativity, NO MATTER WHAT',
+    'Special School | Music Production | Languages',
+    'Your only job is to feel good. The rest will align.',
+
   ];
 }
 
@@ -2492,9 +2477,8 @@ doRollover();
 updateHeader(); setInterval(updateHeader,60000);
 document.getElementById('ringFill').style.strokeDasharray=RC;
 updateRing(); setInterval(updateRing,60000);
-startTicker();
+renderTicker();
 renderHabits(); renderStreakTable();
-initMoodWidget();
 renderDocs();
 loadGoals(); loadTomorrow();
 renderRadar();
