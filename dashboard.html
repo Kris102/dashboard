@@ -1902,6 +1902,9 @@ async function ensureToken(force = false) {
 // A single Firestore document caps out around 1MB total. Any key bigger than this
 // threshold gets stored in its own document instead of bundled into the main one.
 const OVERFLOW_THRESHOLD = 700000; // ~700KB
+// Within an overflow document, no single field may exceed ~1MB either —
+// so large values get split across multiple fields (part_0, part_1, ...).
+const CHUNK_SIZE = 900000; // ~900KB, safely under the 1,048,487 byte limit
 
 /** Split localStorage into { main: {...}, overflow: { key: value, ... } } */
 function snapshotLocalStorage() {
@@ -1919,6 +1922,25 @@ function snapshotLocalStorage() {
   return { main, overflow };
 }
 
+/** Split a long string into an object of { part_0, part_1, ..., partCount } */
+function chunkValue(value) {
+  const parts = {};
+  let count = 0;
+  for (let p = 0; p < value.length; p += CHUNK_SIZE) {
+    parts[`part_${count}`] = value.slice(p, p + CHUNK_SIZE);
+    count++;
+  }
+  parts.partCount = count;
+  return parts;
+}
+
+/** Reassemble a chunked overflow document back into the original string */
+function unchunkValue(doc) {
+  let joined = '';
+  for (let i = 0; i < (doc.partCount || 0); i++) joined += doc[`part_${i}`] || '';
+  return joined;
+}
+
 // ── core sync ────────────────────────────────────────────────
 async function syncPush(showStatus = false) {
   if (!SYNC_PROJECT || !SYNC_APIKEY) return;
@@ -1928,10 +1950,10 @@ async function syncPush(showStatus = false) {
     const { doc, setDoc } = window._fb;
     const { main, overflow } = snapshotLocalStorage();
 
-    // Each oversized key gets its own document: krios/{uid}_ov_{key}
+    // Each oversized key gets its own document, chunked across fields if needed
     for (const [key, value] of Object.entries(overflow)) {
       const ovRef = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}`);
-      await setDoc(ovRef, { value, _syncTs: main._syncTs });
+      await setDoc(ovRef, { ...chunkValue(value), _syncTs: main._syncTs });
     }
 
     const mainRef = doc(_fbDb, 'krios', SYNC_UID);
@@ -1965,7 +1987,7 @@ async function syncPull() {
       for (const key of overflowKeys) {
         const ovRef  = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}`);
         const ovSnap = await getDoc(ovRef);
-        if (ovSnap.exists()) data[key] = ovSnap.data().value;
+        if (ovSnap.exists()) data[key] = unchunkValue(ovSnap.data());
       }
       Object.entries(data).forEach(([k, v]) => {
         if (!SYNC_SKIP.has(k)) localStorage.setItem(k, v);
