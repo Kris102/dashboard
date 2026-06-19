@@ -1899,17 +1899,24 @@ async function ensureToken(force = false) {
   if (!_fbUser || force) await firebaseSignIn();
 }
 
-/** Snapshot localStorage into a plain object */
-function encodeFields() {
-  const data = { _syncTs: Date.now() };
+// A single Firestore document caps out around 1MB total. Any key bigger than this
+// threshold gets stored in its own document instead of bundled into the main one.
+const OVERFLOW_THRESHOLD = 700000; // ~700KB
+
+/** Split localStorage into { main: {...}, overflow: { key: value, ... } } */
+function snapshotLocalStorage() {
+  const main = { _syncTs: Date.now() };
+  const overflow = {};
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (!k || SYNC_SKIP.has(k)) continue;
     const v = localStorage.getItem(k);
     if (v && v.startsWith('data:image')) continue;   // skip base64 blobs
-    data[k] = v;
+    if (v && v.length > OVERFLOW_THRESHOLD) overflow[k] = v;
+    else main[k] = v;
   }
-  return data;
+  main._overflowKeys = JSON.stringify(Object.keys(overflow));
+  return { main, overflow };
 }
 
 // ── core sync ────────────────────────────────────────────────
@@ -1919,8 +1926,17 @@ async function syncPush(showStatus = false) {
   try {
     await ensureToken();
     const { doc, setDoc } = window._fb;
-    const ref = doc(_fbDb, 'krios', SYNC_UID);
-    await setDoc(ref, encodeFields(), { merge: true });
+    const { main, overflow } = snapshotLocalStorage();
+
+    // Each oversized key gets its own document: krios/{uid}_ov_{key}
+    for (const [key, value] of Object.entries(overflow)) {
+      const ovRef = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}`);
+      await setDoc(ovRef, { value, _syncTs: main._syncTs });
+    }
+
+    const mainRef = doc(_fbDb, 'krios', SYNC_UID);
+    await setDoc(mainRef, main);
+
     localStorage.setItem('_syncLast', Date.now().toString());
     setSyncStatus('ok', '☁ synced');
     setTimeout(() => setSyncStatus('ok', '☁ sync'), 3000);
@@ -1936,13 +1952,21 @@ async function syncPull() {
   try {
     await ensureToken();
     const { doc, getDoc } = window._fb;
-    const ref  = doc(_fbDb, 'krios', SYNC_UID);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) { setSyncStatus('ok', '☁ sync'); return false; }
-    const data = snap.data();
+    const mainRef  = doc(_fbDb, 'krios', SYNC_UID);
+    const mainSnap = await getDoc(mainRef);
+    if (!mainSnap.exists()) { setSyncStatus('ok', '☁ sync'); return false; }
+    const data = mainSnap.data();
     const localTs  = parseInt(localStorage.getItem('_syncTs') || '0');
     const remoteTs = parseInt(data._syncTs || '0');
     if (remoteTs > localTs) {
+      const overflowKeys = JSON.parse(data._overflowKeys || '[]');
+      delete data._overflowKeys;
+      // Pull each overflow document alongside the main one
+      for (const key of overflowKeys) {
+        const ovRef  = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}`);
+        const ovSnap = await getDoc(ovRef);
+        if (ovSnap.exists()) data[key] = ovSnap.data().value;
+      }
       Object.entries(data).forEach(([k, v]) => {
         if (!SYNC_SKIP.has(k)) localStorage.setItem(k, v);
       });
