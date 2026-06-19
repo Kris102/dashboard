@@ -17,6 +17,16 @@
 <meta name="apple-mobile-web-app-title" content="Kris OS">
 <meta name="theme-color" content="#050506">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script type="module">
+  // Firebase SDK (official) — loaded as ES module, exposed on window for use by the main script
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  window._fb = { initializeApp, getAuth, signInAnonymously, onAuthStateChanged, getFirestore, doc, getDoc, setDoc };
+  window._fbReady = true;
+  window.dispatchEvent(new Event('firebase-sdk-ready'));
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -1839,13 +1849,13 @@ function renderMilestones() {
     </div>`;
 }
 
-// CROSS-DEVICE SYNC — Firebase Firestore (REST API, no SDK)
+// CROSS-DEVICE SYNC — Firebase Firestore (official SDK)
 // ═══════════════════════════════════════════
-let SYNC_PROJECT  = localStorage.getItem('_syncProject') || '';
-let SYNC_APIKEY   = localStorage.getItem('_syncApiKey')  || '';
-let SYNC_UID      = localStorage.getItem('_syncUid')     || '';  // set after sign-in
-let SYNC_TOKEN    = '';   // Firebase ID token (in-memory only)
-let _syncTimer    = null;
+let SYNC_PROJECT = localStorage.getItem('_syncProject') || '';
+let SYNC_APIKEY  = localStorage.getItem('_syncApiKey')  || '';
+let SYNC_UID     = localStorage.getItem('_syncUid')     || '';
+let _syncTimer   = null;
+let _fbApp = null, _fbAuth = null, _fbDb = null, _fbUser = null;
 const SYNC_SKIP = new Set(['_syncProject','_syncApiKey','_syncUid','_apik','_syncTs','_syncLast']);
 
 // ── helpers ──────────────────────────────────────────────────
@@ -1856,66 +1866,61 @@ function setSyncStatus(state, label) {
   el.textContent = label;
 }
 
-function firestoreUrl() {
-  // Document path: krios/{uid}
-  return `https://firestore.googleapis.com/v1/projects/${SYNC_PROJECT}/databases/(default)/documents/krios/${SYNC_UID}`;
+/** Initialize the Firebase app/auth/firestore instances (idempotent) */
+async function fbInit() {
+  if (!window._fbReady) {
+    await new Promise(res => window.addEventListener('firebase-sdk-ready', res, { once: true }));
+  }
+  if (_fbApp && _fbAuth) return;
+  const { initializeApp, getAuth, getFirestore } = window._fb;
+  _fbApp  = initializeApp({ apiKey: SYNC_APIKEY, projectId: SYNC_PROJECT });
+  _fbAuth = getAuth(_fbApp);
+  _fbDb   = getFirestore(_fbApp);
 }
 
-/** Sign in anonymously → returns idToken */
+/** Sign in anonymously, resolves once a user is confirmed */
 async function firebaseSignIn() {
-  const r = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInAnonymously?key=${SYNC_APIKEY}`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }
-  );
-  if (!r.ok) throw new Error('Auth failed: ' + r.status);
-  const d = await r.json();
-  SYNC_TOKEN = d.idToken;
-  SYNC_UID   = d.localId;
+  await fbInit();
+  const { signInAnonymously, onAuthStateChanged } = window._fb;
+  await signInAnonymously(_fbAuth);
+  _fbUser = await new Promise((resolve, reject) => {
+    const unsub = onAuthStateChanged(_fbAuth, (user) => {
+      if (user) { unsub(); resolve(user); }
+    }, reject);
+  });
+  SYNC_UID = _fbUser.uid;
   localStorage.setItem('_syncUid', SYNC_UID);
-  return SYNC_TOKEN;
+  return _fbUser;
 }
 
-/** Ensure we have a valid token; re-auth if missing or forced */
+/** Ensure we have a signed-in user */
 async function ensureToken(force = false) {
-  if (!SYNC_TOKEN || force) await firebaseSignIn();
+  await fbInit();
+  if (!_fbUser || force) await firebaseSignIn();
 }
 
-/** Encode localStorage snapshot to Firestore fields map */
+/** Snapshot localStorage into a plain object */
 function encodeFields() {
-  const fields = { _syncTs: { integerValue: String(Date.now()) } };
+  const data = { _syncTs: Date.now() };
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (!k || SYNC_SKIP.has(k)) continue;
     const v = localStorage.getItem(k);
     if (v && v.startsWith('data:image')) continue;   // skip base64 blobs
-    fields[k] = { stringValue: v };
+    data[k] = v;
   }
-  return fields;
-}
-
-/** Decode Firestore fields map back to plain key→value */
-function decodeFields(fields) {
-  const out = {};
-  for (const [k, wrap] of Object.entries(fields)) {
-    out[k] = wrap.stringValue ?? wrap.integerValue ?? wrap.booleanValue ?? '';
-  }
-  return out;
+  return data;
 }
 
 // ── core sync ────────────────────────────────────────────────
 async function syncPush(showStatus = false) {
   if (!SYNC_PROJECT || !SYNC_APIKEY) return;
   if (showStatus) setSyncStatus('', '☁ syncing…');
-  const doRequest = async () => fetch(firestoreUrl(), {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SYNC_TOKEN}` },
-    body: JSON.stringify({ fields: encodeFields() })
-  });
   try {
     await ensureToken();
-    let r = await doRequest();
-    if (r.status === 401) { await ensureToken(true); r = await doRequest(); }
-    if (!r.ok) throw new Error('status ' + r.status);
+    const { doc, setDoc } = window._fb;
+    const ref = doc(_fbDb, 'krios', SYNC_UID);
+    await setDoc(ref, encodeFields(), { merge: true });
     localStorage.setItem('_syncLast', Date.now().toString());
     setSyncStatus('ok', '☁ synced');
     setTimeout(() => setSyncStatus('ok', '☁ sync'), 3000);
@@ -1928,17 +1933,13 @@ async function syncPush(showStatus = false) {
 async function syncPull() {
   if (!SYNC_PROJECT || !SYNC_APIKEY) return false;
   setSyncStatus('', '☁ pulling…');
-  const doRequest = () => fetch(firestoreUrl(), {
-    headers: { 'Authorization': `Bearer ${SYNC_TOKEN}` }
-  });
   try {
     await ensureToken();
-    let r = await doRequest();
-    if (r.status === 401) { await ensureToken(true); r = await doRequest(); }
-    if (r.status === 404) { setSyncStatus('ok', '☁ sync'); return false; }
-    if (!r.ok) throw new Error('status ' + r.status);
-    const doc  = await r.json();
-    const data = decodeFields(doc.fields || {});
+    const { doc, getDoc } = window._fb;
+    const ref  = doc(_fbDb, 'krios', SYNC_UID);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) { setSyncStatus('ok', '☁ sync'); return false; }
+    const data = snap.data();
     const localTs  = parseInt(localStorage.getItem('_syncTs') || '0');
     const remoteTs = parseInt(data._syncTs || '0');
     if (remoteTs > localTs) {
@@ -2005,7 +2006,7 @@ function showSyncModal() {
     SYNC_PROJECT = project; SYNC_APIKEY = apiKey;
     localStorage.setItem('_syncProject', project);
     localStorage.setItem('_syncApiKey',  apiKey);
-    SYNC_TOKEN = '';   // force re-auth with new key
+    _fbApp = null; _fbAuth = null; _fbDb = null; _fbUser = null;  // force re-init with new config
     st.textContent = 'Authenticating…';
     try {
       await firebaseSignIn();
