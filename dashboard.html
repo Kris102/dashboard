@@ -1854,9 +1854,10 @@ function renderMilestones() {
 let SYNC_PROJECT = localStorage.getItem('_syncProject') || '';
 let SYNC_APIKEY  = localStorage.getItem('_syncApiKey')  || '';
 let SYNC_UID     = localStorage.getItem('_syncUid')     || '';
+let SYNC_CODE    = localStorage.getItem('_syncCode')    || '';
 let _syncTimer   = null;
 let _fbApp = null, _fbAuth = null, _fbDb = null, _fbUser = null;
-const SYNC_SKIP = new Set(['_syncProject','_syncApiKey','_syncUid','_apik','_syncTs','_syncLast']);
+const SYNC_SKIP = new Set(['_syncProject','_syncApiKey','_syncUid','_syncCode','_apik','_syncTs','_syncLast']);
 
 // ── helpers ──────────────────────────────────────────────────
 function setSyncStatus(state, label) {
@@ -1931,7 +1932,7 @@ function chunkValue(value) {
 
 // ── core sync ────────────────────────────────────────────────
 async function syncPush(showStatus = false) {
-  if (!SYNC_PROJECT || !SYNC_APIKEY) return;
+  if (!SYNC_PROJECT || !SYNC_APIKEY || !SYNC_CODE) return;
   if (showStatus) setSyncStatus('', '☁ syncing…');
   try {
     await ensureToken();
@@ -1939,18 +1940,18 @@ async function syncPush(showStatus = false) {
     const { main, overflow } = snapshotLocalStorage();
 
     // Each oversized key gets split into multiple documents:
-    // krios/{uid}_ov_{key}_0, krios/{uid}_ov_{key}_1, ...
+    // krios/{code}_ov_{key}_0, krios/{code}_ov_{key}_1, ...
     for (const [key, value] of Object.entries(overflow)) {
       const parts = chunkValue(value);
       for (let i = 0; i < parts.length; i++) {
-        const ovRef = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}_${i}`);
+        const ovRef = doc(_fbDb, 'krios', `${SYNC_CODE}_ov_${key}_${i}`);
         await setDoc(ovRef, { part: parts[i] });
       }
       // record how many parts this key has, alongside the main doc
       main[`_overflowCount__${key}`] = parts.length;
     }
 
-    const mainRef = doc(_fbDb, 'krios', SYNC_UID);
+    const mainRef = doc(_fbDb, 'krios', SYNC_CODE);
     await setDoc(mainRef, main);
 
     localStorage.setItem('_syncLast', Date.now().toString());
@@ -1963,12 +1964,12 @@ async function syncPush(showStatus = false) {
 }
 
 async function syncPull() {
-  if (!SYNC_PROJECT || !SYNC_APIKEY) return false;
+  if (!SYNC_PROJECT || !SYNC_APIKEY || !SYNC_CODE) return false;
   setSyncStatus('', '☁ pulling…');
   try {
     await ensureToken();
     const { doc, getDoc } = window._fb;
-    const mainRef  = doc(_fbDb, 'krios', SYNC_UID);
+    const mainRef  = doc(_fbDb, 'krios', SYNC_CODE);
     const mainSnap = await getDoc(mainRef);
     if (!mainSnap.exists()) { setSyncStatus('ok', '☁ sync'); return false; }
     const data = mainSnap.data();
@@ -1983,7 +1984,7 @@ async function syncPull() {
         delete data[`_overflowCount__${key}`];
         let joined = '';
         for (let i = 0; i < count; i++) {
-          const ovRef  = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}_${i}`);
+          const ovRef  = doc(_fbDb, 'krios', `${SYNC_CODE}_ov_${key}_${i}`);
           const ovSnap = await getDoc(ovRef);
           if (ovSnap.exists()) joined += ovSnap.data().part || '';
         }
@@ -2020,11 +2021,12 @@ function showSyncModal() {
     <h2>☁ Cross-Device Sync</h2>
     <p>Sync via <a href="https://firebase.google.com" target="_blank" style="color:var(--text-secondary);">Firebase Firestore</a>.
        Create a free project at console.firebase.google.com, enable Firestore, and paste your Web API key below.
-       No account login required — data is stored under an anonymous device ID.</p>
+       Then pick a <b>sync code</b> — any word or phrase — and use the exact same one on every device you want synced together.</p>
     <input id="syncProjectInp" placeholder="Firebase Project ID (e.g. my-app-12345)" value="${SYNC_PROJECT}" autocomplete="off">
     <input id="syncApiKeyInp" type="password" placeholder="Web API Key (AIza…)" value="${SYNC_APIKEY}" autocomplete="off" style="margin-top:6px;">
+    <input id="syncCodeInp" placeholder="Sync code (same on all devices, e.g. kris-os-2026)" value="${SYNC_CODE}" autocomplete="off" style="margin-top:6px;">
     <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:10px;font-family:ui-monospace,monospace;">
-      Device UID: ${SYNC_UID || '(assigned on first connect)'} · Last synced: ${lastStr}
+      Sync code: ${SYNC_CODE || '(not set)'} · Last synced: ${lastStr}
     </div>
     <div class="modal-actions">
       <button class="btn-primary"   id="syncSave">Connect &amp; Push</button>
@@ -2047,18 +2049,20 @@ function showSyncModal() {
   bg.querySelector('#syncSave').onclick = async () => {
     const project = bg.querySelector('#syncProjectInp').value.trim();
     const apiKey  = bg.querySelector('#syncApiKeyInp').value.trim();
+    const code    = bg.querySelector('#syncCodeInp').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
     st.classList.remove('err');
-    if (!project || !apiKey) { st.textContent = 'Enter both Project ID and API Key.'; st.classList.add('err'); return; }
-    SYNC_PROJECT = project; SYNC_APIKEY = apiKey;
+    if (!project || !apiKey || !code) { st.textContent = 'Enter Project ID, API Key, and a sync code.'; st.classList.add('err'); return; }
+    SYNC_PROJECT = project; SYNC_APIKEY = apiKey; SYNC_CODE = code;
     localStorage.setItem('_syncProject', project);
     localStorage.setItem('_syncApiKey',  apiKey);
+    localStorage.setItem('_syncCode',    code);
     _fbApp = null; _fbAuth = null; _fbDb = null; _fbUser = null;  // force re-init with new config
     st.textContent = 'Authenticating…';
     try {
       await firebaseSignIn();
-      st.textContent = `Signed in as ${SYNC_UID}. Pushing…`;
+      st.textContent = `Connected. Pushing…`;
       await syncPush(false);
-      st.textContent = `✓ Done. Share Project ID + API Key on other devices. UID auto-assigned per device.`;
+      st.textContent = `✓ Done. Use sync code "${code}" on every device to keep them in sync.`;
       setSyncStatus('ok', '☁ sync');
     } catch(e) { st.classList.add('err'); st.textContent = 'Error: ' + e.message; }
   };
@@ -2068,7 +2072,7 @@ window.addEventListener('kris-data-changed', scheduleSyncPush);
 
 // Auto-pull on load if sync is configured
 (async () => {
-  if (SYNC_PROJECT && SYNC_APIKEY) {
+  if (SYNC_PROJECT && SYNC_APIKEY && SYNC_CODE) {
     const pulled = await syncPull();
     if (pulled) { setTimeout(() => location.reload(), 400); }
   } else {
