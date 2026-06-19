@@ -1900,11 +1900,11 @@ async function ensureToken(force = false) {
 }
 
 // A single Firestore document caps out around 1MB total. Any key bigger than this
-// threshold gets stored in its own document instead of bundled into the main one.
+// threshold gets stored in its own document(s) instead of bundled into the main one.
 const OVERFLOW_THRESHOLD = 700000; // ~700KB
-// Within an overflow document, no single field may exceed ~1MB either —
-// so large values get split across multiple fields (part_0, part_1, ...).
-const CHUNK_SIZE = 900000; // ~900KB, safely under the 1,048,487 byte limit
+// Each oversized value gets split into pieces this big, ONE PIECE PER DOCUMENT
+// (a Firestore document's total size — not just a field — caps at ~1MB).
+const CHUNK_SIZE = 700000; // ~700KB per document, safely under the 1,048,576 byte cap
 
 /** Split localStorage into { main: {...}, overflow: { key: value, ... } } */
 function snapshotLocalStorage() {
@@ -1922,23 +1922,11 @@ function snapshotLocalStorage() {
   return { main, overflow };
 }
 
-/** Split a long string into an object of { part_0, part_1, ..., partCount } */
+/** Split a long string into an array of chunk strings, each under CHUNK_SIZE */
 function chunkValue(value) {
-  const parts = {};
-  let count = 0;
-  for (let p = 0; p < value.length; p += CHUNK_SIZE) {
-    parts[`part_${count}`] = value.slice(p, p + CHUNK_SIZE);
-    count++;
-  }
-  parts.partCount = count;
+  const parts = [];
+  for (let p = 0; p < value.length; p += CHUNK_SIZE) parts.push(value.slice(p, p + CHUNK_SIZE));
   return parts;
-}
-
-/** Reassemble a chunked overflow document back into the original string */
-function unchunkValue(doc) {
-  let joined = '';
-  for (let i = 0; i < (doc.partCount || 0); i++) joined += doc[`part_${i}`] || '';
-  return joined;
 }
 
 // ── core sync ────────────────────────────────────────────────
@@ -1950,10 +1938,16 @@ async function syncPush(showStatus = false) {
     const { doc, setDoc } = window._fb;
     const { main, overflow } = snapshotLocalStorage();
 
-    // Each oversized key gets its own document, chunked across fields if needed
+    // Each oversized key gets split into multiple documents:
+    // krios/{uid}_ov_{key}_0, krios/{uid}_ov_{key}_1, ...
     for (const [key, value] of Object.entries(overflow)) {
-      const ovRef = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}`);
-      await setDoc(ovRef, { ...chunkValue(value), _syncTs: main._syncTs });
+      const parts = chunkValue(value);
+      for (let i = 0; i < parts.length; i++) {
+        const ovRef = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}_${i}`);
+        await setDoc(ovRef, { part: parts[i] });
+      }
+      // record how many parts this key has, alongside the main doc
+      main[`_overflowCount__${key}`] = parts.length;
     }
 
     const mainRef = doc(_fbDb, 'krios', SYNC_UID);
@@ -1983,11 +1977,17 @@ async function syncPull() {
     if (remoteTs > localTs) {
       const overflowKeys = JSON.parse(data._overflowKeys || '[]');
       delete data._overflowKeys;
-      // Pull each overflow document alongside the main one
+      // Pull each overflow key's chunk documents and reassemble
       for (const key of overflowKeys) {
-        const ovRef  = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}`);
-        const ovSnap = await getDoc(ovRef);
-        if (ovSnap.exists()) data[key] = unchunkValue(ovSnap.data());
+        const count = data[`_overflowCount__${key}`] || 0;
+        delete data[`_overflowCount__${key}`];
+        let joined = '';
+        for (let i = 0; i < count; i++) {
+          const ovRef  = doc(_fbDb, 'krios', `${SYNC_UID}_ov_${key}_${i}`);
+          const ovSnap = await getDoc(ovRef);
+          if (ovSnap.exists()) joined += ovSnap.data().part || '';
+        }
+        data[key] = joined;
       }
       Object.entries(data).forEach(([k, v]) => {
         if (!SYNC_SKIP.has(k)) localStorage.setItem(k, v);
