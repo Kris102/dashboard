@@ -527,7 +527,7 @@
     </div>
   </div>
   <div class="ring-info">
-    <div class="ring-status" id="ringStatus">😴 Still sleeping</div>
+    <div class="ring-status" id="ringStatus">Still sleeping</div>
     <div class="ring-remaining mono" id="ringRemaining">—</div>
     <div class="ring-hours-range mono">8:00 AM – 12:00 AM</div>
   </div>
@@ -559,7 +559,7 @@
     <div class="goal-input-wrap gm-input-wrap">
       <input type="text" class="goal-input" id="goalInput" placeholder="Add a goal for today…" autocomplete="off">
       <button class="goal-add-btn" id="goalAddBtn">+ Add</button>
-      <button class="goal-polish-btn" id="goalPolishBtn">✨ Polish</button>
+      <button class="goal-polish-btn" id="goalPolishBtn">Polish</button>
     </div>
     <div class="polish-status" id="polishStatus"></div>
   </div>
@@ -577,7 +577,7 @@
     <div class="goal-input-wrap gm-input-wrap">
       <input type="text" class="goal-input" id="tomorrowInput" placeholder="Add a goal for tomorrow…" autocomplete="off">
       <button class="goal-add-btn" id="tomorrowAddBtn">+ Add</button>
-      <button class="goal-polish-btn" id="tomorrowPolishBtn">✨ Polish</button>
+      <button class="goal-polish-btn" id="tomorrowPolishBtn">Polish</button>
     </div>
     <div class="polish-status" id="tomorrowStatus"></div>
   </div>
@@ -633,7 +633,7 @@
 
   <div class="eod-card">
     <div class="eod-btn-row">
-      <button class="eod-gen-btn" id="eodGenBtn">📋 Generate Insight</button>
+      <button class="eod-gen-btn" id="eodGenBtn">Generate Insight</button>
       <button class="eod-copy-btn hidden" id="eodCopyBtn">Copy</button>
     </div>
     <div class="eod-output" id="eodOutput"></div>
@@ -809,7 +809,7 @@ function buildGoalRow(g, idx, goals, key, readOnly, reload) {
   makeInlineEdit(txt, idx, goals, key, reload); li.appendChild(txt);
 
   const qBtn = document.createElement('button');
-  qBtn.className='gm-queue-btn'+(g.queued?' active':''); qBtn.textContent='⚡';
+  qBtn.className='gm-queue-btn'+(g.queued?' active':''); qBtn.textContent='';
   qBtn.title=g.queued?'Remove from queue':'Queue for productivity window';
   if (readOnly) qBtn.disabled=true;
   qBtn.addEventListener('click',()=>{ goals[idx].queued=!goals[idx].queued; storeSet(key,goals); li.classList.add('is-queue-flashing'); setTimeout(()=>reload(),480); });
@@ -921,7 +921,7 @@ function makeAddHandlers(inputEl,addBtn,polishBtn,key,statusEl,reload){
       if(polished){ const goals=storeGet(key)||[]; goals.push({text:polished,done:false}); storeSet(key,goals); inputEl.value=''; reload(); }
       else{ doAdd(raw); showStatus(statusEl,'Polish failed — added as-typed.',true,3500); }
     }catch{ doAdd(raw); showStatus(statusEl,'Polish failed — added as-typed.',true,3500); }
-    finally{ polishBtn.disabled=false; polishBtn.textContent='✨ Polish'; }
+    finally{ polishBtn.disabled=false; polishBtn.textContent='Polish'; }
   });
 }
 
@@ -988,18 +988,18 @@ function updateDayBar(){
   const now=new Date(), hours=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
   const ringFill=document.getElementById('ringFill'),ringPct=document.getElementById('ringPct'),ringPhase=document.getElementById('ringPhase'),ringClock=document.getElementById('ringClock'),ringStatus=document.getElementById('ringStatus'),ringRemaining=document.getElementById('ringRemaining');
   ringClock.textContent=fmtClock(now);
-  if(hours<WAKE_HOUR){ ringFill.style.strokeDashoffset=C; ringFill.style.stroke='#4D4B47'; ringPct.textContent='—'; ringPhase.textContent='SLEEPING'; ringStatus.textContent='😴 Still sleeping'; ringRemaining.textContent=`${fmtHM(WAKE_HOUR-hours)} until wake-up`; }
+  if(hours<WAKE_HOUR){ ringFill.style.strokeDashoffset=C; ringFill.style.stroke='#4D4B47'; ringPct.textContent='—'; ringPhase.textContent='SLEEPING'; ringStatus.textContent='Still sleeping'; ringRemaining.textContent=`${fmtHM(WAKE_HOUR-hours)} until wake-up`; }
   else if(hours<SLEEP_HOUR){
     const pct=(hours-WAKE_HOUR)/(SLEEP_HOUR-WAKE_HOUR)*100;
     ringFill.style.strokeDashoffset=C*(1-pct/100); ringFill.style.stroke=getSunColor(pct); ringPct.textContent=Math.round(pct)+'%';
     let phase,status;
-    if(pct<25){phase='MORNING';status='☀️ Morning — fresh start';}
-    else if(pct<50){phase='MIDDAY';status='⚡ Midday — keep moving';}
-    else if(pct<75){phase='AFTERNOON';status='🔥 Afternoon — push it';}
-    else if(pct<90){phase='EVENING';status='⏳ Evening — wrap up';}
-    else{phase='BEDTIME';status='🌙 Bedtime soon';}
+    if(pct<25){phase='MORNING';status='Morning — fresh start';}
+    else if(pct<50){phase='MIDDAY';status='Midday — keep moving';}
+    else if(pct<75){phase='AFTERNOON';status='Afternoon — push it';}
+    else if(pct<90){phase='EVENING';status='Evening — wrap up';}
+    else{phase='BEDTIME';status='Bedtime soon';}
     ringPhase.textContent=phase; ringStatus.textContent=status; ringRemaining.textContent=`${fmtHM(SLEEP_HOUR-hours)} awake time left`;
-  } else { ringFill.style.strokeDashoffset=0; ringFill.style.stroke='#E25D7A'; ringPct.textContent='100%'; ringPhase.textContent='PAST BEDTIME'; ringStatus.textContent='⚠️ Past bedtime'; ringRemaining.textContent='Sleep!'; }
+  } else { ringFill.style.strokeDashoffset=0; ringFill.style.stroke='#E25D7A'; ringPct.textContent='100%'; ringPhase.textContent='PAST BEDTIME'; ringStatus.textContent='Past bedtime'; ringRemaining.textContent='Sleep!'; }
 }
 
 // ═══════════════════════════════════════════
@@ -1246,17 +1246,17 @@ function buildInsightLocally(){
   else assessment='Nothing completed today.';
 
   const lines=[
-    `📅 ${formatDate(ds)}`,
+    `${formatDate(ds)}`,
     ``,
-    `✅ Goals: ${done}/${total} complete${total>0?` (${pctDone}%)`:''}`,
-    `⏱ Focus: ${focus.totalMins>0?fmtMins(focus.totalMins):'none logged'}`,
+    `Goals: ${done}/${total} complete${total>0?` (${pctDone}%)`:''}`,
+    `Focus: ${focus.totalMins>0?fmtMins(focus.totalMins):'none logged'}`,
   ];
-  if(sessionLabels.length>0) lines.push(`🔧 Worked on: ${sessionLabels.join(', ')}`);
-  lines.push(``, `📝 ${assessment}`);
+  if(sessionLabels.length>0) lines.push(`Worked on: ${sessionLabels.join(', ')}`);
+  lines.push(``, `${assessment}`);
   if(incomplete.length>0){
     lines.push(``);
-    lines.push(`⏭ Carry forward:`);
-    incomplete.forEach(g=>lines.push(`  · ${g.text}`));
+    lines.push(`Carry forward:`);
+    incomplete.forEach(g=>lines.push(`  - ${g.text}`));
   }
   return lines.join('\n');
 }
@@ -1291,8 +1291,8 @@ Format the response as plain text. Start with a one-line honest assessment, then
 
   // Prepend the stats header
   const lines=[
-    `📅 ${formatDate(ds)}`,
-    `✅ ${done}/${total} goals  ·  ⏱ ${focus.totalMins>0?fmtMins(focus.totalMins):'no focus time'}`,
+    `${formatDate(ds)}`,
+    `${done}/${total} goals  ·  ${focus.totalMins>0?fmtMins(focus.totalMins):'no focus time'}`,
     ``,
     aiText.trim()
   ];
@@ -1312,13 +1312,13 @@ document.getElementById('eodGenBtn').addEventListener('click', async()=>{
     const fallback=buildInsightLocally();
     output.className='eod-output visible'; output.textContent=fallback;
     copyBtn.classList.remove('hidden'); copyBtn.textContent='Copy'; copyBtn.className='eod-copy-btn';
-  }finally{ btn.disabled=false; btn.textContent='📋 Generate Insight'; }
+  }finally{ btn.disabled=false; btn.textContent='Generate Insight'; }
 });
 
 document.getElementById('eodCopyBtn').addEventListener('click',()=>{
   const text=document.getElementById('eodOutput').textContent;
   navigator.clipboard.writeText(text).then(()=>{
-    const btn=document.getElementById('eodCopyBtn'); btn.textContent='Copied ✓'; btn.classList.add('copied');
+    const btn=document.getElementById('eodCopyBtn'); btn.textContent='Copied'; btn.classList.add('copied');
     setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('copied'); },2000);
   });
 });

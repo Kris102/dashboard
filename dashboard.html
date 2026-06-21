@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kris OS</title>
+<title>ToshinDB</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png">
 <link rel="manifest" href="favicon_io/site.webmanifest">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kris OS">
+<meta name="apple-mobile-web-app-title" content="ToshinDB">
 <meta name="theme-color" content="#050506">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script type="module">
@@ -35,8 +35,8 @@
   --card-bg:rgba(255,255,255,0.04);--card-radius:16px;--card-shadow:0 12px 40px rgba(0,0,0,0.45);
 }
 html{height:100%;}
-body{min-height:100%;background:#050506;font-family:-apple-system,BlinkMacSystemFont,"Inter",sans-serif;color:var(--text-primary);max-width:900px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px)+28px) 20px 80px;position:relative;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 82% 14%,rgba(224,118,88,.14) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 18% 90%,rgba(107,178,227,.05) 0%,transparent 70%);filter:blur(40px);pointer-events:none;z-index:0;animation:bgDrift 36s ease-in-out infinite alternate;}
+body{min-height:100%;background:#050506;font-family:-apple-system,BlinkMacSystemFont,"Inter",sans-serif;color:var(--text-primary);max-width:900px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px)+28px) 20px 80px 110px;position:relative;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 50% 50% at 18% 90%,rgba(107,178,227,.08) 0%,transparent 70%);filter:blur(40px);pointer-events:none;z-index:0;animation:bgDrift 36s ease-in-out infinite alternate;}
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3'%3E%3Crect width='1' height='1' fill='rgba(255,255,255,0.012)'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
 @keyframes bgDrift{0%{transform:translate(0,0);}50%{transform:translate(-8px,6px);}100%{transform:translate(6px,-8px);}}
 body>*{position:relative;z-index:1;}
@@ -371,6 +371,30 @@ body>*{position:relative;z-index:1;}
 .milestone-bar{height:2px;border-radius:2px;background:rgba(255,255,255,.07);margin-top:10px;overflow:hidden;}
 .milestone-fill{height:100%;border-radius:2px;}
 
+/* SIGNAL TRACKER */
+.signal-row{display:flex;gap:10px;flex-wrap:wrap;}
+.signal-tile{flex:1;min-width:140px;padding:14px 15px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .15s,border-color .15s,transform .1s;-webkit-tap-highlight-color:transparent;user-select:none;position:relative;overflow:hidden;}
+.signal-tile:hover{background:rgba(255,255,255,.05);}
+.signal-tile:active{transform:scale(.98);}
+.signal-tile.logging{pointer-events:none;}
+.signal-label{font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.signal-type{font-size:8px;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.25);text-transform:none;}
+.signal-value{font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1;}
+.signal-state{font-size:9.5px;color:var(--text-tertiary);margin-top:3px;font-family:ui-monospace,monospace;letter-spacing:.03em;}
+.signal-bar{height:2px;border-radius:2px;background:rgba(255,255,255,.07);margin-top:10px;overflow:hidden;}
+.signal-fill{height:100%;border-radius:2px;transition:width .4s ease,background .4s ease;}
+.signal-meta{font-size:8px;color:var(--text-tertiary);margin-top:6px;font-family:ui-monospace,monospace;opacity:.6;}
+
+/* Duration chip picker, shown on tap */
+.signal-chip-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease;}
+.signal-chip-modal{background:#111113;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:22px;width:88%;max-width:320px;box-shadow:0 24px 60px rgba(0,0,0,.7);text-align:center;}
+.signal-chip-title{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:3px;}
+.signal-chip-sub{font-size:11px;color:var(--text-tertiary);margin-bottom:16px;}
+.signal-chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.signal-chip{padding:12px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;}
+.signal-chip:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);}
+.signal-chip-skip{width:100%;padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,.15);background:none;color:var(--text-tertiary);font-size:12px;cursor:pointer;font-family:inherit;margin-top:4px;}
+.signal-chip-skip:hover{color:var(--text-secondary);border-color:rgba(255,255,255,.3);}
 /* SUBLINE FADE */
 #osSubline{transition:opacity .3s;}
 
@@ -382,7 +406,7 @@ body>*{position:relative;z-index:1;}
 .anki-heatmap-wrap::-webkit-scrollbar-thumb:hover{background:#39d353;}
 .anki-heatmap-inner{display:flex;gap:2px;min-width:max-content;}
 .anki-week-col{display:flex;flex-direction:column;gap:2px;}
-.anki-cell{width:13px;height:13px;border-radius:2px;cursor:default;transition:opacity .1s;flex-shrink:0;}
+.anki-cell{width:13px;height:13px;border-radius:2px;cursor:default;transition:opacity .1s, box-shadow .15s;flex-shrink:0;}
 .anki-cell:hover{opacity:.75;outline:1px solid rgba(255,255,255,.3);}
 .anki-cell[data-n="0"]{background:rgba(255,255,255,.07);}
 .anki-cell[data-n="1"]{background:#1a4d2e;}
@@ -390,6 +414,7 @@ body>*{position:relative;z-index:1;}
 .anki-cell[data-n="3"]{background:#26a641;}
 .anki-cell[data-n="4"]{background:#39d353;}
 .anki-cell[data-n="5"]{background:#69ff85;}
+.anki-cell-today{box-shadow:0 0 0 2px rgba(67, 156, 255, .85);}
 .anki-cell.future{background:rgba(255,255,255,.03);}
 .anki-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
 .anki-title-left{display:flex;align-items:center;gap:10px;}
@@ -697,8 +722,169 @@ body>*{position:relative;z-index:1;}
   letter-spacing: 0.1em;
 }
 </style>
+<style>
+.nav-rail{
+position:fixed;
+right:22px;
+bottom:20px;
+top:auto;
+transform:none;
+z-index:500;
+width:68px;
+height:68px;
+padding:0;
+border-radius:999px;
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.12);
+backdrop-filter:blur(28px) saturate(1.5);
+-webkit-backdrop-filter:blur(28px) saturate(1.5);
+box-shadow:0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
+transition:width .35s cubic-bezier(.22,1,.36,1), height .35s cubic-bezier(.22,1,.36,1);
+overflow:visible;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.nav-rail:hover,
+.nav-rail:focus-within{
+width:170px;
+padding:10px;
+border-radius:34px;
+height:auto;
+}
+
+/* Temporarily hide Daily Briefing, Coach, Weekly Review */
+#briefSection, #coachSection, #weeklySection, #docVaultSection { display: none !important; }
+
+.nav-stack{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.nav-link{
+display:flex;
+align-items:center;
+gap:14px;
+height:48px;
+border-radius:24px;
+text-decoration:none;
+color:#fff;
+padding:0 12px;
+background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.06);
+transition:all .2s;
+}
+.nav-link:hover{
+background:rgba(255,255,255,.12);
+transform:translateX(2px);
+}
+.nav-icon{
+width:24px;
+text-align:center;
+font-size:16px;
+flex-shrink:0;
+}
+.nav-text{
+font-size:11px;
+letter-spacing:.18em;
+text-transform:uppercase;
+white-space:nowrap;
+opacity:0;
+transition:opacity .2s;
+}
+
+.nav-link:not(:first-child){
+opacity:0;
+transform:translateY(8px);
+transition:all .25s cubic-bezier(.22,1,.36,1);
+}
+
+.nav-rail:hover .nav-link:not(:first-child),
+.nav-rail:focus-within .nav-link:not(:first-child){
+opacity:1;
+transform:translateY(0);
+}
+
+.nav-rail:hover .nav-text,
+.nav-rail:focus-within .nav-text{
+opacity:1;
+}
+
+@media(max-width:900px){
+.nav-rail{
+left:14px;
+bottom:20px;
+top:auto;
+transform:none;
+width:64px;
+height:64px;
+padding:0;
+border-radius:999px;
+overflow:visible;
+z-index:1000;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+.nav-stack{
+position:relative;
+width:100%;
+height:100%;
+}
+.nav-link{
+position:absolute;
+left:8px;
+bottom:8px;
+width:180px;
+height:48px;
+padding:0 14px;
+border-radius:24px;
+justify-content:flex-start;
+gap:8px;
+opacity:0;
+pointer-events:none;
+transform:translateY(0) scale(.7);
+transition:all .25s cubic-bezier(.22,1,.36,1);
+}
+.nav-link:first-child{
+opacity:1;
+pointer-events:auto;
+transform:none;
+width:48px;
+padding:0;
+justify-content:center;
+}
+.nav-icon{font-size:18px;width:auto;}
+.nav-text{
+display:block;
+opacity:1;
+font-size:10px;
+letter-spacing:.12em;
+margin-left:8px;
+}
+.nav-rail.mobile-open .nav-link:nth-child(2){transform:translateY(-70px);opacity:1;pointer-events:auto;}
+.nav-rail.mobile-open .nav-link:nth-child(3){transform:translateY(-130px);opacity:1;pointer-events:auto;}
+.nav-rail.mobile-open .nav-link:nth-child(4){transform:translateY(-190px);opacity:1;pointer-events:auto;}
+.nav-rail.mobile-open .nav-link:nth-child(5){transform:translateY(-250px);opacity:1;pointer-events:auto;}
+.nav-rail.mobile-open .nav-link:nth-child(6){transform:translateY(-310px);opacity:1;pointer-events:auto;}
+.nav-rail.mobile-open .nav-link:nth-child(7){transform:translateY(-370px);opacity:1;pointer-events:auto;}
+}
+</style>
 </head>
 <body>
+
+<nav class="nav-rail">
+  <div class="nav-stack">
+    <a href="#ticker" class="nav-link"><span class="nav-icon">◈</span><span class="nav-text">Menu</span></a>
+    <a href="#signalRow" class="nav-link"><span class="nav-icon">⚡</span><span class="nav-text">Signal</span></a>
+    <a href="#habitGrid" class="nav-link"><span class="nav-icon">✓</span><span class="nav-text">Habits</span></a>
+    <a href="#radarChart" class="nav-link"><span class="nav-icon">◔</span><span class="nav-text">Progress</span></a>
+    <a href="#ankiGrid" class="nav-link"><span class="nav-icon">◌</span><span class="nav-text">Anki Map</span></a>
+    <a href="#goalList" class="nav-link"><span class="nav-icon">⌘</span><span class="nav-text">Tasks</span></a>
+  </div>
+</nav>
 
 <!-- HEADER -->
 <div class="os-header">
@@ -777,7 +963,7 @@ body>*{position:relative;z-index:1;}
 </div>
 
 <!-- COMMAND CENTER -->
-<div class="section">
+<div class="section" id="briefSection">
   <div class="section-label">Command Center</div>
   <div class="card">
     <div class="cmd-header">
@@ -790,6 +976,14 @@ body>*{position:relative;z-index:1;}
     </div>
     <div class="cmd-output" id="cmdOutput">Hit "Brief Me" to get your daily plan.</div>
     <div class="cmd-cached" id="cmdCached"></div>
+  </div>
+</div>
+
+<!-- SIGNAL -->
+<div class="section">
+  <div class="section-label">Signal</div>
+  <div class="card">
+    <div class="signal-row" id="signalRow"></div>
   </div>
 </div>
 
@@ -869,7 +1063,7 @@ body>*{position:relative;z-index:1;}
 </div>
 
 <!-- DOCUMENT VAULT -->
-<div class="section">
+<div class="section" id="docVaultSection">
   <div class="section-label">Document Vault</div>
   <div class="card">
     <div class="doc-drop" id="docDrop">
@@ -884,7 +1078,7 @@ body>*{position:relative;z-index:1;}
 </div>
 
 <!-- THE COACH -->
-<div class="section">
+<div class="section" id="coachSection">
   <div class="section-label">The Coach</div>
   <div class="card">
     <div class="coach-header">
@@ -902,7 +1096,7 @@ body>*{position:relative;z-index:1;}
 </div>
 
 <!-- WEEKLY REVIEW -->
-<div class="section">
+<div class="section" id="weeklySection">
   <div class="section-label">Weekly Review</div>
   <div class="card">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
@@ -956,6 +1150,46 @@ body>*{position:relative;z-index:1;}
 
 
 <script>
+window.addEventListener('DOMContentLoaded',()=>{
+  const nav=document.querySelector('.nav-rail');
+  const links=document.querySelectorAll('.nav-link');
+
+  links.forEach(link=>{
+    link.addEventListener('click',e=>{
+      e.preventDefault();
+      const target=document.querySelector(link.getAttribute('href'));
+      if(target){
+        target.scrollIntoView({behavior:'smooth',block:'start'});
+      }
+      nav.classList.remove('mobile-open');
+    });
+  });
+
+  if(window.innerWidth<=900){
+    let holdTimer=null;
+
+    nav.addEventListener('touchstart',()=>{
+      holdTimer=setTimeout(()=>{
+        nav.classList.add('mobile-open');
+      },180);
+    },{passive:true});
+
+    nav.addEventListener('touchend',()=>{
+      clearTimeout(holdTimer);
+      setTimeout(()=>nav.classList.remove('mobile-open'),250);
+    });
+
+    nav.addEventListener('touchmove',e=>{
+      const touch=e.touches[0];
+      if(!touch) return;
+      const el=document.elementFromPoint(touch.clientX,touch.clientY);
+      const link=el?.closest('.nav-link');
+      if(link && nav.classList.contains('mobile-open')){
+        link.click();
+      }
+    },{passive:true});
+  }
+});
 // ═══════════════════════════════════════════
 // KRIS PERMANENT CONTEXT
 // ═══════════════════════════════════════════
@@ -1041,7 +1275,7 @@ async function ai(prompt, sysprompt='', model='haiku') {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + API_KEY,
           'HTTP-Referer': 'https://dashboard-tau-six-31.vercel.app',
-          'X-Title': 'Kris OS'
+          'X-Title': 'ToshinDB'
         },
         body: JSON.stringify({ model: mdl, messages, max_tokens: 500, temperature: 0.4 })
       });
@@ -1108,17 +1342,132 @@ function doRollover() {
 }
 
 // ═══════════════════════════════════════════
+// SIGNAL — skill charge tracker
+// ═══════════════════════════════════════════
+// Per-skill charge decays smoothly from elapsed time since last logged session.
+// Never reaches zero (floor=10), recovering from a low charge takes a boost
+// rather than an instant reset, and copy stays neutral/descriptive — no
+// "missed" / "broken" language. See implementation notes in the spec this
+// was built from for the reasoning (procedural vs declarative decay rates,
+// abstinence-violation-effect avoidance).
+const SIGNAL_SKILLS = [
+  { id:'japanese', name:'Japanese',     type:'declarative', graceHrs:18, S:4.5 },
+  { id:'piano',    name:'Piano',        type:'procedural',  graceHrs:30, S:9   },
+  { id:'vocal',    name:'Vocal',        type:'procedural',  graceHrs:30, S:9   },
+  { id:'physio',   name:'Physio Study', type:'declarative', graceHrs:18, S:4.5 },
+];
+const SIGNAL_FLOOR = 10;
+const SIGNAL_BOOST_DEFAULT = 40;
+const SIGNAL_BOOST_LONG = 55; // 45+ min duration chip
+
+function getSignal(id) {
+  return sg('_signal_'+id) || { lastLoggedAt: null, baseline: SIGNAL_FLOOR };
+}
+function setSignal(id, state) {
+  ss('_signal_'+id, state);
+}
+
+// Live charge at this instant, purely a function of elapsed time — no stored "current value".
+function signalCharge(skill, state) {
+  if (!state.lastLoggedAt) return SIGNAL_FLOOR;
+  const elapsedDays = (Date.now() - state.lastLoggedAt) / 86400000;
+  const graceDays = skill.graceHrs / 24;
+  const decayDays = Math.max(0, elapsedDays - graceDays);
+  const charge = SIGNAL_FLOOR + (state.baseline - SIGNAL_FLOOR) * Math.exp(-decayDays / skill.S);
+  return Math.max(SIGNAL_FLOOR, Math.min(100, charge));
+}
+
+function signalColor(pct) {
+  if (pct >= 60) return '#3ECF6E';
+  if (pct >= 25) return '#E8A53E';
+  return '#E8584F';
+}
+function signalStateLabel(pct) {
+  if (pct >= 60) return 'charged';
+  if (pct >= 25) return 'quiet';
+  return 'low signal';
+}
+
+// Logs a session: new baseline is current decayed charge plus a boost, capped at 100.
+function logSignal(id, boost = SIGNAL_BOOST_DEFAULT) {
+  const skill = SIGNAL_SKILLS.find(s => s.id === id);
+  if (!skill) return;
+  const state = getSignal(id);
+  const current = signalCharge(skill, state);
+  const newBaseline = Math.min(100, current + boost);
+  setSignal(id, { lastLoggedAt: Date.now(), baseline: newBaseline });
+  renderSignal();
+}
+
+function openSignalChips(id) {
+  const skill = SIGNAL_SKILLS.find(s => s.id === id);
+  if (!skill) return;
+  const bg = document.createElement('div');
+  bg.className = 'signal-chip-bg';
+  bg.innerHTML = `<div class="signal-chip-modal">
+    <div class="signal-chip-title">${skill.name}</div>
+    <div class="signal-chip-sub">How long was the session?</div>
+    <div class="signal-chip-grid">
+      <button class="signal-chip" data-mins="15">15 min</button>
+      <button class="signal-chip" data-mins="30">30 min</button>
+      <button class="signal-chip" data-mins="45">45 min</button>
+      <button class="signal-chip" data-mins="60">60+ min</button>
+    </div>
+    <button class="signal-chip-skip" id="signalChipSkip">Just log it</button>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.querySelectorAll('.signal-chip').forEach(btn => {
+    btn.onclick = () => {
+      const mins = parseInt(btn.dataset.mins, 10);
+      const boost = mins >= 45 ? SIGNAL_BOOST_LONG : SIGNAL_BOOST_DEFAULT;
+      logSignal(id, boost);
+      bg.remove();
+    };
+  });
+  bg.querySelector('#signalChipSkip').onclick = () => { logSignal(id); bg.remove(); };
+  bg.onclick = e => { if (e.target === bg) bg.remove(); };
+}
+
+function renderSignal() {
+  const row = document.getElementById('signalRow');
+  if (!row) return;
+  row.innerHTML = '';
+  SIGNAL_SKILLS.forEach(skill => {
+    const state = getSignal(skill.id);
+    const neverLogged = !state.lastLoggedAt;
+    const pct = Math.round(signalCharge(skill, state));
+    const color = neverLogged ? 'rgba(255,255,255,.25)' : signalColor(pct);
+    const label = neverLogged ? 'not started' : signalStateLabel(pct);
+    const lastStr = neverLogged
+      ? 'never logged'
+      : new Date(state.lastLoggedAt).toLocaleDateString(undefined, { month:'short', day:'numeric' });
+
+    const tile = document.createElement('div');
+    tile.className = 'signal-tile';
+    tile.innerHTML = `
+      <div class="signal-label"><span>${skill.name}</span><span class="signal-type">${skill.type === 'procedural' ? 'motor' : 'recall'}</span></div>
+      <div class="signal-value" style="color:${color};">${neverLogged ? '—' : pct+'%'}</div>
+      <div class="signal-state">${label}</div>
+      <div class="signal-bar"><div class="signal-fill" style="width:${neverLogged ? 0 : pct}%;background:${color};"></div></div>
+      <div class="signal-meta">last · ${lastStr}</div>`;
+    tile.title = 'Tap to log a session';
+    tile.onclick = () => openSignalChips(skill.id);
+    row.appendChild(tile);
+  });
+}
+
+// ═══════════════════════════════════════════
 // DEFAULT HABITS
 // ═══════════════════════════════════════════
 const DEFAULT_HABITS = [
-  {id:'workout',name:'Workout',emoji:'🏋️',domain:'fitness',active:true},
-  {id:'piano',name:'Piano Practice',emoji:'🎹',domain:'music',active:true},
-  {id:'vocal',name:'Vocal Practice',emoji:'🎤',domain:'music',active:true},
-  {id:'japanese',name:'Japanese Study',emoji:'🇯🇵',domain:'language',active:true},
-  {id:'morning',name:'Morning Stack',emoji:'🌅',domain:'health',active:true},
-  {id:'cilpa',name:'CILPA Work',emoji:'💼',domain:'business',active:true},
-  {id:'bpt',name:'BPT Study',emoji:'🩺',domain:'study',active:true},
-  {id:'chinese',name:'Chinese',emoji:'🇨🇳',domain:'language',active:false},
+  {id:'workout',name:'Workout',emoji:'',domain:'fitness',active:true},
+  {id:'piano',name:'Piano Practice',emoji:'',domain:'music',active:true},
+  {id:'vocal',name:'Vocal Practice',emoji:'',domain:'music',active:true},
+  {id:'japanese',name:'Japanese Study',emoji:'',domain:'language',active:true},
+  {id:'morning',name:'Morning Stack',emoji:'',domain:'health',active:true},
+  {id:'cilpa',name:'CILPA Work',emoji:'',domain:'business',active:true},
+  {id:'bpt',name:'BPT Study',emoji:'',domain:'study',active:true},
+  {id:'chinese',name:'Chinese',emoji:'',domain:'language',active:false},
 ];
 
 function getHabits() { return sg('_habits')||DEFAULT_HABITS; }
@@ -1167,7 +1516,7 @@ function renderHabits() {
     row.dataset.id=h.id;
     row.innerHTML=`
       <span class="habit-drag-handle" title="Drag to reorder">⠿</span>
-      <span class="habit-emoji">${h.emoji}</span>
+      <span class="habit-emoji"></span>
       <span class="habit-name">${h.name}</span>
       <span class="habit-streak${streak>=3?' hot':''}">${streak>0?streak+'d':''}</span>
       <div class="habit-dots">${hist.map(x=>`<div class="habit-dot${x.status==='done'?' d':x.status==='skip'?' s':''}" title="${x.date}"></div>`).join('')}</div>
@@ -2337,11 +2686,12 @@ function renderAnkiHeatmap() {
     week.forEach(dateStr => {
       const cell = document.createElement('div');
       const isFuture = dateStr > today;
+      const isToday = dateStr === today;
       const count = data[dateStr] || 0;
       if (isFuture) {
         cell.className = 'anki-cell future';
       } else {
-        cell.className = 'anki-cell';
+        cell.className = 'anki-cell' + (isToday ? ' anki-cell-today' : '');
         cell.dataset.n = ankiLevel(count);
       }
       cell.addEventListener('mouseenter', e => {
@@ -2949,6 +3299,7 @@ document.getElementById('ringFill').style.strokeDasharray=RC;
 updateRing(); setInterval(updateRing,60000);
 renderTicker();
 renderHabits(); renderStreakTable();
+renderSignal(); setInterval(renderSignal,60000);
 renderDocs();
 loadGoals(); loadTomorrow();
 renderRadar();
