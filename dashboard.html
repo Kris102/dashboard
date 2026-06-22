@@ -190,7 +190,7 @@ body>*{position:relative;z-index:1;}
 .gm-seg.done{background:#6BE3A4;box-shadow:0 0 5px rgba(107,227,164,.35);}
 .goal-list{list-style:none;margin-bottom:8px;}
 .empty-state{font-size:12px;color:var(--text-tertiary);font-style:italic;padding:12px 0;text-align:center;}
-.goal-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:5px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid rgba(255,255,255,.05);transition:all .2s;}
+.goal-item{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 12px;padding-right:64px;margin-bottom:5px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid rgba(255,255,255,.05);transition:all .2s;position:relative;}
 .goal-item.goal-done{opacity:.4;background:rgba(107,227,164,.04);}
 .goal-item.goal-done .goal-text{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.3);}
 .goal-drag-handle{cursor:grab;color:var(--text-tertiary);font-size:14px;opacity:0;transition:opacity .15s;padding:2px 0;flex-shrink:0;user-select:none;}
@@ -219,6 +219,32 @@ body>*{position:relative;z-index:1;}
 .push-btn:hover{color:var(--text-secondary);border-color:rgba(255,255,255,.2);}
 .push-btn.hidden{display:none;}
 .tomorrow-sub{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
+
+.terminal-panel{position:relative;margin-top:22px;margin-bottom:40px;padding:10px;background:#010201;border:1px solid rgba(86,255,113,.16);border-radius:0;box-shadow:0 16px 48px rgba(0,0,0,.25);font-family:ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono',monospace;color:#96ff96;overflow:visible;}
+.terminal-panel::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,7,3,.95) 0%,rgba(0,0,0,.95) 45%,rgba(1,4,1,.9) 100%);pointer-events:none;}
+.terminal-bar{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;background:#020403;border:1px solid rgba(86,255,113,.22);border-radius:0;}
+.terminal-bar span{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#b7ffb7;}
+.terminal-body{display:grid;grid-template-columns:1fr 1.4fr;gap:14px;}
+.terminal-right{display:flex;flex-direction:column;gap:8px;}
+.terminal-summary{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;overflow:hidden;}
+.terminal-summary-item{background:transparent;border:1px solid rgba(86,255,113,.16);border-radius:0;padding:12px;}
+.terminal-summary-item strong{display:block;font-size:11px;color:#b8ffb8;margin-bottom:7px;letter-spacing:.1em;text-transform:uppercase;}
+.terminal-summary-item div{font-size:12px;line-height:1.5;color:#c8ffc8;}
+.terminal-summary-item div:last-child{margin-top:8px;padding-top:8px;border-top:1px solid rgba(86,255,113,.1);}
+.terminal-calendar-toggle{margin-top:4px;padding:6px 10px;font-size:11px;color:#b7ffb7;background:transparent;border:1px solid rgba(86,255,113,.16);cursor:pointer;}
+.terminal-calendar{display:none;margin-top:10px;max-height:360px;overflow:auto;display:grid;grid-template-columns:1fr;gap:6px;font-family:ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono',monospace;font-size:12px;line-height:1.45;color:#d2ffc8;background:transparent;padding-right:6px;}
+.terminal-calendar.expanded{display:grid;}
+.terminal-calendar-day{display:block;text-align:left;width:100%;padding:10px 12px;background:rgba(0,0,0,0.06);border:1px solid rgba(86,255,113,.18);color:#c8ffc8;cursor:pointer;border-radius:6px;}
+.terminal-calendar-day:hover{background:rgba(86,255,113,.06);}
+.terminal-calendar-header{font-size:12px;font-weight:700;color:#d2ffcf;padding:6px 8px;margin-top:8px;}
+.terminal-calendar-footer{position:relative;z-index:5;padding:10px 0 0;margin-top:16px;border-top:1px solid rgba(86,255,113,.1);}
+.terminal-detail{margin-top:8px;}
+.terminal-reset{margin-top:8px;padding:6px 10px;font-size:11px;color:#b7ffb7;background:transparent;border:1px solid rgba(86,255,113,.14);cursor:pointer;}
+.terminal-log{position:relative;z-index:1;max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:0;padding:10px 10px;border:1px solid rgba(86,255,113,.16);background:#010401;border-radius:0;font-size:12px;flex:1;}
+.terminal-log-line{font-size:12px;line-height:1.5;color:#b7ffb7;padding:3px 0;border:none;background:transparent;font-family:ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono',monospace;}
+.terminal-log-line::before{content:'› ';color:#75ff75;opacity:.85;}
+.terminal-log-line span{display:inline;opacity:.92;}
+@media(max-width:840px){.terminal-body{grid-template-columns:1fr;} }
 
 /* FOCUS TIMER */
 .ft-card{background:var(--card-bg);border-radius:var(--card-radius);padding:20px;backdrop-filter:blur(24px);box-shadow:var(--card-shadow);margin-bottom:12px;}
@@ -1163,6 +1189,19 @@ margin-left:8px;
   </div>
 </div>
 
+<div class="terminal-panel" id="terminalPanel">
+  <div class="terminal-bar">
+    <span>TERMINAL</span>
+    <span id="termTime">--:--</span>
+  </div>
+  <div class="terminal-body">
+    <div class="terminal-summary" id="terminalSummary"></div>
+    <div class="terminal-right">
+      <div class="terminal-log" id="termOutput">Loading diagnostics…</div>
+      <div class="terminal-calendar-footer" id="terminalCalendarFooter"></div>
+    </div>
+  </div>
+</div>
 
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
@@ -1241,6 +1280,17 @@ const fmtClock = d => { let h=d.getHours(); const m=String(d.getMinutes()).padSt
 // ═══════════════════════════════════════════
 // API KEY MODAL
 // ═══════════════════════════════════════════
+function showConfirmModal(message, onConfirm, confirmText='Delete', cancelText='Cancel') {
+  const bg = document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML = `<div class="modal"><h2 style="font-family:'Syne',sans-serif;letter-spacing:.28em;text-transform:uppercase;">${message}</h2>
+    <div class="modal-actions"><button class="btn-primary" id="confirmBtn">${confirmText}</button><button class="btn-secondary" id="cancelBtn">${cancelText}</button></div>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.querySelector('#confirmBtn').onclick = () => { onConfirm(); bg.remove(); };
+  bg.querySelector('#cancelBtn').onclick = () => bg.remove();
+  bg.onclick = e => { if (e.target === bg) bg.remove(); };
+}
+
 function showKeyModal(force=false) {
   if (API_KEY && !force) return;
   const bg = document.createElement('div'); bg.className='modal-bg'; bg.id='keyModal';
@@ -1366,10 +1416,10 @@ function doRollover() {
 // was built from for the reasoning (procedural vs declarative decay rates,
 // abstinence-violation-effect avoidance).
 const SIGNAL_SKILLS = [
-  { id:'japanese', name:'Japanese',     type:'declarative', graceHrs:18, S:4.5 },
-  { id:'piano',    name:'Piano',        type:'procedural',  graceHrs:30, S:9   },
-  { id:'vocal',    name:'Vocal',        type:'procedural',  graceHrs:30, S:9   },
-  { id:'physio',   name:'Physio Study', type:'declarative', graceHrs:18, S:4.5 },
+  { id:'japanese', name:'日本語',        type:'declarative', graceHrs:18, S:4.5 },
+  { id:'piano',    name:'ピアノ',        type:'procedural',  graceHrs:30, S:9   },
+  { id:'vocal',    name:'ボイストレ',    type:'procedural',  graceHrs:30, S:9   },
+  { id:'physio',   name:'理学療法',      type:'declarative', graceHrs:18, S:4.5 },
 ];
 const SIGNAL_FLOOR = 10;
 const SIGNAL_BOOST_DEFAULT = 40;
@@ -1412,6 +1462,8 @@ function logSignal(id, boost = SIGNAL_BOOST_DEFAULT) {
   const newBaseline = Math.min(100, current + boost);
   setSignal(id, { lastLoggedAt: Date.now(), baseline: newBaseline });
   renderSignal();
+  window.dispatchEvent(new CustomEvent('data-changed'));
+  pushTerminalLog(`signal ${skill.name} +${boost}`);
 }
 
 function openSignalChips(id) {
@@ -1471,6 +1523,148 @@ function renderSignal() {
   });
 }
 
+const terminalLogs = [];
+
+let terminalSelectedDate = null;
+let terminalCalendarOpen = true;
+
+function toggleTerminalCalendar() {
+  terminalCalendarOpen = !terminalCalendarOpen;
+  renderTerminalPanel();
+}
+
+function selectTerminalDay(date) {
+  terminalSelectedDate = date;
+  terminalCalendarOpen = true;
+  renderTerminalPanel();
+}
+
+function resetTerminalDay() {
+  terminalSelectedDate = null;
+  renderTerminalPanel();
+}
+
+function pushTerminalLog(text) {
+  const time = fmtClock(new Date());
+  terminalLogs.push(`${time} · ${text}`);
+  if (terminalLogs.length > 60) terminalLogs.shift();
+  renderTerminalPanel();
+}
+
+function renderTerminalPanel() {
+  const summary = document.getElementById('terminalSummary');
+  const output = document.getElementById('termOutput');
+  const time = document.getElementById('termTime');
+  if (!summary || !output || !time) return;
+
+  const todayKey = 'goals:'+activeDate();
+  const todayGoals = sg(todayKey)||[];
+  const doneGoals = todayGoals.filter(g=>g.done).map(g=>g.text);
+  const pendingGoals = todayGoals.filter(g=>!g.done).map(g=>g.text);
+  const habits = getHabits();
+  const habitLog = getHLog(activeDate());
+  const habitDone = habits.filter(h => habitLog[h.id] === 'done').length;
+  const habitSummary = habits.filter(h => habitLog[h.id] === 'done').map(h => `✔ ${h.name}`);
+  const signalSummary = SIGNAL_SKILLS.map(skill => {
+    const state = getSignal(skill.id);
+    const pct = Math.round(signalCharge(skill, state));
+    const label = state.lastLoggedAt ? signalStateLabel(pct) : 'not started';
+    return `${skill.name}: ${pct}% ${label}`;
+  });
+
+  const recentTimeline = [];
+  const calendarButtons = [];
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const [year] = activeDate().split('-').map(Number);
+  const monthStart = `${year}-06-01`;
+  const lastDate = activeDate();
+  let cursor = lastDate;
+  let currentMonth = null;
+
+  while (cursor >= monthStart) {
+    const date = cursor;
+    const [y, m] = date.split('-').map(Number);
+    const monthLabel = `${monthNames[m - 1]} ${y}`;
+    if (currentMonth !== monthLabel) {
+      currentMonth = monthLabel;
+      calendarButtons.push(`<div class="terminal-calendar-header">${monthLabel}</div>`);
+    }
+    const dateLabel = fmtDate(date);
+    const todoCount = (sg('goals:' + date) || []).filter(g => g.done).length;
+    const habitCount = Object.values(getHLog(date)).filter(status => status === 'done').length;
+    const signalCount = SIGNAL_SKILLS.map(skill => {
+      const state = getSignal(skill.id);
+      if (!state.lastLoggedAt) return 0;
+      const iso = new Date(state.lastLoggedAt).toISOString().slice(0, 10);
+      return iso === date ? 1 : 0;
+    }).reduce((sum, n) => sum + n, 0);
+    calendarButtons.push(`<button class="terminal-calendar-day" onclick="selectTerminalDay('${date}')">${dateLabel} | T:${todoCount} H:${habitCount} S:${signalCount}</button>`);
+
+    const todos = (sg('goals:' + date) || []).filter(g => g.done && g.doneAt).map(g => `${g.text} @ ${fmtClock(new Date(g.doneAt))}`);
+    const habitsDoneList = Object.entries(getHLog(date)).filter(([_, status]) => status === 'done').map(([id]) => {
+      const habit = getHabits().find(h => h.id === id);
+      return habit ? habit.name : id;
+    });
+    const signalsDone = SIGNAL_SKILLS.map(skill => {
+      const state = getSignal(skill.id);
+      if (!state.lastLoggedAt) return null;
+      const iso = new Date(state.lastLoggedAt).toISOString().slice(0, 10);
+      if (iso !== date) return null;
+      return `${skill.name}@${fmtClock(new Date(state.lastLoggedAt))}`;
+    }).filter(Boolean);
+
+    const todoText = todos.length ? `TODO ${todos.length} [${todos.slice(0, 2).join(', ')}]` : 'TODO -';
+    const habitText = habitsDoneList.length ? `HABITS ${habitsDoneList.length} [${habitsDoneList.slice(0, 2).join(', ')}]` : 'HABITS -';
+    const signalText = signalsDone.length ? `SIGNALS [${signalsDone.join(', ')}]` : 'SIGNALS -';
+    recentTimeline.push({date, dateLabel, todoText, habitText, signalText, todos, habitsDoneList, signalsDone});
+    cursor = addD(cursor, -1);
+  }
+
+  calendarButtons.reverse();
+
+  const viewDate = terminalSelectedDate || activeDate();
+  const viewLabel = terminalSelectedDate ? `DETAIL ${fmtDate(viewDate)}` : 'TODAY STATUS';
+  const selectedEntry = recentTimeline.find(item => item.date === viewDate);
+  const detailHtml = selectedEntry ? `
+      <div>${selectedEntry.todoText}</div>
+      <div>${selectedEntry.habitText}</div>
+      <div>${selectedEntry.signalText}</div>
+      <div style="margin-top:6px;">${terminalSelectedDate ? '<button class="terminal-reset" onclick="resetTerminalDay()">Reset to Today</button>' : ''}</div>
+    ` : '<div>No details available for this day.</div>';
+
+  summary.innerHTML = `
+    <div class="terminal-summary-item"><strong>TODAY</strong><div>${doneGoals.length}/${todayGoals.length} done</div><div>${pendingGoals.length} pending</div></div>
+    <div class="terminal-summary-item"><strong>HABITS DONE</strong><div>${habitDone} done</div><div>${habitSummary.length ? habitSummary.join('<br>') : 'None completed'}</div></div>
+    <div class="terminal-summary-item"><strong>SIGNALS</strong><div>${signalSummary.join('<br>')}</div></div>
+    <div class="terminal-summary-item terminal-detail"><strong>${viewLabel}</strong>${detailHtml}</div>
+  `;
+
+  const calendarBlock = document.getElementById('terminalCalendarFooter');
+  if (calendarBlock) {
+    calendarBlock.innerHTML = `
+      <div class="terminal-summary-item"><strong>CALENDAR</strong>
+        <div><button class="terminal-calendar-toggle" onclick="toggleTerminalCalendar()">${terminalCalendarOpen ? 'Hide' : 'Show'} calendar</button></div>
+        <div class="terminal-calendar ${terminalCalendarOpen ? 'expanded' : ''}">${terminalCalendarOpen ? calendarButtons.join('') : ''}</div>
+      </div>
+    `;
+  }
+
+  const dayLines = selectedEntry ? [
+    `DATE: ${fmtDate(viewDate)}`,
+    selectedEntry.todoText,
+    selectedEntry.habitText,
+    selectedEntry.signalText,
+    terminalSelectedDate ? '--- click reset to return to today ---' : ''
+  ].filter(Boolean).map(line => `<div class="terminal-log-line"><span>${line}</span></div>`).join('') : '';
+
+  output.innerHTML = terminalSelectedDate
+    ? dayLines
+    : terminalLogs.length
+      ? terminalLogs.map(line => `<div class="terminal-log-line"><span>${line.replace(/·/, '·')}</span></div>`).join('')
+      : '<div class="terminal-log-line">No terminal logs yet.</div>';
+  time.textContent = fmtClock(new Date());
+}
+
 // ═══════════════════════════════════════════
 // DEFAULT HABITS
 // ═══════════════════════════════════════════
@@ -1496,6 +1690,7 @@ function logHabit(id, status) {
   setHLog(today, log);
   renderHabits(); renderRadar(); renderStreakTable();
   window.dispatchEvent(new CustomEvent('data-changed'));
+  pushTerminalLog(`habit ${id} ${status}`);
 }
 
 // Get last N days of habit data for streak/dots
@@ -2014,10 +2209,7 @@ function buildGoalRow(g, idx, goals, key, readOnly, reload) {
   const txt=document.createElement('span'); txt.className='goal-text'; txt.textContent=g.text;
   txt.addEventListener('click',()=>{ if(readOnly) return; if(txt.contentEditable==='true') return; txt.contentEditable='true'; txt.focus(); const orig=txt.textContent; txt.addEventListener('blur',()=>{ const t=txt.textContent.trim(); txt.contentEditable='false'; if(t&&t!==orig){goals[idx].text=t;ss(key,goals);reload();} else txt.textContent=orig; },{once:true}); });
   li.appendChild(txt);
-  const del=document.createElement('button'); del.className='goal-del'; del.innerHTML='×';
-  del.onclick=()=>{goals.splice(idx,1);ss(key,goals);reload();};
-  li.appendChild(del);
-  cb.onchange=()=>{ goals[idx].done=cb.checked; if(cb.checked) goals[idx].doneAt=Date.now(); else delete goals[idx].doneAt; ss(key,goals); reload(); window.dispatchEvent(new CustomEvent('data-changed')); };
+  cb.onchange=()=>{ goals[idx].done=cb.checked; if(cb.checked) goals[idx].doneAt=Date.now(); else delete goals[idx].doneAt; ss(key,goals); reload(); window.dispatchEvent(new CustomEvent('data-changed')); pushTerminalLog(`todo ${g.text} ${cb.checked?'done':'undone'}`); };
   // Drag events
   if(!readOnly) {
     li.addEventListener('dragstart', e => {
@@ -2053,8 +2245,8 @@ function buildGoalRow(g, idx, goals, key, readOnly, reload) {
       }
     });
   }
-  // Action menu: compact three-dot menu to push item to tomorrow or Do Later
-  if(!readOnly) {
+  // Action menu: compact three-dot menu with list-specific move actions
+  {
     li.style.position = li.style.position || 'relative';
     const menuWrap = document.createElement('div');
     menuWrap.style.position = 'absolute';
@@ -2085,37 +2277,63 @@ function buildGoalRow(g, idx, goals, key, readOnly, reload) {
     menuDropdown.style.padding = '6px';
     menuDropdown.style.boxShadow = '0 6px 18px rgba(0,0,0,.45)';
 
-    const optTomorrow = document.createElement('button');
-    optTomorrow.className = 'pb-sec-btn';
-    optTomorrow.style.display = 'block';
-    optTomorrow.style.width = '100%';
-    optTomorrow.style.textAlign = 'left';
-    optTomorrow.style.padding = '6px 8px';
-    optTomorrow.textContent = '→ Tomorrow';
-    optTomorrow.onclick = (ev) => {
+    const todayKey = 'goals:'+activeDate();
+    const tomorrowKey = 'goals:'+tmrDate();
+    const laterKey = 'goals:later';
+
+    const menuActions = [];
+    if (key === todayKey) {
+      menuActions.push({label:'→ Tomorrow', action: () => {
+        const tlist = sg(tomorrowKey)||[]; const tSet=new Set(tlist.map(x=>x.text)); if(!tSet.has(g.text)) tlist.push({text:g.text,done:false}); ss(tomorrowKey,tlist); goals.splice(idx,1); ss(key,goals); reload(); loadTomorrow(); pushTerminalLog(`moved todo to tomorrow: ${g.text}`);
+      }});
+      menuActions.push({label:'… Later', action: () => {
+        const llist = sg(laterKey)||[]; llist.push({text:g.text,done:false}); ss(laterKey,llist); goals.splice(idx,1); ss(key,goals); reload(); loadLater(); pushTerminalLog(`moved todo to later: ${g.text}`);
+      }});
+    } else if (key === tomorrowKey) {
+      menuActions.push({label:'Do Today', action: () => {
+        const tlist = sg(todayKey)||[]; const tSet=new Set(tlist.map(x=>x.text)); if(!tSet.has(g.text)) tlist.push({text:g.text,done:false}); ss(todayKey,tlist); goals.splice(idx,1); ss(key,goals); reload(); loadGoals(); pushTerminalLog(`moved todo to today: ${g.text}`);
+      }});
+      menuActions.push({label:'… Later', action: () => {
+        const llist = sg(laterKey)||[]; llist.push({text:g.text,done:false}); ss(laterKey,llist); goals.splice(idx,1); ss(key,goals); reload(); loadLater(); pushTerminalLog(`moved todo to later: ${g.text}`);
+      }});
+    } else if (key === laterKey) {
+      menuActions.push({label:'→ Tomorrow', action: () => {
+        const tlist = sg(tomorrowKey)||[]; const tSet=new Set(tlist.map(x=>x.text)); if(!tSet.has(g.text)) tlist.push({text:g.text,done:false}); ss(tomorrowKey,tlist); goals.splice(idx,1); ss(key,goals); reload(); loadTomorrow(); pushTerminalLog(`moved todo to tomorrow: ${g.text}`);
+      }});
+      menuActions.push({label:'Do Today', action: () => {
+        const tlist = sg(todayKey)||[]; const tSet=new Set(tlist.map(x=>x.text)); if(!tSet.has(g.text)) tlist.push({text:g.text,done:false}); ss(todayKey,tlist); goals.splice(idx,1); ss(key,goals); reload(); loadGoals(); pushTerminalLog(`moved todo to today: ${g.text}`);
+      }});
+    }
+
+    menuActions.forEach(({label, action}) => {
+      const opt = document.createElement('button');
+      opt.className = 'pb-sec-btn';
+      opt.style.display = 'block';
+      opt.style.width = '100%';
+      opt.style.textAlign = 'left';
+      opt.style.padding = '6px 8px';
+      opt.textContent = label;
+      opt.onclick = (ev) => { ev.stopPropagation(); action(); menuDropdown.style.display = 'none'; };
+      menuDropdown.appendChild(opt);
+    });
+
+    const optDelete = document.createElement('button');
+    optDelete.className = 'pb-sec-btn';
+    optDelete.style.display = 'block';
+    optDelete.style.width = '100%';
+    optDelete.style.textAlign = 'left';
+    optDelete.style.padding = '6px 8px';
+    optDelete.style.color = 'var(--danger)';
+    optDelete.textContent = 'Delete';
+    optDelete.onclick = (ev) => {
       ev.stopPropagation();
-      const tkey = 'goals:'+tmrDate(); const tlist = sg(tkey)||[]; const tSet=new Set(tlist.map(x=>x.text));
-      if(!tSet.has(g.text)) tlist.push({text:g.text,done:false}); ss(tkey,tlist);
-      goals.splice(idx,1); ss(key,goals); reload(); loadTomorrow();
+      showConfirmModal('YOU SURE?', () => {
+        goals.splice(idx,1); ss(key,goals); reload(); pushTerminalLog(`deleted todo: ${g.text}`);
+      }, 'Delete', 'Cancel');
       menuDropdown.style.display = 'none';
     };
 
-    const optLater = document.createElement('button');
-    optLater.className = 'pb-sec-btn';
-    optLater.style.display = 'block';
-    optLater.style.width = '100%';
-    optLater.style.textAlign = 'left';
-    optLater.style.padding = '6px 8px';
-    optLater.textContent = '… Later';
-    optLater.onclick = (ev) => {
-      ev.stopPropagation();
-      const lkey = 'goals:later'; const llist = sg(lkey)||[]; llist.push({text:g.text,done:false}); ss(lkey,llist);
-      goals.splice(idx,1); ss(key,goals); reload(); loadLater();
-      menuDropdown.style.display = 'none';
-    };
-
-    menuDropdown.appendChild(optTomorrow);
-    menuDropdown.appendChild(optLater);
+    menuDropdown.appendChild(optDelete);
     menuDropdown.addEventListener('click', e=>e.stopPropagation());
 
     menuBtn.onclick = (e) => { e.stopPropagation(); menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block'; };
@@ -2153,12 +2371,14 @@ function loadTomorrow() {
   const key='goals:'+tmrDate(); const goals=sg(key)||[];
   const list=document.getElementById('tomorrowList'); list.innerHTML='';
   document.getElementById('tomorrowEmpty').style.display=goals.length?'none':'block';
-  goals.forEach((g,i)=>list.appendChild(buildGoalRow(g,i,goals,key,true,loadTomorrow)));
+  goals.forEach((g,i)=>list.appendChild(buildGoalRow(g,i,goals,key,false,loadTomorrow)));
   renderTomorrowHeader();
 }
 function addGoal(key, text, reload) {
-  if(!text.trim()) return;
-  const goals=sg(key)||[]; goals.push({text:text.trim(),done:false}); ss(key,goals); reload();
+  const trimmed = text.trim();
+  if(!trimmed) return;
+  const goals=sg(key)||[]; goals.push({text:trimmed,done:false}); ss(key,goals); reload();
+  pushTerminalLog(`added todo to ${key.replace('goals:','')}: ${trimmed}`);
 }
 document.getElementById('goalAddBtn').onclick=()=>{ addGoal('goals:'+activeDate(),document.getElementById('goalInput').value,loadGoals); document.getElementById('goalInput').value=''; };
 document.getElementById('goalInput').onkeydown=e=>{ if(e.key==='Enter'){document.getElementById('goalAddBtn').click();} };
@@ -2172,6 +2392,7 @@ document.getElementById('pushBtn').onclick=()=>{
   const today=sg(tk)||[], tmr=sg(mk)||[]; const tmrT=new Set(tmr.map(g=>g.text));
   today.filter(g=>!g.done).forEach(g=>{ if(!tmrT.has(g.text)) tmr.push({text:g.text,done:false}); });
   ss(mk,tmr); ss(tk,today.filter(g=>g.done)); loadGoals(); loadTomorrow();
+  pushTerminalLog('pushed unchecked todos to tomorrow');
 };
 
 // Allow dropping onto the tomorrow and later lists (to append when dropping on empty space)
@@ -2193,6 +2414,7 @@ document.getElementById('pushBtn').onclick=()=>{
       dest.push(moved);
       ss(fromKey, fromList); ss(toKey, dest);
       loadGoals(); loadTomorrow(); loadLater();
+      if (moved) pushTerminalLog(`dropped todo ${moved.text} from ${fromKey.replace('goals:','')} to ${toKey.replace('goals:','')}`);
     }
   });
 });
@@ -2242,6 +2464,8 @@ track.style.animationDuration = duration + 's';
 }
 
 window.addEventListener('data-changed', renderTicker);
+window.addEventListener('data-changed', renderTerminalPanel);
+window.addEventListener('kris-data-changed', renderTerminalPanel);
 // ═══════════════════════════════════════════
 // HEADER DATE
 // ═══════════════════════════════════════════
@@ -3445,8 +3669,10 @@ updateRing(); setInterval(updateRing,60000);
 renderTicker();
 renderHabits(); renderStreakTable();
 renderSignal(); setInterval(renderSignal,60000);
+setInterval(renderTerminalPanel,60000);
 renderDocs();
 loadGoals(); loadTomorrow(); loadLater();
+renderTerminalPanel();
 renderRadar();
 updateStreak();
 checkAutoCoach();
