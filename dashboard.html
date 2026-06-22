@@ -1146,6 +1146,21 @@ margin-left:8px;
       <button class="add-btn" id="tomorrowAddBtn">+ Add</button>
     </div>
   </div>
+  <div class="gm-card" id="laterCard">
+    <div class="gm-card-header">
+      <div>
+        <div class="gm-eyebrow" id="laterLabel">Do Later</div>
+        <div class="tomorrow-sub">A holding list for low-priority items</div>
+      </div>
+      <div style="font-size:11px;font-family:ui-monospace,monospace;color:var(--text-tertiary);" id="laterCount">0 items</div>
+    </div>
+    <div id="laterEmpty" class="empty-state">No items in Do Later.</div>
+    <ul id="laterList" class="goal-list"></ul>
+    <div class="input-row">
+      <input type="text" class="text-input" id="laterInput" placeholder="Add to Do Later…" autocomplete="off">
+      <button class="add-btn" id="laterAddBtn">+ Add</button>
+    </div>
+  </div>
 </div>
 
 
@@ -2005,21 +2020,126 @@ function buildGoalRow(g, idx, goals, key, readOnly, reload) {
   cb.onchange=()=>{ goals[idx].done=cb.checked; if(cb.checked) goals[idx].doneAt=Date.now(); else delete goals[idx].doneAt; ss(key,goals); reload(); window.dispatchEvent(new CustomEvent('data-changed')); };
   // Drag events
   if(!readOnly) {
-    li.addEventListener('dragstart', e => { e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain', idx); li.classList.add('dragging'); });
+    li.addEventListener('dragstart', e => {
+      e.dataTransfer.effectAllowed='move';
+      try { e.dataTransfer.setData('text/plain', JSON.stringify({ key, idx })); }
+      catch(err){ e.dataTransfer.setData('text/plain', String(idx)); }
+      li.classList.add('dragging');
+    });
     li.addEventListener('dragend', () => { li.classList.remove('dragging'); document.querySelectorAll('.goal-item').forEach(r=>r.classList.remove('drag-over')); });
     li.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='move'; document.querySelectorAll('.goal-item').forEach(r=>r.classList.remove('drag-over')); li.classList.add('drag-over'); });
     li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
     li.addEventListener('drop', e => {
       e.preventDefault(); li.classList.remove('drag-over');
-      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-      const toIdx = parseInt(li.dataset.index);
-      if(fromIdx===toIdx) return;
-      const [moved]=goals.splice(fromIdx,1);
-      goals.splice(toIdx,0,moved);
-      ss(key,goals); reload();
+      const payload = e.dataTransfer.getData('text/plain');
+      let parsed=null; try{ parsed=JSON.parse(payload); }catch(x){ parsed = { key, idx: parseInt(payload) }; }
+      const fromKey = parsed.key || key;
+      const fromIdx = Number(parsed.idx);
+      const toIdx = Number(li.dataset.index);
+      if(fromKey===key) {
+        if(fromIdx===toIdx) return;
+        const [moved]=goals.splice(fromIdx,1);
+        goals.splice(toIdx,0,moved);
+        ss(key,goals); reload();
+      } else {
+        // move item across lists
+        const fromList = sg(fromKey) || [];
+        const [moved] = fromList.splice(fromIdx,1);
+        const destList = sg(key) || [];
+        destList.splice(toIdx,0,moved);
+        ss(fromKey, fromList); ss(key, destList);
+        // reload both
+        reload(); if(fromKey!==key) { if(fromKey.startsWith('goals:')) loadGoals(); if(key.startsWith('goals:')) loadGoals(); loadTomorrow(); loadLater(); }
+      }
     });
   }
+  // Action menu: compact three-dot menu to push item to tomorrow or Do Later
+  if(!readOnly) {
+    li.style.position = li.style.position || 'relative';
+    const menuWrap = document.createElement('div');
+    menuWrap.style.position = 'absolute';
+    menuWrap.style.right = '8px';
+    menuWrap.style.top = '8px';
+    menuWrap.style.zIndex = '30';
+
+    const menuBtn = document.createElement('button');
+    menuBtn.className = 'goal-menu-btn';
+    menuBtn.title = 'More';
+    menuBtn.textContent = '⋯';
+    menuBtn.style.background = 'transparent';
+    menuBtn.style.border = 'none';
+    menuBtn.style.color = 'var(--text-tertiary)';
+    menuBtn.style.fontSize = '16px';
+    menuBtn.style.cursor = 'pointer';
+
+    const menuDropdown = document.createElement('div');
+    menuDropdown.className = 'goal-menu-dropdown';
+    menuDropdown.style.display = 'none';
+    menuDropdown.style.position = 'absolute';
+    menuDropdown.style.right = '0';
+    menuDropdown.style.top = '34px';
+    menuDropdown.style.minWidth = '140px';
+    menuDropdown.style.background = 'rgba(17,17,19,0.98)';
+    menuDropdown.style.border = '1px solid rgba(255,255,255,.06)';
+    menuDropdown.style.borderRadius = '8px';
+    menuDropdown.style.padding = '6px';
+    menuDropdown.style.boxShadow = '0 6px 18px rgba(0,0,0,.45)';
+
+    const optTomorrow = document.createElement('button');
+    optTomorrow.className = 'pb-sec-btn';
+    optTomorrow.style.display = 'block';
+    optTomorrow.style.width = '100%';
+    optTomorrow.style.textAlign = 'left';
+    optTomorrow.style.padding = '6px 8px';
+    optTomorrow.textContent = '→ Tomorrow';
+    optTomorrow.onclick = (ev) => {
+      ev.stopPropagation();
+      const tkey = 'goals:'+tmrDate(); const tlist = sg(tkey)||[]; const tSet=new Set(tlist.map(x=>x.text));
+      if(!tSet.has(g.text)) tlist.push({text:g.text,done:false}); ss(tkey,tlist);
+      goals.splice(idx,1); ss(key,goals); reload(); loadTomorrow();
+      menuDropdown.style.display = 'none';
+    };
+
+    const optLater = document.createElement('button');
+    optLater.className = 'pb-sec-btn';
+    optLater.style.display = 'block';
+    optLater.style.width = '100%';
+    optLater.style.textAlign = 'left';
+    optLater.style.padding = '6px 8px';
+    optLater.textContent = '… Later';
+    optLater.onclick = (ev) => {
+      ev.stopPropagation();
+      const lkey = 'goals:later'; const llist = sg(lkey)||[]; llist.push({text:g.text,done:false}); ss(lkey,llist);
+      goals.splice(idx,1); ss(key,goals); reload(); loadLater();
+      menuDropdown.style.display = 'none';
+    };
+
+    menuDropdown.appendChild(optTomorrow);
+    menuDropdown.appendChild(optLater);
+    menuDropdown.addEventListener('click', e=>e.stopPropagation());
+
+    menuBtn.onclick = (e) => { e.stopPropagation(); menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block'; };
+
+    // ensure a single global click-to-close handler
+    if(!window._goalMenuGlobalInit) {
+      document.addEventListener('click', ()=>{
+        document.querySelectorAll('.goal-menu-dropdown').forEach(d=>d.style.display='none');
+      });
+      window._goalMenuGlobalInit = true;
+    }
+
+    menuWrap.appendChild(menuBtn);
+    menuWrap.appendChild(menuDropdown);
+    li.appendChild(menuWrap);
+  }
   return li;
+}
+function loadLater() {
+  const key = 'goals:later'; const goals = sg(key)||[];
+  const list = document.getElementById('laterList'); list.innerHTML='';
+  document.getElementById('laterEmpty').style.display = goals.length ? 'none' : 'block';
+  goals.forEach((g,i)=>list.appendChild(buildGoalRow(g,i,goals,key,false,loadLater)));
+  document.getElementById('laterCount').textContent = goals.length + ' items';
 }
 function loadGoals() {
   const key='goals:'+activeDate(); const goals=sg(key)||[];
@@ -2044,6 +2164,8 @@ document.getElementById('goalAddBtn').onclick=()=>{ addGoal('goals:'+activeDate(
 document.getElementById('goalInput').onkeydown=e=>{ if(e.key==='Enter'){document.getElementById('goalAddBtn').click();} };
 document.getElementById('tomorrowAddBtn').onclick=()=>{ addGoal('goals:'+tmrDate(),document.getElementById('tomorrowInput').value,loadTomorrow); document.getElementById('tomorrowInput').value=''; };
 document.getElementById('tomorrowInput').onkeydown=e=>{ if(e.key==='Enter'){document.getElementById('tomorrowAddBtn').click();} };
+document.getElementById('laterAddBtn').onclick=()=>{ addGoal('goals:later',document.getElementById('laterInput').value,loadLater); document.getElementById('laterInput').value=''; };
+document.getElementById('laterInput').onkeydown=e=>{ if(e.key==='Enter'){document.getElementById('laterAddBtn').click();} };
 document.getElementById('pushBtn').onclick=()=>{
   if(!confirm('Push unchecked goals to tomorrow?')) return;
   const tk='goals:'+activeDate(), mk='goals:'+tmrDate();
@@ -2051,6 +2173,29 @@ document.getElementById('pushBtn').onclick=()=>{
   today.filter(g=>!g.done).forEach(g=>{ if(!tmrT.has(g.text)) tmr.push({text:g.text,done:false}); });
   ss(mk,tmr); ss(tk,today.filter(g=>g.done)); loadGoals(); loadTomorrow();
 };
+
+// Allow dropping onto the tomorrow and later lists (to append when dropping on empty space)
+['tomorrowList','laterList'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; el.classList.add('drag-over'); });
+  el.addEventListener('dragleave', ()=>el.classList.remove('drag-over'));
+  el.addEventListener('drop', e=>{
+    e.preventDefault(); el.classList.remove('drag-over');
+    const payload = e.dataTransfer.getData('text/plain');
+    let parsed=null; try{ parsed=JSON.parse(payload); }catch(x){ parsed = { key: null, idx: Number(payload) }; }
+    const toKey = id==='tomorrowList' ? 'goals:'+tmrDate() : 'goals:later';
+    const dest = sg(toKey)||[];
+    if(parsed && parsed.key){
+      const fromKey = parsed.key;
+      const fromIdx = Number(parsed.idx);
+      const fromList = sg(fromKey) || [];
+      const [moved] = fromList.splice(fromIdx,1);
+      dest.push(moved);
+      ss(fromKey, fromList); ss(toKey, dest);
+      loadGoals(); loadTomorrow(); loadLater();
+    }
+  });
+});
 
 // ═══════════════════════════════════════════
 // DAY RING
@@ -3301,7 +3446,7 @@ renderTicker();
 renderHabits(); renderStreakTable();
 renderSignal(); setInterval(renderSignal,60000);
 renderDocs();
-loadGoals(); loadTomorrow();
+loadGoals(); loadTomorrow(); loadLater();
 renderRadar();
 updateStreak();
 checkAutoCoach();
