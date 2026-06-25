@@ -734,6 +734,58 @@ body>*{position:relative;z-index:1;}
 .pb-img-upload-btn:hover{border-color:rgba(255,255,255,.3);color:var(--text-secondary);}
 .pb-img-picker-actions{display:flex;gap:8px;}
 
+/* WEIGHT TRACKER */
+.wt-input-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;}
+.wt-field-group{display:flex;flex-direction:column;gap:4px;}
+.wt-field-label{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;}
+.wt-inp{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;font-size:15px;color:var(--text-primary);font-family:ui-monospace,monospace;outline:none;width:110px;transition:border-color .2s;}
+.wt-inp:focus{border-color:rgba(255,255,255,.25);}
+.wt-date-inp{width:150px;font-size:13px;}
+.wt-note-inp{flex:1;min-width:120px;font-size:13px;font-family:inherit;}
+.wt-log-btn{padding:10px 18px;border-radius:10px;border:none;background:linear-gradient(180deg,#fff 0%,#E8E5DD 100%);color:#0A0A0B;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);align-self:flex-end;}
+.wt-log-btn:hover{filter:brightness(1.05);}
+.wt-stats-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding:14px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid rgba(255,255,255,.05);}
+.wt-stat{display:flex;flex-direction:column;gap:2px;flex:1;min-width:70px;}
+.wt-stat-val{font-size:22px;font-weight:700;font-family:ui-monospace,monospace;letter-spacing:-.03em;color:var(--text-primary);}
+.wt-stat-val.up{color:#FF6B6B;}
+.wt-stat-val.down{color:#6BE3A4;}
+.wt-stat-val.neutral{color:var(--warning);}
+.wt-stat-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;}
+.wt-chart-wrap{position:relative;height:200px;margin-bottom:18px;}
+.wt-chart-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.wt-tab{padding:5px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text-tertiary);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;}
+.wt-tab.active{background:rgba(107,178,227,.15);border-color:rgba(107,178,227,.35);color:#6BB2E3;}
+.wt-log-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;}
+.wt-log-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid rgba(255,255,255,.05);}
+.wt-log-date{font-size:11px;font-family:ui-monospace,monospace;color:var(--text-tertiary);min-width:80px;}
+.wt-log-weight{font-size:14px;font-weight:700;font-family:ui-monospace,monospace;color:var(--text-primary);min-width:65px;}
+.wt-log-delta{font-size:11px;font-family:ui-monospace,monospace;min-width:50px;}
+.wt-log-delta.pos{color:#FF6B6B;}
+.wt-log-delta.neg{color:#6BE3A4;}
+.wt-log-note{font-size:11px;color:var(--text-tertiary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wt-log-del{background:none;border:none;cursor:pointer;color:var(--text-tertiary);font-size:12px;opacity:0;padding:3px;transition:opacity .15s;}
+.wt-log-item:hover .wt-log-del{opacity:.5;}
+.wt-log-del:hover{color:var(--danger);opacity:1!important;}
+.wt-analysis-box{margin-top:14px;padding:14px;background:rgba(107,178,227,.05);border:1px solid rgba(107,178,227,.15);border-radius:12px;font-size:12px;color:var(--text-secondary);line-height:1.75;}
+.wt-analysis-box strong{color:var(--text-primary);}
+.wt-section-title{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-bottom:10px;}
+.wt-empty{font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:20px 0;}
+.wt-bmi-bar-wrap{margin-bottom:18px;}
+.wt-bmi-bar{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,#6BB2E3 0%,#6BE3A4 25%,#F2C063 55%,#FF6B6B 80%,#c0392b 100%);margin:8px 0;}
+.wt-bmi-needle{position:absolute;top:-4px;width:2px;height:16px;background:#fff;border-radius:1px;transform:translateX(-50%);transition:left .5s cubic-bezier(.22,1,.36,1);}
+.wt-bmi-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text-tertiary);font-family:ui-monospace,monospace;}
+.wt-bmi-val{font-size:18px;font-weight:700;font-family:ui-monospace,monospace;color:var(--text-primary);}
+.wt-mini-bars{display:flex;align-items:flex-end;gap:3px;height:50px;margin-top:8px;}
+.wt-mini-bar{flex:1;border-radius:3px 3px 0 0;background:rgba(107,178,227,.35);min-height:3px;transition:height .3s ease;}
+.wt-goal-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.wt-goal-inp{width:90px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text-primary);font-family:ui-monospace,monospace;outline:none;}
+.wt-goal-inp:focus{border-color:rgba(255,255,255,.25);}
+.wt-goal-set-btn{padding:7px 14px;border-radius:8px;border:1px solid rgba(107,178,227,.3);background:rgba(107,178,227,.1);color:#6BB2E3;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.wt-goal-progress{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.wt-goal-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;}
+.wt-goal-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#6BB2E3,#6BE3A4);transition:width .5s ease;}
+.wt-goal-pct{font-size:11px;font-family:ui-monospace,monospace;color:var(--text-tertiary);}
+
 /* TYPOGRAPHY — HEADINGS */
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
 .os-header-right h1,.modal h2,.section-label,.cmd-title,.pb-modal-title,
@@ -896,6 +948,7 @@ margin-left:8px;
 .nav-rail.mobile-open .nav-link:nth-child(5){transform:translateY(-250px);opacity:1;pointer-events:auto;}
 .nav-rail.mobile-open .nav-link:nth-child(6){transform:translateY(-310px);opacity:1;pointer-events:auto;}
 .nav-rail.mobile-open .nav-link:nth-child(7){transform:translateY(-370px);opacity:1;pointer-events:auto;}
+.nav-rail.mobile-open .nav-link:nth-child(8){transform:translateY(-430px);opacity:1;pointer-events:auto;}
 }
 </style>
 </head>
@@ -909,6 +962,8 @@ margin-left:8px;
     <a href="#radarChart" class="nav-link"><span class="nav-icon">◔</span><span class="nav-text">Progress</span></a>
     <a href="#ankiGrid" class="nav-link"><span class="nav-icon">◌</span><span class="nav-text">Anki Map</span></a>
     <a href="#goalList" class="nav-link"><span class="nav-icon">⌘</span><span class="nav-text">Tasks</span></a>
+    <a href="#wtSection" class="nav-link"><span class="nav-icon">⊛</span><span class="nav-text">Weight</span></a>
+    <a href="#terminalPanel" class="nav-link"><span class="nav-icon">◬</span><span class="nav-text">Terminal</span></a>
   </div>
 </nav>
 
@@ -1088,6 +1143,94 @@ margin-left:8px;
   </div>
 </div>
 
+<!-- WEIGHT TRACKER -->
+<div class="section" id="wtSection">
+  <div class="section-label">Body Weight</div>
+  <div class="card">
+
+    <!-- Log Input -->
+    <div class="wt-section-title">Log Weight</div>
+    <div class="wt-input-row">
+      <div class="wt-field-group">
+        <div class="wt-field-label">Weight (kg)</div>
+        <input class="wt-inp" id="wtWeightInp" type="number" step="0.1" min="20" max="300" placeholder="75.5">
+      </div>
+      <div class="wt-field-group">
+        <div class="wt-field-label">Date</div>
+        <input class="wt-inp wt-date-inp" id="wtDateInp" type="date">
+      </div>
+      <div class="wt-field-group" style="flex:1">
+        <div class="wt-field-label">Note (optional)</div>
+        <input class="wt-inp wt-note-inp" id="wtNoteInp" type="text" placeholder="e.g. post-workout, morning">
+      </div>
+      <button class="wt-log-btn" onclick="wtLog()">+ Log</button>
+    </div>
+
+    <!-- Goal Row -->
+    <div class="wt-section-title">Goal Weight</div>
+    <div class="wt-goal-row">
+      <input class="wt-goal-inp" id="wtGoalInp" type="number" step="0.1" placeholder="Goal kg">
+      <button class="wt-goal-set-btn" onclick="wtSetGoal()">Set Goal</button>
+      <span id="wtGoalStatus" style="font-size:11px;color:var(--text-tertiary);"></span>
+    </div>
+    <div class="wt-goal-progress" id="wtGoalProgress" style="display:none;">
+      <div class="wt-goal-bar-wrap"><div class="wt-goal-bar-fill" id="wtGoalBarFill" style="width:0%"></div></div>
+      <div class="wt-goal-pct" id="wtGoalPct">0%</div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="wt-stats-row" id="wtStatsRow">
+      <div class="wt-stat"><div class="wt-stat-val" id="wtStatCurrent">—</div><div class="wt-stat-lbl">Current</div></div>
+      <div class="wt-stat"><div class="wt-stat-val" id="wtStatStart">—</div><div class="wt-stat-lbl">Starting</div></div>
+      <div class="wt-stat"><div class="wt-stat-val" id="wtStatChange">—</div><div class="wt-stat-lbl">Total Change</div></div>
+      <div class="wt-stat"><div class="wt-stat-val" id="wtStatAvg7">—</div><div class="wt-stat-lbl">7-Day Avg</div></div>
+      <div class="wt-stat"><div class="wt-stat-val" id="wtStatTrend">—</div><div class="wt-stat-lbl">Weekly Trend</div></div>
+      <div class="wt-stat"><div class="wt-stat-val" id="wtStatLogs">—</div><div class="wt-stat-lbl">Logs</div></div>
+    </div>
+
+    <!-- BMI -->
+    <div class="wt-section-title">BMI</div>
+    <div class="wt-bmi-bar-wrap" id="wtBmiWrap">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
+        <div class="wt-bmi-val" id="wtBmiVal">—</div>
+        <span id="wtBmiLabel" style="font-size:11px;color:var(--text-tertiary);"></span>
+      </div>
+      <div class="wt-bmi-bar">
+        <div class="wt-bmi-needle" id="wtBmiNeedle" style="left:50%"></div>
+      </div>
+      <div class="wt-bmi-labels">
+        <span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span>
+      </div>
+      <div style="font-size:9px;color:var(--text-tertiary);margin-top:4px;font-family:ui-monospace,monospace;">Height used: <span id="wtHeightUsed">—</span> cm · <button onclick="wtSetHeight()" style="background:none;border:none;color:var(--text-tertiary);font-size:9px;cursor:pointer;text-decoration:underline;font-family:ui-monospace,monospace;">change</button></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="wt-section-title" style="margin-top:16px;">Weight Trend</div>
+    <div class="wt-chart-tabs">
+      <button class="wt-tab active" onclick="wtSetRange('all',this)">All</button>
+      <button class="wt-tab" onclick="wtSetRange('90',this)">90d</button>
+      <button class="wt-tab" onclick="wtSetRange('30',this)">30d</button>
+      <button class="wt-tab" onclick="wtSetRange('14',this)">14d</button>
+    </div>
+    <div class="wt-chart-wrap"><canvas id="wtChart"></canvas></div>
+
+    <!-- Mini bar sparkline (monthly distribution) -->
+    <div class="wt-section-title">Monthly Frequency</div>
+    <div class="wt-mini-bars" id="wtMiniBars"></div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-tertiary);font-family:ui-monospace,monospace;margin-top:4px;" id="wtMiniBarLabels"></div>
+
+    <!-- Analysis Box -->
+    <div class="wt-analysis-box" id="wtAnalysis" style="display:none;"></div>
+
+    <!-- Log List -->
+    <div class="wt-section-title" style="margin-top:16px;">History</div>
+    <div class="wt-log-list" id="wtLogList">
+      <div class="wt-empty">No entries yet. Log your first weight above.</div>
+    </div>
+
+  </div>
+</div>
+
 <!-- DOCUMENT VAULT -->
 <div class="section" id="docVaultSection">
   <div class="section-label">Document Vault</div>
@@ -1206,43 +1349,27 @@ margin-left:8px;
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
   const nav=document.querySelector('.nav-rail');
-  const links=document.querySelectorAll('.nav-link');
 
-  links.forEach(link=>{
-    link.addEventListener('click',e=>{
-      e.preventDefault();
-      const target=document.querySelector(link.getAttribute('href'));
-      if(target){
-        target.scrollIntoView({behavior:'smooth',block:'start'});
-      }
-      nav.classList.remove('mobile-open');
-    });
+  nav.addEventListener('touchstart',()=>{
+    holdTimer=setTimeout(()=>{
+      nav.classList.add('mobile-open');
+    },180);
+  },{passive:true});
+
+  nav.addEventListener('touchend',()=>{
+    clearTimeout(holdTimer);
+    setTimeout(()=>nav.classList.remove('mobile-open'),250);
   });
 
-  if(window.innerWidth<=900){
-    let holdTimer=null;
-
-    nav.addEventListener('touchstart',()=>{
-      holdTimer=setTimeout(()=>{
-        nav.classList.add('mobile-open');
-      },180);
-    },{passive:true});
-
-    nav.addEventListener('touchend',()=>{
-      clearTimeout(holdTimer);
-      setTimeout(()=>nav.classList.remove('mobile-open'),250);
-    });
-
-    nav.addEventListener('touchmove',e=>{
-      const touch=e.touches[0];
-      if(!touch) return;
-      const el=document.elementFromPoint(touch.clientX,touch.clientY);
-      const link=el?.closest('.nav-link');
-      if(link && nav.classList.contains('mobile-open')){
-        link.click();
-      }
-    },{passive:true});
-  }
+  nav.addEventListener('touchmove',e=>{
+    const touch=e.touches[0];
+    if(!touch) return;
+    const el=document.elementFromPoint(touch.clientX,touch.clientY);
+    const link=el?.closest('.nav-link');
+    if(link && nav.classList.contains('mobile-open')){
+      link.click();
+    }
+  },{passive:true});
 });
 // ═══════════════════════════════════════════
 // KRIS PERMANENT CONTEXT
@@ -3651,8 +3778,419 @@ document.addEventListener('keydown', e => {
 pbRenderGrid();
 
 // ═══════════════════════════════════════════
-// INIT
+// WEIGHT TRACKER
 // ═══════════════════════════════════════════
+(function() {
+  const WT_KEY = '_wt_entries';
+  const WT_HEIGHT_KEY = '_wt_height';
+  const WT_GOAL_KEY = '_wt_goal';
+  let wtChart = null;
+  let wtRange = 'all';
+
+  // Load / Save
+  function wtLoad() {
+    try { return JSON.parse(localStorage.getItem(WT_KEY)) || []; } catch { return []; }
+  }
+  function wtSave(entries) {
+    localStorage.setItem(WT_KEY, JSON.stringify(entries));
+  }
+  function wtGetHeight() {
+    return parseFloat(localStorage.getItem(WT_HEIGHT_KEY)) || null;
+  }
+  function wtGetGoal() {
+    return parseFloat(localStorage.getItem(WT_GOAL_KEY)) || null;
+  }
+
+  // Log new entry
+  window.wtLog = function() {
+    const wRaw = document.getElementById('wtWeightInp').value;
+    const dateRaw = document.getElementById('wtDateInp').value;
+    const note = document.getElementById('wtNoteInp').value.trim();
+    const w = parseFloat(wRaw);
+    if (!w || w < 20 || w > 300) { alert('Enter a valid weight (20–300 kg)'); return; }
+    const date = dateRaw || new Date().toISOString().slice(0,10);
+    const entries = wtLoad();
+    // Replace if same date
+    const idx = entries.findIndex(e => e.date === date);
+    if (idx !== -1) {
+      if (!confirm(`You already logged ${entries[idx].weight} kg on ${date}. Replace it?`)) return;
+      entries[idx] = { date, weight: w, note };
+    } else {
+      entries.push({ date, weight: w, note });
+    }
+    entries.sort((a,b) => a.date.localeCompare(b.date));
+    wtSave(entries);
+    document.getElementById('wtWeightInp').value = '';
+    document.getElementById('wtNoteInp').value = '';
+    wtRender();
+  };
+
+  window.wtSetGoal = function() {
+    const g = parseFloat(document.getElementById('wtGoalInp').value);
+    if (!g || g < 20 || g > 300) { alert('Enter a valid goal weight'); return; }
+    localStorage.setItem(WT_GOAL_KEY, g);
+    wtRender();
+  };
+
+  window.wtSetHeight = function() {
+    const h = prompt('Enter your height in cm (e.g. 175):', wtGetHeight() || '');
+    if (!h) return;
+    const hv = parseFloat(h);
+    if (!hv || hv < 100 || hv > 250) { alert('Invalid height'); return; }
+    localStorage.setItem(WT_HEIGHT_KEY, hv);
+    wtRender();
+  };
+
+  window.wtSetRange = function(range, btn) {
+    wtRange = range;
+    document.querySelectorAll('.wt-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    wtRender();
+  };
+
+  window.wtDeleteEntry = function(date) {
+    if (!confirm(`Delete entry for ${date}?`)) return;
+    const entries = wtLoad().filter(e => e.date !== date);
+    wtSave(entries);
+    wtRender();
+  };
+
+  // Filter entries by range
+  function wtFiltered(entries) {
+    if (wtRange === 'all') return entries;
+    const days = parseInt(wtRange);
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - days);
+    const cutoffStr = cutoff.toISOString().slice(0,10);
+    return entries.filter(e => e.date >= cutoffStr);
+  }
+
+  // Rolling 7-day average
+  function wtRollingAvg(entries, days) {
+    return entries.map((entry, i) => {
+      const cutoff = new Date(entry.date); cutoff.setDate(cutoff.getDate() - days + 1);
+      const cutoffStr = cutoff.toISOString().slice(0,10);
+      const window = entries.slice(0, i+1).filter(e => e.date >= cutoffStr);
+      return window.reduce((s,e) => s + e.weight, 0) / window.length;
+    });
+  }
+
+  // BMI
+  function wtBMI(weight, heightCm) {
+    const h = heightCm / 100;
+    return weight / (h * h);
+  }
+  function wtBMILabel(bmi) {
+    if (bmi < 18.5) return { label: 'Underweight', color: '#6BB2E3' };
+    if (bmi < 25)   return { label: 'Normal', color: '#6BE3A4' };
+    if (bmi < 30)   return { label: 'Overweight', color: '#F2C063' };
+    return              { label: 'Obese', color: '#FF6B6B' };
+  }
+  // BMI 10–40 mapped to 0–100%
+  function wtBMIPercent(bmi) {
+    return Math.min(100, Math.max(0, ((bmi - 10) / 30) * 100));
+  }
+
+  // Main render
+  function wtRender() {
+    const allEntries = wtLoad();
+    const entries = wtFiltered(allEntries);
+
+    // Set today as default date
+    const di = document.getElementById('wtDateInp');
+    if (!di.value) di.value = new Date().toISOString().slice(0,10);
+
+    // Goal
+    const goal = wtGetGoal();
+    if (goal) {
+      document.getElementById('wtGoalInp').value = goal;
+      document.getElementById('wtGoalStatus').textContent = `Goal: ${goal} kg`;
+    }
+
+    if (allEntries.length === 0) {
+      wtUpdateStats(null);
+      wtRenderChart([]);
+      wtRenderMiniBar(allEntries);
+      wtRenderLogList([]);
+      wtRenderAnalysis(null, null);
+      return;
+    }
+
+    // Stats from all entries
+    const latest = allEntries[allEntries.length - 1];
+    const first = allEntries[0];
+    const change = latest.weight - first.weight;
+    const last7 = allEntries.filter(e => {
+      const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+      return e.date >= cutoff.toISOString().slice(0,10);
+    });
+    const avg7 = last7.length ? last7.reduce((s,e) => s + e.weight, 0) / last7.length : null;
+
+    // Weekly trend (linear regression over last 14 days)
+    const last14 = allEntries.filter(e => {
+      const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 14);
+      return e.date >= cutoff.toISOString().slice(0,10);
+    });
+    let weeklyTrend = null;
+    if (last14.length >= 2) {
+      const xs = last14.map((e,i) => i);
+      const ys = last14.map(e => e.weight);
+      const n = xs.length;
+      const sx = xs.reduce((a,b)=>a+b,0), sy = ys.reduce((a,b)=>a+b,0);
+      const sxy = xs.reduce((a,x,i)=>a+x*ys[i],0), sxx = xs.reduce((a,x)=>a+x*x,0);
+      const slope = (n*sxy - sx*sy) / (n*sxx - sx*sx);
+      weeklyTrend = slope * 7; // kg/week
+    }
+
+    wtUpdateStats({ latest, first, change, avg7, weeklyTrend, total: allEntries.length });
+    wtRenderGoalProgress(goal, allEntries);
+    wtRenderBMI(latest.weight);
+    wtRenderChart(entries);
+    wtRenderMiniBar(allEntries);
+    wtRenderLogList([...allEntries].reverse());
+    wtRenderAnalysis(allEntries, weeklyTrend);
+  }
+
+  function wtUpdateStats(d) {
+    const set = (id, val, cls) => {
+      const el = document.getElementById(id);
+      el.textContent = val;
+      el.className = 'wt-stat-val' + (cls ? ' ' + cls : '');
+    };
+    if (!d) {
+      ['wtStatCurrent','wtStatStart','wtStatChange','wtStatAvg7','wtStatTrend','wtStatLogs'].forEach(id => set(id,'—'));
+      return;
+    }
+    set('wtStatCurrent', d.latest.weight.toFixed(1) + ' kg');
+    set('wtStatStart', d.first.weight.toFixed(1) + ' kg');
+    const changeSign = d.change > 0 ? '+' : '';
+    set('wtStatChange', changeSign + d.change.toFixed(1) + ' kg', d.change > 0.5 ? 'up' : d.change < -0.5 ? 'down' : 'neutral');
+    set('wtStatAvg7', d.avg7 ? d.avg7.toFixed(1) + ' kg' : '—');
+    if (d.weeklyTrend !== null) {
+      const sign = d.weeklyTrend > 0 ? '+' : '';
+      set('wtStatTrend', sign + d.weeklyTrend.toFixed(2) + ' kg/wk', d.weeklyTrend > 0.1 ? 'up' : d.weeklyTrend < -0.1 ? 'down' : 'neutral');
+    } else {
+      set('wtStatTrend', '—');
+    }
+    set('wtStatLogs', d.total);
+  }
+
+  function wtRenderGoalProgress(goal, entries) {
+    const wrap = document.getElementById('wtGoalProgress');
+    if (!goal || entries.length === 0) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'flex';
+    const start = entries[0].weight;
+    const current = entries[entries.length-1].weight;
+    const total = Math.abs(goal - start);
+    const done = Math.abs(current - start);
+    const pct = total === 0 ? 100 : Math.min(100, Math.round((done / total) * 100));
+    document.getElementById('wtGoalBarFill').style.width = pct + '%';
+    document.getElementById('wtGoalPct').textContent = pct + '%';
+    document.getElementById('wtGoalStatus').textContent = `Goal: ${goal} kg · ${Math.abs(current - goal).toFixed(1)} kg to go`;
+  }
+
+  function wtRenderBMI(weight) {
+    const h = wtGetHeight();
+    document.getElementById('wtHeightUsed').textContent = h ? h : 'not set';
+    if (!h) {
+      document.getElementById('wtBmiVal').textContent = '—';
+      document.getElementById('wtBmiLabel').textContent = 'Set height to calculate BMI';
+      document.getElementById('wtBmiNeedle').style.left = '50%';
+      return;
+    }
+    const bmi = wtBMI(weight, h);
+    const info = wtBMILabel(bmi);
+    document.getElementById('wtBmiVal').textContent = bmi.toFixed(1);
+    const lbl = document.getElementById('wtBmiLabel');
+    lbl.textContent = info.label;
+    lbl.style.color = info.color;
+    document.getElementById('wtBmiNeedle').style.left = wtBMIPercent(bmi) + '%';
+  }
+
+  function wtRenderChart(entries) {
+    const canvas = document.getElementById('wtChart');
+    if (wtChart) { wtChart.destroy(); wtChart = null; }
+    if (entries.length === 0) return;
+    const labels = entries.map(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    });
+    const weights = entries.map(e => e.weight);
+    const rolling = wtRollingAvg(entries, 7);
+
+    const ctx = canvas.getContext('2d');
+    wtChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Weight (kg)',
+            data: weights,
+            borderColor: 'rgba(107,178,227,0.7)',
+            backgroundColor: 'rgba(107,178,227,0.08)',
+            pointBackgroundColor: 'rgba(107,178,227,0.9)',
+            pointRadius: entries.length > 30 ? 2 : 4,
+            pointHoverRadius: 6,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.35,
+          },
+          {
+            label: '7-Day Avg',
+            data: rolling,
+            borderColor: 'rgba(107,227,164,0.8)',
+            backgroundColor: 'transparent',
+            pointRadius: 0,
+            borderWidth: 2,
+            borderDash: [4,4],
+            tension: 0.35,
+            fill: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: { color: 'rgba(255,255,255,0.45)', font: { size: 10 }, boxWidth: 12 }
+          },
+          tooltip: {
+            backgroundColor: '#111113',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            titleColor: '#fff',
+            bodyColor: 'rgba(255,255,255,0.65)',
+            callbacks: {
+              afterBody: (items) => {
+                const idx = items[0].dataIndex;
+                const note = entries[idx].note;
+                return note ? ['', '📝 ' + note] : [];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 }, maxTicksLimit: 8 },
+            grid: { color: 'rgba(255,255,255,0.04)' }
+          },
+          y: {
+            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 },
+              callback: v => v.toFixed(1) + ' kg'
+            },
+            grid: { color: 'rgba(255,255,255,0.06)' }
+          }
+        }
+      }
+    });
+  }
+
+  function wtRenderMiniBar(entries) {
+    const container = document.getElementById('wtMiniBars');
+    const labelContainer = document.getElementById('wtMiniBarLabels');
+    container.innerHTML = '';
+    labelContainer.innerHTML = '';
+    if (entries.length === 0) return;
+    // Last 6 months
+    const months = [];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = d.toISOString().slice(0,7);
+      const label = d.toLocaleDateString('en-US', { month: 'short' });
+      const count = entries.filter(e => e.date.slice(0,7) === key).length;
+      months.push({ key, label, count });
+    }
+    const max = Math.max(1, ...months.map(m => m.count));
+    months.forEach(m => {
+      const bar = document.createElement('div');
+      bar.className = 'wt-mini-bar';
+      bar.style.height = Math.max(4, (m.count / max) * 50) + 'px';
+      bar.title = `${m.label}: ${m.count} log${m.count !== 1 ? 's' : ''}`;
+      container.appendChild(bar);
+      const lbl = document.createElement('span');
+      lbl.textContent = m.label;
+      labelContainer.appendChild(lbl);
+    });
+  }
+
+  function wtRenderAnalysis(entries, weeklyTrend) {
+    const box = document.getElementById('wtAnalysis');
+    if (!entries || entries.length < 2) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    const latest = entries[entries.length-1].weight;
+    const first = entries[0].weight;
+    const totalDays = Math.max(1, (new Date(entries[entries.length-1].date) - new Date(entries[0].date)) / 86400000);
+    const avgPerWeek = ((latest - first) / totalDays) * 7;
+    let analysis = '';
+    const sign = avgPerWeek >= 0 ? '+' : '';
+    analysis += `<strong>Overall:</strong> ${sign}${avgPerWeek.toFixed(2)} kg/week average over ${Math.round(totalDays)} days. `;
+
+    if (weeklyTrend !== null) {
+      if (weeklyTrend > 0.3) analysis += `Recent trend: <strong style="color:#FF6B6B">gaining ${weeklyTrend.toFixed(2)} kg/week</strong>. `;
+      else if (weeklyTrend < -0.3) analysis += `Recent trend: <strong style="color:#6BE3A4">losing ${Math.abs(weeklyTrend).toFixed(2)} kg/week</strong>. `;
+      else analysis += `Recent trend: <strong style="color:#F2C063">weight is stable</strong> (${weeklyTrend > 0 ? '+' : ''}${weeklyTrend.toFixed(2)} kg/week). `;
+    }
+
+    // Bulk-up context: goal is muscle gain
+    const goal = wtGetGoal();
+    if (goal) {
+      const diff = goal - latest;
+      if (Math.abs(diff) < 0.5) {
+        analysis += `🎯 <strong>Goal reached!</strong> Maintain and focus on body composition. `;
+      } else if (diff > 0) {
+        analysis += `⬆ <strong>${diff.toFixed(1)} kg to bulk goal.</strong> `;
+        if (weeklyTrend !== null && weeklyTrend > 0.1) {
+          const weeksLeft = Math.ceil(diff / weeklyTrend);
+          analysis += `At current pace: ~${weeksLeft} weeks. `;
+        }
+      } else {
+        analysis += `You're ${Math.abs(diff).toFixed(1)} kg above goal. `;
+      }
+    }
+
+    // Muscle-gain advice
+    if (weeklyTrend !== null) {
+      if (weeklyTrend > 0.5) analysis += `⚠ Gaining faster than ideal for lean bulk (>0.5 kg/wk risks more fat). Consider slightly reducing surplus.`;
+      else if (weeklyTrend > 0.1 && weeklyTrend <= 0.5) analysis += `✅ Ideal lean-bulk pace (0.1–0.5 kg/wk).`;
+      else if (weeklyTrend >= -0.1 && weeklyTrend <= 0.1) analysis += `Keep pushing — increase caloric surplus slightly to start gaining.`;
+      else analysis += `You're in a deficit — shift to a slight surplus for muscle gain.`;
+    }
+
+    box.innerHTML = analysis;
+  }
+
+  function wtRenderLogList(entries) {
+    const container = document.getElementById('wtLogList');
+    if (entries.length === 0) {
+      container.innerHTML = '<div class="wt-empty">No entries yet. Log your first weight above.</div>';
+      return;
+    }
+    container.innerHTML = entries.map((e, i) => {
+      const prev = entries[i+1]; // reversed list, so +1 is earlier
+      let delta = '';
+      if (prev) {
+        const d = e.weight - prev.weight;
+        const sign = d >= 0 ? '+' : '';
+        delta = `<span class="wt-log-delta ${d > 0 ? 'pos' : 'neg'}">${sign}${d.toFixed(1)}</span>`;
+      }
+      return `<div class="wt-log-item">
+        <span class="wt-log-date">${e.date}</span>
+        <span class="wt-log-weight">${e.weight.toFixed(1)} kg</span>
+        ${delta}
+        <span class="wt-log-note">${e.note || ''}</span>
+        <button class="wt-log-del" onclick="wtDeleteEntry('${e.date}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  // Initial render
+  wtRender();
+})();
+
+
 doRollover();
 // One-time migration: rename "Daily Journaling for 10 minutes" → "Daily Journaling"
 (()=>{
